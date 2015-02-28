@@ -49,7 +49,7 @@ public class CloudExample {
         //belongs to user1
         Vm vm1 = new Vm(vmId, brokerId1, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
         //belongs to user2
-        Vm vm2 = new Vm(vmId, brokerId1, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+        Vm vm2 = new Vm(vmId, brokerId2, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 
         vmList1.add(vm1);
         vmList2.add(vm2);
