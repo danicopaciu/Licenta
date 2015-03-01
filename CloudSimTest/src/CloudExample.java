@@ -85,7 +85,7 @@ public class CloudExample {
 
             //create two VMs: the first one belongs to user1
             Vm vm1 = new Vm(vmid, brokerId1, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
-
+            vmid++;
             //the second VM: this one belongs to user2
             Vm vm2 = new Vm(vmid, brokerId2, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 
@@ -103,20 +103,27 @@ public class CloudExample {
 
             //Cloudlet properties
             int id = 0;
-            long length = 4000000;
+            long length = 400;
             long fileSize = 300;
             long outputSize = 300;
             UtilizationModel utilizationModel = new UtilizationModelFull();
 
-            Cloudlet cloudlet1 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-            cloudlet1.setUserId(brokerId1);
-            id++;
-            Cloudlet cloudlet2 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-            cloudlet2.setUserId(brokerId2);
+            for(int i = 0 ; i < 100000; i++){
+                Cloudlet cloudlet = new Cloudlet(i, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+                if(i % 2 == 0) {
+                    cloudlet.setUserId(brokerId1);
+                    cloudletList1.add(cloudlet);
+                }else{
+                    cloudlet.setUserId(brokerId2);
+                    cloudletList2.add(cloudlet);
+                }
+
+            }
+//            Cloudlet cloudlet2 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 
             //add the cloudlets to the lists: each cloudlet belongs to one user
-            cloudletList1.add(cloudlet1);
-            cloudletList2.add(cloudlet2);
+
+
 
             //submit cloudlet list to the brokers
             broker1.submitCloudletList(cloudletList1);
