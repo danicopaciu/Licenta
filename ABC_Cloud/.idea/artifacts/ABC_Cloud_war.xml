@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" build-on-make="true" name="ABC_Cloud:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="ABC_Cloud.war">
+      <element id="artifact" artifact-name="ABC_Cloud:war exploded" />
+    </root>
+  </artifact>
+</component>
