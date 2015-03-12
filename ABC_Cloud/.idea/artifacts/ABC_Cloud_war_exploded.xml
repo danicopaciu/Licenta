@@ -2,6 +2,7 @@
   <artifact type="exploded-war" build-on-make="true" name="ABC_Cloud:war exploded">
     <output-path>$PROJECT_DIR$/target/ABC_Cloud</output-path>
     <root id="root">
+      <element id="javaee-facet-resources" facet="ABC_Cloud/web/Web" />
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="ABC_Cloud" />
@@ -14,15 +15,11 @@
           <element id="library" level="project" name="Maven: aopalliance:aopalliance:1.0" />
           <element id="library" level="project" name="Maven: org.springframework:spring-beans:4.1.1.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-context:4.1.1.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-expression:4.1.1.RELEASE" />
           <element id="library" level="project" name="Maven: javax.servlet:servlet-api:2.5" />
           <element id="library" level="project" name="Maven: org.springframework:spring-webmvc:4.1.1.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-expression:4.1.1.RELEASE" />
         </element>
       </element>
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="D:\GithubRepositories\Licenta\ABC_Cloud\target/MANIFEST.MF" />
-      </element>
-      <element id="javaee-facet-resources" facet="ABC_Cloud/web/Web" />
     </root>
   </artifact>
 </component>
