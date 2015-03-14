@@ -1,4 +1,4 @@
-package com.springapp.mvc.model;
+package com.springapp.mvc.model.cloud;
 
 import org.cloudbus.cloudsim.CloudletScheduler;
 import org.cloudbus.cloudsim.power.PowerVm;
