@@ -14,4 +14,9 @@ public class GreenVm extends PowerVm {
                    double schedulingInterval) {
         super(id, userId, mips, pesNumber, ram, bw, size, priority, vmm, cloudletScheduler, schedulingInterval);
     }
+
+    public double getNecessaryEnergy() {
+        //to be implemented
+        return getUtilizationMean();
+    }
 }
