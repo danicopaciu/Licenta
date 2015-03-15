@@ -13,7 +13,7 @@ import java.util.Map;
 public class Resources {
 
     public int data_center_nr = 5;
-    public int vm_nr = 1;
+    public int vm_nr = 60;
     public Map<Integer, Integer> DC_to_server = new HashMap<Integer, Integer>();
 
            public Resources(){

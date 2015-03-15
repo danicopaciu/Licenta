@@ -89,7 +89,7 @@ public class MainController {
             int pesNumber = 1; //number of cpus
             String vmm = "Xen"; //VMM name
 
-            vmlist = builder.createVMs(res.vm_nr, brokerId, mips, size, ram, bw, pesNumber, vmm, 1, 0);
+            vmlist = builder.createVMs(res.vm_nr, brokerId, mips, size, ram, bw, pesNumber, vmm, 1, 300);
 
             //submit vm list to the broker
             broker.submitVmList(vmlist);
@@ -116,11 +116,15 @@ public class MainController {
             broker = builder.bindCloudletsToVM(broker, cloudletList, vmlist);
 
             // Sixth step: Starts the simulation
+
+            //.terminateSimulation(24*60*60);
             CloudSim.startSimulation();
+
 
 
             // Final step: Print results when simulation is over
             List<Cloudlet> newList = broker.getCloudletReceivedList();
+            Log.printLine("Received " + newList.size() + " cloudlets");
 
             CloudSim.stopSimulation();
 
