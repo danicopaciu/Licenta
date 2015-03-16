@@ -100,7 +100,7 @@ public class MainController {
 
             //Cloudlet properties
             pesNumber = 1;
-            long length = 250000;
+            long length = res.CLOUDLET_LENGTH;
             long fileSize = 300;
             long outputSize = 300;
 
@@ -119,6 +119,7 @@ public class MainController {
 
             //.terminateSimulation(24*60*60);
             CloudSim.startSimulation();
+            CloudSim.terminateSimulation(24*60*60);
 
 
 

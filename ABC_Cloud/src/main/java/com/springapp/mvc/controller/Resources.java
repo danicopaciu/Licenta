@@ -12,8 +12,11 @@ import java.util.Map;
  */
 public class Resources {
 
-    public int data_center_nr = 5;
-    public int vm_nr = 60;
+    public final static double SCHEDULING_INTERVAL = 300;
+    public final static double SIMULATION_LIMIT = 24 * 60 * 60;
+    public final static int CLOUDLET_LENGTH	= 2500 * (int) SIMULATION_LIMIT;
+    public final static int data_center_nr = 5;
+    public final static int vm_nr = 60;
     public Map<Integer, Integer> DC_to_server = new HashMap<Integer, Integer>();
 
            public Resources(){

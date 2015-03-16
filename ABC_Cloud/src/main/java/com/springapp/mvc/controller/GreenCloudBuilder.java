@@ -5,6 +5,7 @@ import com.springapp.mvc.model.cloud.GreenHost;
 import com.springapp.mvc.model.cloud.GreenVm;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.power.PowerDatacenterBroker;
+import org.cloudbus.cloudsim.power.PowerVmAllocationPolicySimple;
 import org.cloudbus.cloudsim.power.models.PowerModelSpecPowerHpProLiantMl110G4Xeon3040;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
@@ -49,7 +50,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         for (int i = 1; i <= server_nr; i++) {
             hostList.add(
                     new GreenHost(i, new RamProvisionerSimple(ram),new BwProvisionerSimple(bw),
-                         storage, peList,new VmSchedulerTimeShared(peList), new PowerModelSpecPowerHpProLiantMl110G4Xeon3040())
+                         storage, peList,new VmSchedulerTimeSharedOverSubscription(peList), new PowerModelSpecPowerHpProLiantMl110G4Xeon3040())
             ); // This is our machine
         }
 
@@ -75,7 +76,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         // 6. Finally, we need to create a PowerDatacenter object.
         GreenDataCenter datacenter = null;
         try {
-            datacenter = new GreenDataCenter("Datacenter_" + ++id, characteristics, new VmAllocationPolicySimple(hostList), storageList, 300);
+            datacenter = new GreenDataCenter("Datacenter_" + ++id, characteristics, new PowerVmAllocationPolicySimple(hostList), storageList, 300);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,7 +87,7 @@ public class GreenCloudBuilder extends CloudBuilder {
 
         DatacenterBroker broker = null;
         try {
-            broker = new PowerDatacenterBroker("Broker");
+            broker = new DatacenterBroker("Broker");
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -98,7 +99,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         ArrayList<Vm> vmlist = new ArrayList<Vm>();
 
         for (int i = 1; i <= vm_nr; i++) {
-            vmlist.add(new GreenVm(i, brokerId, mips, pesNumber, ram, bw, size,priority, vmm, new CloudletSchedulerTimeShared(), schedInt));
+            vmlist.add(new GreenVm(i, brokerId, mips, pesNumber, ram, bw, size,priority, vmm, new CloudletSchedulerDynamicWorkload(mips, pesNumber), schedInt));
         }
 
         return vmlist;
