@@ -5,7 +5,6 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
-import org.cloudbus.cloudsim.power.PowerHost;
 
 import java.util.List;
 import java.util.Map;
