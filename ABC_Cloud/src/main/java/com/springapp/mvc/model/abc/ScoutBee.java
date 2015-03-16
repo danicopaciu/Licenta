@@ -10,5 +10,4 @@ public class ScoutBee extends Bee {
     }
 
 
-
 }

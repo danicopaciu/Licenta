@@ -11,9 +11,9 @@ public class OnlookerBee extends Bee {
         super(id, foodSource);
     }
 
-    public double computeProbability(List<FoodSource> foodSourceList){
+    public double computeProbability(List<FoodSource> foodSourceList) {
         double fitnessSum = 0;
-        for(FoodSource fs : foodSourceList){
+        for (FoodSource fs : foodSourceList) {
             double fitnessValue = fs.getFitness();
             fitnessSum += fitnessValue;
         }

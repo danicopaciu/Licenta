@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by Daniel on 3/14/2015.
  */
-public class FoodSource implements Comparable<FoodSource>{
+public class FoodSource implements Comparable<FoodSource> {
 
     private List<Nectar> nectarList;
 
@@ -86,30 +86,30 @@ public class FoodSource implements Comparable<FoodSource>{
     }
 
     @Override
-    public int compareTo(FoodSource o){
+    public int compareTo(FoodSource o) {
         return this.conflictsNumber - o.getConflictsNumber();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof  FoodSource){
+        if (obj instanceof FoodSource) {
             int equalElements = 0;
-            for(Nectar index1 : nectarList){
+            for (Nectar index1 : nectarList) {
                 FoodSource comparisonObj = (FoodSource) obj;
-                for(Nectar index2 : comparisonObj.getNectarList()){
-                    if(index1.equals(index2)){
+                for (Nectar index2 : comparisonObj.getNectarList()) {
+                    if (index1.equals(index2)) {
                         equalElements++;
                     }
                 }
             }
-            if(equalElements >= 4){
+            if (equalElements >= 4) {
                 return true;
             }
         }
         return false;
     }
 
-    public void incrementTrialsNumber(){
+    public void incrementTrialsNumber() {
         trialsNumber++;
     }
 }

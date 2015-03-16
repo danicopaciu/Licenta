@@ -35,10 +35,10 @@ public class Nectar {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof Nectar){
+        if (obj instanceof Nectar) {
             Nectar comparisonObj = (Nectar) obj;
-            if(host.getId() == comparisonObj.getHost().getId() &&
-                    vm.getId() == comparisonObj.getVm().getId()){
+            if (host.getId() == comparisonObj.getHost().getId() &&
+                    vm.getId() == comparisonObj.getVm().getId()) {
                 return true;
             }
         }
