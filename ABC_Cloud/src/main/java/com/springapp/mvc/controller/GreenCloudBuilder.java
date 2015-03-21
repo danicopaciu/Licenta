@@ -1,6 +1,6 @@
 package com.springapp.mvc.controller;
 
-import com.springapp.mvc.model.cloud.FederationOfDataCenters;
+import com.springapp.mvc.model.cloud.FederationOfDataCenter;
 import com.springapp.mvc.model.cloud.GreenDataCenter;
 import com.springapp.mvc.model.cloud.GreenHost;
 import com.springapp.mvc.model.cloud.GreenVm;
@@ -13,8 +13,10 @@ import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import java.io.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,8 +31,9 @@ import java.util.List;
 public class GreenCloudBuilder extends CloudBuilder {
 
     @Override
-    public FederationOfDataCenters createFederationOfDataCenters() {
-        return new FederationOfDataCenters("FederationOfDataCenters");
+    public FederationOfDataCenter createFederationOfDataCenters() {
+        federationOfDataCenters = new FederationOfDataCenter("FederationOfDataCenters");
+        return federationOfDataCenters;
     }
 
     public List<GreenDataCenter> createDataCenter() {

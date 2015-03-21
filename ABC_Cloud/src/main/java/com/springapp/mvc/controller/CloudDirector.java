@@ -1,6 +1,6 @@
 package com.springapp.mvc.controller;
 
-import com.springapp.mvc.model.cloud.FederationOfDataCenters;
+import com.springapp.mvc.model.cloud.FederationOfDataCenter;
 
 import java.io.FileNotFoundException;
 
@@ -9,8 +9,8 @@ import java.io.FileNotFoundException;
  */
 public class CloudDirector {
 
-    public FederationOfDataCenters constructFederationOfDataCenters (CloudBuilder cloudBuilder) throws FileNotFoundException {
-        FederationOfDataCenters federationOfDataCenter = cloudBuilder.createFederationOfDataCenters();
+    public FederationOfDataCenter constructFederationOfDataCenters(CloudBuilder cloudBuilder) throws FileNotFoundException {
+        FederationOfDataCenter federationOfDataCenter = cloudBuilder.createFederationOfDataCenters();
 
         federationOfDataCenter.setHostList(cloudBuilder.createHosts());
         federationOfDataCenter.setDataCenterList(cloudBuilder.createDataCenter());

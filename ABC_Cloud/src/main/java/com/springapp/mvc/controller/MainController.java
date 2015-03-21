@@ -1,16 +1,13 @@
 package com.springapp.mvc.controller;
 
-import com.springapp.mvc.model.cloud.FederationOfDataCenters;
-import com.springapp.mvc.model.cloud.GreenDataCenter;
-import com.springapp.mvc.model.cloud.GreenHost;
-import org.cloudbus.cloudsim.*;
+import com.springapp.mvc.model.cloud.FederationOfDataCenter;
+import org.cloudbus.cloudsim.Cloudlet;
+import org.cloudbus.cloudsim.DatacenterBroker;
+import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
-import java.io.*;
+import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -34,7 +31,7 @@ public class MainController {
 
             CloudSim.init(num_user, calendar, false);
 
-            FederationOfDataCenters fed = getFederationOfDatacenters();
+            FederationOfDataCenter fed = getFederationOfDatacenters();
 
             CloudSim.startSimulation();
             CloudSim.terminateSimulation(24 * 60 * 60);
@@ -55,10 +52,10 @@ public class MainController {
         }
     }
 
-    private static FederationOfDataCenters getFederationOfDatacenters() throws FileNotFoundException {
+    private static FederationOfDataCenter getFederationOfDatacenters() throws FileNotFoundException {
         CloudDirector cloudDirector = new CloudDirector();
         CloudBuilder builder = new GreenCloudBuilder();
-        FederationOfDataCenters fed = cloudDirector.constructFederationOfDataCenters(builder);
+        FederationOfDataCenter fed = cloudDirector.constructFederationOfDataCenters(builder);
         return fed;
     }
 
