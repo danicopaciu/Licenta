@@ -3,8 +3,10 @@ package com.springapp.mvc.model.cloud;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
+import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
+import org.cloudbus.cloudsim.power.PowerHost;
 
 import java.util.List;
 import java.util.Map;
@@ -111,4 +113,8 @@ public class GreenDataCenter extends PowerDatacenter {
         }
     }
 
+    @Override
+    public void processVmMigrate(SimEvent ev, boolean ack) {
+        super.processVmMigrate(ev, ack);
+    }
 }
