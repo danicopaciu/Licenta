@@ -84,4 +84,8 @@ public class FederationOfDataCenter extends SimEntity {
     public void setBroker(DatacenterBroker broker) {
         this.broker = broker;
     }
+
+    public List<GreenDataCenter> getDataCenterList() {
+        return dataCenterList;
+    }
 }
