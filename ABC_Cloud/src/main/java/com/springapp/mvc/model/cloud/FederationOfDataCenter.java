@@ -1,7 +1,5 @@
 package com.springapp.mvc.model.cloud;
 
-import com.springapp.mvc.model.abc.FoodSource;
-import com.springapp.mvc.model.abc.Nectar;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.core.CloudSim;
@@ -31,19 +29,14 @@ public class FederationOfDataCenter extends SimEntity {
         super(name);
     }
 
-    public void migrateVMs(FoodSource bestFoodSource) {
-        List<Nectar> nectarList = bestFoodSource.getNectarList();
-        for (Nectar n : nectarList) {
-            GreenVm vm = n.getVm();
-            GreenHost host = n.getHost();
-            System.out.println("Vm " + vm.getId() + " is on host " + vm.getHost().getId());
+    public void migrateVMs(GreenVm vm, GreenHost host) {
+        //  System.out.println("Vm " + vm.getId() + " is on host " + vm.getHost().getId());
             GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
             HashMap<String, Object> data = new HashMap<String, Object>();
             data.put("vm", vm);
             data.put("host", vm);
             send(dataCenter.getId(), CloudSim.clock(), CloudSimTags.VM_MIGRATE, data);
             System.out.println("Vm " + vm.getId() + " is on host " + vm.getHost().getId());
-        }
     }
 
     @Override
@@ -61,27 +54,43 @@ public class FederationOfDataCenter extends SimEntity {
 
     }
 
-    public void setDataCenterList(List<GreenDataCenter> dataCenterList) {
-        this.dataCenterList = dataCenterList;
-    }
-
-    public void setHostList(List<GreenHost> hostList) {
-        this.hostList = hostList;
-    }
-
-    public void setVmList(List<GreenVm> vmList) {
-        this.vmList = vmList;
-    }
-
-    public void setCloudletList(List<Cloudlet> cloudletList) {
-        this.cloudletList = cloudletList;
-    }
-
     public DatacenterBroker getBroker() {
         return broker;
     }
 
     public void setBroker(DatacenterBroker broker) {
         this.broker = broker;
+    }
+
+    public List<GreenDataCenter> getDataCenterList() {
+        return dataCenterList;
+    }
+
+    public void setDataCenterList(List<GreenDataCenter> dataCenterList) {
+        this.dataCenterList = dataCenterList;
+    }
+
+    public List<GreenHost> getHostList() {
+        return hostList;
+    }
+
+    public void setHostList(List<GreenHost> hostList) {
+        this.hostList = hostList;
+    }
+
+    public List<GreenVm> getVmList() {
+        return vmList;
+    }
+
+    public void setVmList(List<GreenVm> vmList) {
+        this.vmList = vmList;
+    }
+
+    public List<Cloudlet> getCloudletList() {
+        return cloudletList;
+    }
+
+    public void setCloudletList(List<Cloudlet> cloudletList) {
+        this.cloudletList = cloudletList;
     }
 }

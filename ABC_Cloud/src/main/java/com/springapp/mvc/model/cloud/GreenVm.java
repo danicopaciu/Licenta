@@ -16,7 +16,6 @@ public class GreenVm extends PowerVm {
     }
 
     public double getNecessaryEnergy() {
-        //to be implemented
         return getUtilizationMean();
     }
 }

@@ -11,7 +11,6 @@ public class CloudDirector {
 
     public FederationOfDataCenter constructFederationOfDataCenters(CloudBuilder cloudBuilder) throws FileNotFoundException {
         FederationOfDataCenter federationOfDataCenter = cloudBuilder.createFederationOfDataCenters();
-
         federationOfDataCenter.setHostList(cloudBuilder.createHosts());
         federationOfDataCenter.setDataCenterList(cloudBuilder.createDataCenter());
         federationOfDataCenter.setBroker(cloudBuilder.createBroker());
