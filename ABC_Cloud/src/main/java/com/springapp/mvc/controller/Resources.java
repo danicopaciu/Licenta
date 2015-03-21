@@ -15,8 +15,10 @@ public class Resources {
     public final static double SCHEDULING_INTERVAL = 300;
     public final static double SIMULATION_LIMIT = 24 * 60 * 60;
     public final static int CLOUDLET_LENGTH	= 2500 * (int) SIMULATION_LIMIT;
-    public final static int data_center_nr = 5;
-    public final static int vm_nr = 60;
+    public final static int DATACENTER_NUMBER = 5;
+    public final static int VM_NUMBER = 60;
+    public final static int HOST_NUMBER_PER_DATACENTER = 3;
+    public static final int HOST_NUMBER = DATACENTER_NUMBER * HOST_NUMBER_PER_DATACENTER;
     public Map<Integer, Integer> DC_to_server = new HashMap<Integer, Integer>();
 
            public Resources(){

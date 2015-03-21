@@ -4,9 +4,8 @@ import com.springapp.mvc.model.cloud.GreenDataCenter;
 import com.springapp.mvc.model.cloud.GreenHost;
 import com.springapp.mvc.model.cloud.GreenVm;
 import org.cloudbus.cloudsim.*;
-import org.cloudbus.cloudsim.power.PowerDatacenterBroker;
+import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicySimple;
-import org.cloudbus.cloudsim.power.models.PowerModelSpecPowerHpProLiantMl110G4Xeon3040;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
@@ -25,67 +24,52 @@ import java.util.List;
  */
 public class GreenCloudBuilder extends CloudBuilder {
 
-    public GreenDataCenter createDatacenter(int id, int server_nr) {
+    public GreenDataCenter createDatacenter(int id, List<GreenHost> hostList) {
 
-        // Here are the steps needed to create a PowerDatacenter:
-        // 1. We need to create a list to store
-        //    our machine
-        List<Host> hostList = new ArrayList<Host>();
-
-        // 2. A Machine contains one or more PEs or CPUs/Cores.
-        // In this example, it will have only one core.
-        List<Pe> peList = new ArrayList<Pe>();
-
-        int mips = 1000;
-
-        // 3. Create PEs and add these into a list.
-        peList.add(new Pe(0, new PeProvisionerSimple(mips))); // need to store Pe id and MIPS Rating
-
-        //4. Create Host with its id and list of PEs and add them to the list of machines
-        //int hostId=0;
-        int ram = 2048; //host memory (MB)
-        long storage = 1000000; //host storage
-        int bw = 10000;
-
-        for (int i = 1; i <= server_nr; i++) {
-            hostList.add(
-                    new GreenHost(i, new RamProvisionerSimple(ram),new BwProvisionerSimple(bw),
-                         storage, peList,new VmSchedulerTimeSharedOverSubscription(peList), new PowerModelSpecPowerHpProLiantMl110G4Xeon3040())
-            ); // This is our machine
+        List<GreenHost> thisHostList = new ArrayList<GreenHost>();
+        int index = id * Resources.HOST_NUMBER_PER_DATACENTER;
+        for(int i = index; i < index + Resources.HOST_NUMBER_PER_DATACENTER; i++){
+            thisHostList.add(hostList.get(i));
         }
 
 
-        // 5. Create a DatacenterCharacteristics object that stores the
-        //    properties of a data center: architecture, OS, list of
-        //    Machines, allocation policy: time- or space-shared, time zone
-        //    and its price (G$/Pe time unit).
         String arch = "x86";      // system architecture
         String os = "Linux";          // operating system
         String vmm = "Xen";
-        double time_zone = 10.0;         // time zone this resource located
+        double timeZone = 10.0;         // time zone this resource located
         double cost = 3.0;              // the cost of using processing in this resource
         double costPerMem = 0.05;        // the cost of using memory in this resource
         double costPerStorage = 0.001;    // the cost of using storage in this resource
         double costPerBw = 0.0;            // the cost of using bw in this resource
         LinkedList<Storage> storageList = new LinkedList<Storage>();    //we are not adding SAN devices by now
 
+        return getGreenDataCenter(id,
+                hostList, thisHostList, arch, os, vmm, timeZone, cost, costPerMem,
+                costPerStorage, costPerBw, storageList);
+    }
+
+    private GreenDataCenter getGreenDataCenter(int id, List<GreenHost> hostList,
+                                               List<GreenHost> thisHostList, String arch, String os,
+                                               String vmm, double timeZone, double cost, double costPerMem,
+                                               double costPerStorage, double costPerBw,
+                                               LinkedList<Storage> storageList) {
         DatacenterCharacteristics characteristics = new DatacenterCharacteristics(
-                arch, os, vmm, hostList, time_zone, cost, costPerMem, costPerStorage, costPerBw);
+                arch, os, vmm, thisHostList, timeZone, cost, costPerMem, costPerStorage, costPerBw);
 
 
-        // 6. Finally, we need to create a PowerDatacenter object.
-        GreenDataCenter datacenter = null;
+        GreenDataCenter dataCenter = null;
         try {
-            datacenter = new GreenDataCenter("Datacenter_" + ++id, characteristics, new PowerVmAllocationPolicySimple(hostList), storageList, 300);
+            dataCenter = new GreenDataCenter("DataCenter_" + ++id, characteristics,
+                    new PowerVmAllocationPolicySimple(hostList), storageList, 300);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return datacenter;
+        return dataCenter;
     }
+
     public DatacenterBroker createBroker() {
 
-        DatacenterBroker broker = null;
+        DatacenterBroker broker;
         try {
             broker = new DatacenterBroker("Broker");
         } catch (Exception e) {
@@ -94,27 +78,53 @@ public class GreenCloudBuilder extends CloudBuilder {
         }
         return broker;
     }
-    public ArrayList<Vm> createVMs(int vm_nr, int brokerId, int mips, long size, int ram, long bw, int pesNumber, String vmm, int priority, double schedInt) {
 
-        ArrayList<Vm> vmlist = new ArrayList<Vm>();
+    public List<Vm> createVMs(int vm_nr, int brokerId, int mips, long size, int ram, long bw,
+                              int pesNumber, String vmm, int priority, double scheduleInterval) {
+
+        List<Vm> vmList = new ArrayList<Vm>();
 
         for (int i = 1; i <= vm_nr; i++) {
-            vmlist.add(new GreenVm(i, brokerId, mips, pesNumber, ram, bw, size,priority, vmm, new CloudletSchedulerDynamicWorkload(mips, pesNumber), schedInt));
+            vmList.add(new GreenVm(i, brokerId, mips, pesNumber, ram, bw, size, priority,
+                    vmm, new CloudletSchedulerDynamicWorkload(mips, pesNumber), scheduleInterval));
         }
 
-        return vmlist;
+        return vmList;
     }
-    public ArrayList<Cloudlet> createCloudletss(int vm_nr, int brokerId, long length, int pesNumber,
+
+    @Override
+    public List<GreenHost> createHosts(int hostNumber) {
+        List<GreenHost> hostList = new ArrayList<GreenHost>();
+        for (int i = 0; i < hostNumber; i++) {
+            int hostType = i % Constants.HOST_TYPES;
+
+            List<Pe> peList = new ArrayList<Pe>();
+            for (int j = 0; j < Constants.HOST_PES[hostType]; j++) {
+                peList.add(new Pe(j, new PeProvisionerSimple(Constants.HOST_MIPS[hostType])));
+            }
+
+            hostList.add(new GreenHost(
+                    i,
+                    new RamProvisionerSimple(Constants.HOST_RAM[hostType]),
+                    new BwProvisionerSimple(Constants.HOST_BW),
+                    Constants.HOST_STORAGE,
+                    peList,
+                    new VmSchedulerTimeSharedOverSubscription(peList),
+                    Constants.HOST_POWER[hostType]));
+        }
+        return hostList;
+    }
+
+    public List<Cloudlet> createCloudletss(int vmNumber, int brokerId, long length, int pesNumber,
                                                         long fileSize, long outputSize, String inputFolderName) throws FileNotFoundException {
 
-        UtilizationModel utilizationModel = new UtilizationModelFull();
         UtilizationModel utilizationModelNull = new UtilizationModelNull();
 
         java.io.File inputFolder = new java.io.File(inputFolderName);
         java.io.File[] files = inputFolder.listFiles();
-        ArrayList<Cloudlet> cloudlet_list = new ArrayList<Cloudlet>();
+        ArrayList<Cloudlet> cloudletList = new ArrayList<Cloudlet>();
 
-        for (int i = 1; i <= vm_nr; i++) {
+        for (int i = 1; i <= vmNumber; i++) {
             Cloudlet cloudlet = null;
             try {
                 cloudlet = new Cloudlet(i, length, pesNumber, fileSize, outputSize,
@@ -128,16 +138,17 @@ public class GreenCloudBuilder extends CloudBuilder {
 
             }
             cloudlet.setUserId(brokerId);
-            cloudlet_list.add(cloudlet);
+            cloudletList.add(cloudlet);
         }
 
-        return cloudlet_list;
+        return cloudletList;
     }
-    public DatacenterBroker bindCloudletsToVM(DatacenterBroker broker, List<Cloudlet> cloudletList, List<Vm> vmlist){
+    public DatacenterBroker bindCloudletsToVM(DatacenterBroker broker,
+                                              List<Cloudlet> cloudletList, List<Vm> vmList){
         int size = cloudletList.size();
 
         for (int i = 0; i < size; i++) {
-            broker.bindCloudletToVm(cloudletList.get(i).getCloudletId(), vmlist.get(i).getId());
+            broker.bindCloudletToVm(cloudletList.get(i).getCloudletId(), vmList.get(i).getId());
         }
         return broker;
     }
