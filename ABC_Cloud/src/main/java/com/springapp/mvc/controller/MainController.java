@@ -1,6 +1,9 @@
 package com.springapp.mvc.controller;
 
+import com.springapp.mvc.model.abc.ArtificialBeeColony;
 import com.springapp.mvc.model.cloud.FederationOfDataCenter;
+import com.springapp.mvc.model.cloud.GreenDataCenter;
+import com.springapp.mvc.model.cloud.GreenVm;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
@@ -8,8 +11,10 @@ import org.cloudbus.cloudsim.core.CloudSim;
 
 import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,6 +24,8 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class MainController {
+
+    private static FederationOfDataCenter fed;
 
 
     public static void main(String[] args) {
@@ -31,10 +38,31 @@ public class MainController {
 
             CloudSim.init(num_user, calendar, false);
 
-            FederationOfDataCenter fed = getFederationOfDatacenters();
+            fed = getFederationOfDatacenters();
+
+            Runnable monitor = new Runnable() {
+                @Override
+                public void run() {
+                    double current_time = -1;
+
+                     while(true){
+
+                         double x;
+                         System.out.print("");
+                         x= CloudSim.clock();
+                         if((((x-0.1) % 300 == 0)) && (x != current_time)){
+                             current_time = CloudSim.clock();
+//                             System.out.println("timpul este " + current_time);
+                         }
+
+                     }
+                }
+            };
+
+            Thread thread = new Thread(monitor);
+            thread.start();
 
             CloudSim.startSimulation();
-            CloudSim.terminateSimulation(24 * 60 * 60);
 
 //          Final step: Print results when simulation is over
             DatacenterBroker broker = fed.getBroker();
@@ -50,6 +78,7 @@ public class MainController {
             e.printStackTrace();
             Log.printLine("The simulation has been terminated due to an unexpected error");
         }
+        System.exit(0);
     }
 
     private static FederationOfDataCenter getFederationOfDatacenters() throws FileNotFoundException {
@@ -59,46 +88,6 @@ public class MainController {
         return fed;
     }
 
-//    private static String getInputFolder() {
-//        String inputFolder = "";
-//        Resource resource = new ClassPathResource("planetlab/20110303");
-//        try {
-//            inputFolder = resource.getFile().getAbsolutePath();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        try {
-//            initLogOutput("output");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return inputFolder;
-//    }
-//
-//    private static List<Cloudlet> getCloudletList(String inputFolder, int brokerId) throws FileNotFoundException {
-//        List<Cloudlet> cloudletList;
-//        int pesNumber = 1;
-//        long length = Resources.CLOUDLET_LENGTH;
-//        long fileSize = 300;
-//        long outputSize = 300;
-//
-//        cloudletList = builder.createCloudletss(Resources.VM_NUMBER, brokerId,
-//                length, pesNumber, fileSize, outputSize, inputFolder);
-//        return cloudletList;
-//    }
-//
-//    private static List<Vm> getVmList(int brokerId) {
-//        int mips = 250;
-//        long size = 10000; //image size (MB)
-//        int ram = 512; //vm memory (MB)
-//        long bw = 1000;
-//        int pesNumber = 1; //number of cpus
-//        String vmm = "Xen"; //VMM name
-//
-//        return builder.createVMs(Resources.VM_NUMBER, brokerId, mips,
-//                size, ram, bw, pesNumber, vmm, 1, 300);
-//    }
 
 
     private static void printCloudletList(List<Cloudlet> list) {
@@ -128,28 +117,24 @@ public class MainController {
     }
 
 
+    private static void migrateVMs(List<GreenVm> vmList){
+        Random rand = new Random();
+        int vmNr = rand.nextInt(vmList.size() -1);
 
-//    private void initLogOutput(String outputFolder) throws IOException {
-//
-//        Log.setDisabled(false);
-//
-//        java.io.File folder = new java.io.File(outputFolder);
-//        if (!folder.exists()) {
-//            folder.mkdir();
-//        }
-//
-//        java.io.File folder2 = new java.io.File(outputFolder + "/log");
-//        if (!folder2.exists()) {
-//            folder2.mkdir();
-//        }
-//
-//        java.io.File file = new java.io.File(outputFolder + "/log/"
-//                + "licenta" + ".txt");
-//        file.createNewFile();
-//        Log.setOutput(new FileOutputStream(file));
-//    }
+        List<GreenVm> migratingList = new ArrayList<GreenVm>();
 
+        for(int i=1 ; i<=vmNr; i++){
+            int index = rand.nextInt(vmList.size() -1);
 
+            GreenVm vm = vmList.get(index);
+            migratingList.add(vm);
+        }
+
+        List<GreenDataCenter> DClist = fed.getDataCenterList();
+
+        ArtificialBeeColony abc = new ArtificialBeeColony(DClist,migratingList);
+        abc.runAlgorithm();
+    }
 
 
 }

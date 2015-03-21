@@ -53,12 +53,13 @@ public class GreenDataCenter extends PowerDatacenter {
 
         if( currentTime > 86400){
             System.out.println("Am terminat simularea");
-            System.exit(0);
+//            System.exit(0);
+            return;
         }
 
         // if some time passed since last processing
         if (currentTime > getLastProcessTime()) {
-            System.out.print(currentTime + " ");
+//            System.out.print(currentTime + " ");
 
             double minTime = updateCloudetProcessingWithoutSchedulingFutureEventsForce();
 
