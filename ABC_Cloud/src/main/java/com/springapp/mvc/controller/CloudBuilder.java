@@ -1,7 +1,11 @@
 package com.springapp.mvc.controller;
 
+import com.springapp.mvc.model.cloud.FederationOfDataCenters;
+import com.springapp.mvc.model.cloud.GreenDataCenter;
 import com.springapp.mvc.model.cloud.GreenHost;
+import com.springapp.mvc.model.cloud.GreenVm;
 import org.cloudbus.cloudsim.*;
+import org.cloudbus.cloudsim.lists.VmList;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -16,11 +20,17 @@ import java.util.List;
  */
 public abstract class CloudBuilder {
 
-    public abstract Datacenter createDatacenter(int id, List<GreenHost> hostList);
+    protected FederationOfDataCenters federationOfDataCenters;
+    protected List<GreenDataCenter> dataCenterList;
+    protected List<GreenHost> hostList;
+    protected List<GreenVm> vmList;
+    protected List<Cloudlet> cloudletList;
+    protected DatacenterBroker broker;
+
+    public abstract FederationOfDataCenters createFederationOfDataCenters();
+    public abstract List<GreenDataCenter> createDataCenter();
     public abstract DatacenterBroker createBroker();
-    public abstract List<Vm> createVMs(int vmNumber, int brokerId, int mips, long size, int ram,
-                                       long bw, int pesNumber, String vmm, int priority, double schedInt);
-    public abstract List<GreenHost> createHosts(int hostNumber);
-    public abstract List<Cloudlet> createCloudletss(int vmNumber, int brokerId, long length, int pesNumber,
-                                                long fileSize, long outputSize, String inputFolderName) throws FileNotFoundException;
+    public abstract List<GreenVm> createVMs();
+    public abstract List<GreenHost> createHosts();
+    public abstract List<Cloudlet> createCloudletss() throws FileNotFoundException;
     }
