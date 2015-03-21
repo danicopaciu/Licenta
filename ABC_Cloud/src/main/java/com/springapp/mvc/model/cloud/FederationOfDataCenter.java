@@ -94,7 +94,4 @@ public class FederationOfDataCenter extends SimEntity {
         this.cloudletList = cloudletList;
     }
 
-    public List<GreenDataCenter> getDataCenterList() {
-        return dataCenterList;
-    }
 }

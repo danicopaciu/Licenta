@@ -11,10 +11,7 @@ import org.cloudbus.cloudsim.core.CloudSim;
 
 import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -50,9 +47,12 @@ public class MainController {
                          double x;
                          System.out.print("");
                          x= CloudSim.clock();
-                         if((((x-0.1) % 300 == 0)) && (x != current_time)){
+                         if ((((x - 0.1) % 300 == 0)) && (x != current_time) && (x != 0.1) && (x > 1000)) {
                              current_time = CloudSim.clock();
-//                             System.out.println("timpul este " + current_time);
+                             System.out.println("timpul este " + current_time);
+                             CloudSim.pauseSimulation();
+                             migrateVMs(fed.getVmList());
+                             CloudSim.resumeSimulation();
                          }
 
                      }
@@ -119,20 +119,25 @@ public class MainController {
 
     private static void migrateVMs(List<GreenVm> vmList){
         Random rand = new Random();
-        int vmNr = rand.nextInt(vmList.size() -1);
+        int vmNr = rand.nextInt(vmList.size() - 2) + 1;
 
-        List<GreenVm> migratingList = new ArrayList<GreenVm>();
+        Set<GreenVm> migratingSet = new HashSet<GreenVm>();
 
-        for(int i=1 ; i<=vmNr; i++){
+        while (migratingSet.size() <= vmNr) {
             int index = rand.nextInt(vmList.size() -1);
-
             GreenVm vm = vmList.get(index);
-            migratingList.add(vm);
+            if (migratingSet.add(vm)) {
+                System.out.print(vm.getId() + " ");
+            }
+        }
+        List<GreenVm> migratingList = new ArrayList<GreenVm>();
+        if (migratingSet.size() != 0) {
+            migratingList.addAll(migratingSet);
         }
 
         List<GreenDataCenter> DClist = fed.getDataCenterList();
 
-        ArtificialBeeColony abc = new ArtificialBeeColony(DClist,migratingList);
+        ArtificialBeeColony abc = new ArtificialBeeColony(DClist, migratingList);
         abc.runAlgorithm();
     }
 

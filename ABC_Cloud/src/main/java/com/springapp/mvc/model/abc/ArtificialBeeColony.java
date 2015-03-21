@@ -14,21 +14,14 @@ import java.util.*;
  */
 public class ArtificialBeeColony {
 
-    private Set<FoodSource> foodSourceSet;
-
-    private List<GreenDataCenter> dataCenterList;
-
-    private List<GreenVm> vmList;
-
-    private List<EmployedBee> employedBeeList;
-
-    private List<OnlookerBee> onlookerBeeList;
-
-    private List<ScoutBee> scoutBeeList;
-
     private static final int FOOD_SOURCES_NUMBER = 20;
-
     private final int DIMENSION;
+    private Set<FoodSource> foodSourceSet;
+    private List<GreenDataCenter> dataCenterList;
+    private List<GreenVm> vmList;
+    private List<EmployedBee> employedBeeList;
+    private List<OnlookerBee> onlookerBeeList;
+    private List<ScoutBee> scoutBeeList;
 
     public ArtificialBeeColony(List<GreenDataCenter> dataCenterList, List<GreenVm> vmList) {
         this.dataCenterList = dataCenterList;
@@ -43,9 +36,9 @@ public class ArtificialBeeColony {
         FoodSource bestFoodSource = getBestSolution();
         while (!done) {
             if (epoch < Constants.EPOCH_LIMIT) {
-                if (bestFoodSource.getConflictsNumber() == 0) {
-                    done = true;
-                }
+//                if (bestFoodSource.getConflictsNumber() == 0) {
+//                    done = true;
+//                }
                 sendEmployedBees();
                 sendOnlookerBees();
                 bestFoodSource = getBestSolution();
@@ -114,6 +107,9 @@ public class ArtificialBeeColony {
             Bee currentBee = employedBeeList.get(i);
             Bee neighbourBee = employedBeeList.get(neighbourBeeIndex);
             currentBee.searchInNeighborhood(neighbourBee.getFoodSource(), DIMENSION, dataCenterList);
+            List<FoodSource> list = new ArrayList<FoodSource>();
+            list.addAll(foodSourceSet);
+            currentBee.computeProbability(list);
         }
     }
 
@@ -124,17 +120,21 @@ public class ArtificialBeeColony {
         int index = 0;
         int i = 0;
         onlookerBeeList = new ArrayList<OnlookerBee>();
-        FoodSource[] foodSourceArray = (FoodSource[]) foodSourceSet.toArray();
+        Object[] foodSourceArray = foodSourceSet.toArray();
+        List<FoodSource> foodSourceList = new ArrayList<FoodSource>();
+        for (int j = 0; j < foodSourceArray.length; j++) {
+            foodSourceList.add((FoodSource) foodSourceArray[j]);
+        }
         while (index < FOOD_SOURCES_NUMBER) {
             Random random = new Random();
             double randomDouble = random.nextDouble();
-            FoodSource currentFoodSource = foodSourceArray[index];
+            FoodSource currentFoodSource = foodSourceList.get(index);
             if (randomDouble < currentFoodSource.getProbability()) {
                 int neighbourBeeIndex =
                         getRandomNeighbourIndex(FOOD_SOURCES_NUMBER - 1, i);
                 OnlookerBee onlookerBee = new OnlookerBee(index, currentFoodSource);
                 onlookerBeeList.add(onlookerBee);
-                FoodSource neighbourFoodSource = foodSourceArray[neighbourBeeIndex];
+                FoodSource neighbourFoodSource = foodSourceList.get(neighbourBeeIndex);
                 onlookerBee.searchInNeighborhood(neighbourFoodSource, DIMENSION, dataCenterList);
                 index++;
             }
@@ -146,14 +146,16 @@ public class ArtificialBeeColony {
     }
 
     private void sendScoutBees() {
-        FoodSource[] foodSources = (FoodSource[]) foodSourceSet.toArray();
-        for (int i = 0; i < FOOD_SOURCES_NUMBER; i++) {
-            if (foodSources[i].getTrialsNumber() >= Constants.TRIALS_LIMIT) {
+        List<FoodSource> list = new ArrayList<FoodSource>();
+        list.addAll(foodSourceSet);
+        for (int i = 0; i < list.size(); i++) {
+            FoodSource foodSource = list.get(i);
+            if (foodSource.getTrialsNumber() >= Constants.TRIALS_LIMIT) {
                 List<Nectar> nectarList = initializeNectarList();
                 FoodSource newFoodSource = new FoodSource(nectarList);
-                Bee bee = foodSources[i].getBee();
+                Bee bee = foodSource.getBee();
                 newFoodSource.setBee(bee);
-                foodSources[i] = newFoodSource;
+                foodSource = newFoodSource;
                 bee.applyFitnessFunction(dataCenterList);
                 bee.computeConflicts();
             }
