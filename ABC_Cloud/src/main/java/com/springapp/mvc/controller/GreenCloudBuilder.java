@@ -79,7 +79,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         GreenDataCenter dataCenter = null;
         try {
             dataCenter = new GreenDataCenter("DataCenter_" + id, characteristics,
-                    new PowerVmAllocationPolicySimple(hostList), storageList, 300);
+                    new PowerVmAllocationPolicySimple(thisHostList), storageList, 300);
         } catch (Exception e) {
             e.printStackTrace();
         }

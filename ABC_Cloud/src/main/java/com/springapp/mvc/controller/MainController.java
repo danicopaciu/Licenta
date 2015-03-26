@@ -25,6 +25,7 @@ public class MainController {
     private static FederationOfDataCenter fed;
 
 
+
     public static void main(String[] args) {
 
         Log.printLine("Starting");
@@ -47,7 +48,8 @@ public class MainController {
                          double x;
                          System.out.print("");
                          x= CloudSim.clock();
-                         if ((((x - 0.1) % 300 == 0)) && (x != current_time) && (x != 0.1) && (x > 1000)) {
+
+                         if ((((x - 0.3) % 300 == 0)) && (x != current_time) && (x != 0.3) && (x > 1000)) {
                              current_time = CloudSim.clock();
                              System.out.println("timpul este " + current_time);
                              CloudSim.pauseSimulation();
@@ -127,7 +129,6 @@ public class MainController {
             int index = rand.nextInt(vmList.size() -1);
             GreenVm vm = vmList.get(index);
             if (migratingSet.add(vm)) {
-                System.out.print(vm.getId() + " ");
             }
         }
         List<GreenVm> migratingList = new ArrayList<GreenVm>();

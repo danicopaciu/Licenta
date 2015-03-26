@@ -51,15 +51,14 @@ public class GreenDataCenter extends PowerDatacenter {
         }
         double currentTime = CloudSim.clock();
 
-        if( currentTime > 86400){
-            System.out.println("Am terminat simularea");
-//            System.exit(0);
-            return;
-        }
+//        if( currentTime > 86400){
+//            System.out.println("Am terminat simularea");
+////            return;
+//        }
 
         // if some time passed since last processing
         if (currentTime > getLastProcessTime()) {
-//            System.out.print(currentTime + " ");
+            System.out.print(currentTime + " ");
 
             double minTime = updateCloudetProcessingWithoutSchedulingFutureEventsForce();
 
@@ -112,6 +111,93 @@ public class GreenDataCenter extends PowerDatacenter {
 
             setLastProcessTime(currentTime);
         }
+    }
+
+
+    /**
+     * Update cloudet processing without scheduling future events.
+     *
+     * @return the double
+     */
+    @Override
+    protected double updateCloudetProcessingWithoutSchedulingFutureEventsForce() {
+        double currentTime = CloudSim.clock();
+        double minTime = Double.MAX_VALUE;
+        double timeDiff = currentTime - getLastProcessTime();
+        double timeFrameDatacenterEnergy = 0.0;
+
+        Log.printLine("\n\n--------------------------------------------------------------\n\n");
+        Log.formatLine("New resource usage for the time frame starting at %.2f:", currentTime);
+
+        for (PowerHost host : this.<PowerHost>getHostList()) {
+            Log.printLine();
+
+            double time = host.updateVmsProcessing(currentTime); // inform VMs to update processing
+            if (time < minTime) {
+                minTime = time;
+            }
+
+            Log.formatLine(
+                    "%.2f: [Host #%d] utilization is %.2f%%",
+                    currentTime,
+                    host.getId(),
+                    host.getUtilizationOfCpu() * 100);
+        }
+
+        if (timeDiff > 0) {
+            Log.formatLine(
+                    "\nEnergy consumption for the last time frame from %.2f to %.2f:",
+                    getLastProcessTime(),
+                    currentTime);
+
+            for (GreenHost host : this.<GreenHost>getHostList()) {
+                double previousUtilizationOfCpu = host.getPreviousUtilizationOfCpu();
+                double utilizationOfCpu = host.getUtilizationOfCpu();
+                double timeFrameHostEnergy = host.getEnergyLinearInterpolation(
+                        previousUtilizationOfCpu,
+                        utilizationOfCpu,
+                        timeDiff);
+                host.addEnergyHistory(timeFrameHostEnergy);
+                timeFrameDatacenterEnergy += timeFrameHostEnergy;
+
+                Log.printLine();
+                Log.formatLine(
+                        "%.2f: [Host #%d] utilization at %.2f was %.2f%%, now is %.2f%%",
+                        currentTime,
+                        host.getId(),
+                        getLastProcessTime(),
+                        previousUtilizationOfCpu * 100,
+                        utilizationOfCpu * 100);
+                Log.formatLine(
+                        "%.2f: [Host #%d] energy is %.2f W*sec",
+                        currentTime,
+                        host.getId(),
+                        timeFrameHostEnergy);
+            }
+
+            Log.formatLine(
+                    "\n%.2f: Data center's energy is %.2f W*sec\n",
+                    currentTime,
+                    timeFrameDatacenterEnergy);
+        }
+
+        setPower(getPower() + timeFrameDatacenterEnergy);
+
+        checkCloudletCompletion();
+
+        /** Remove completed VMs **/
+        for (PowerHost host : this.<PowerHost>getHostList()) {
+            for (Vm vm : host.getCompletedVms()) {
+                getVmAllocationPolicy().deallocateHostForVm(vm);
+                getVmList().remove(vm);
+                Log.printLine("VM #" + vm.getId() + " has been deallocated from host #" + host.getId());
+            }
+        }
+
+        Log.printLine();
+
+        setLastProcessTime(currentTime);
+        return minTime;
     }
 
     @Override

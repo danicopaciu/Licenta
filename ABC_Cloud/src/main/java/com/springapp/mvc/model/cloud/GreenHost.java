@@ -8,6 +8,7 @@ import org.cloudbus.cloudsim.provisioners.BwProvisioner;
 import org.cloudbus.cloudsim.provisioners.RamProvisioner;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,9 +18,12 @@ public class GreenHost extends PowerHostUtilizationHistory implements Serializab
 
     private String dataCenterName;
 
+    private List<Double> energyHystory;
+
     public GreenHost(int id, RamProvisioner ramProvisioner, BwProvisioner bwProvisioner,
                      long storage, List<? extends Pe> peList, VmScheduler vmScheduler, PowerModel powerModel) {
         super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler, powerModel);
+        energyHystory = new ArrayList<Double>();
     }
 
     public GreenHost(int id, RamProvisioner ramProvisioner, BwProvisioner bwProvisioner,
@@ -37,5 +41,15 @@ public class GreenHost extends PowerHostUtilizationHistory implements Serializab
         this.dataCenterName = dataCenterName;
     }
 
+    public double[] getGreenUtilizationHistory() {
+        return getUtilizationHistory();
+    }
 
+    public void addEnergyHistory(Double d) {
+        energyHystory.add(d);
+    }
+
+    public List<Double> getEnergyHystory() {
+        return energyHystory;
+    }
 }
