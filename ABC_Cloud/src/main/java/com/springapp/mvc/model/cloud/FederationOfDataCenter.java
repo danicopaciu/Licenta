@@ -1,5 +1,6 @@
 package com.springapp.mvc.model.cloud;
 
+import com.springapp.mvc.controller.Resources;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.core.CloudSim;
@@ -92,6 +93,24 @@ public class FederationOfDataCenter extends SimEntity {
 
     public void setCloudletList(List<Cloudlet> cloudletList) {
         this.cloudletList = cloudletList;
+    }
+
+    public void computeGreenPower(double windSpeed) {
+        final int vin = 3;
+        final int vout = 25;
+        final int pr = 225000;
+        final int vr = 13;
+        double energy;
+        for (GreenDataCenter dc : dataCenterList) {
+            if (windSpeed < vin || windSpeed > vout) {
+                energy = 0;
+            } else if (windSpeed > vr && windSpeed < vout) {
+                energy = pr;
+            } else {
+                energy = (pr * (windSpeed - vin)) / (vr - vin);
+            }
+            dc.setGreenEnergyQuantity(dc.getGreenEnergyQuantity() + Resources.SCHEDULING_INTERVAL * energy);
+        }
     }
 
 }

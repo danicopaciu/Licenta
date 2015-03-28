@@ -9,7 +9,10 @@ import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -22,9 +25,9 @@ import java.util.*;
  */
 public class MainController {
 
+    public static double allocatedDC;
     private static FederationOfDataCenter fed;
-
-
+    private static List<Double> windSpeed;
 
     public static void main(String[] args) {
 
@@ -37,7 +40,8 @@ public class MainController {
             CloudSim.init(num_user, calendar, false);
 
             fed = getFederationOfDatacenters();
-
+            windSpeed = new ArrayList<Double>();
+            initWindList();
             Runnable monitor = new Runnable() {
                 @Override
                 public void run() {
@@ -46,16 +50,22 @@ public class MainController {
                      while(true){
 
                          double x;
-                         System.out.print("");
-                         x= CloudSim.clock();
-
-                         if ((((x - 0.3) % 300 == 0)) && (x != current_time) && (x != 0.3) && (x > 1000)) {
+//                         System.out.print("");
+                         x = CloudSim.clock();
+                         allocatedDC = getAllocatedDC();
+                         if ((((x - allocatedDC) % 300 == 0)) && (x != current_time) && (x != allocatedDC)) {
                              current_time = CloudSim.clock();
-                             System.out.println("timpul este " + current_time);
-                             CloudSim.pauseSimulation();
-                             migrateVMs(fed.getVmList());
-                             CloudSim.resumeSimulation();
+                             fed.computeGreenPower(windSpeed.get((int) (x - allocatedDC) / 300) + 1);
+                             if (x > 600)
+                                 migrateVMs(fed.getVmList());
+                         } else if (x > 86400) {
+                             break;
                          }
+//                         if ((((x - 0.5) % 300 == 0)) && (x != current_time) && (x != 0.5) && (x > 1000)) {
+//                             System.out.println("timpul este " + current_time);
+//                             CloudSim.pauseSimulation();
+//                             CloudSim.resumeSimulation();
+//                         }
 
                      }
                 }
@@ -83,11 +93,20 @@ public class MainController {
         System.exit(0);
     }
 
+    private static double getAllocatedDC() {
+        double counter = 0;
+        for (GreenDataCenter dc : fed.getDataCenterList()) {
+            if (!dc.getVmList().isEmpty()) {
+                counter++;
+            }
+        }
+        return counter / 10;
+    }
+
     private static FederationOfDataCenter getFederationOfDatacenters() throws FileNotFoundException {
         CloudDirector cloudDirector = new CloudDirector();
         CloudBuilder builder = new GreenCloudBuilder();
-        FederationOfDataCenter fed = cloudDirector.constructFederationOfDataCenters(builder);
-        return fed;
+        return cloudDirector.constructFederationOfDataCenters(builder);
     }
 
 
@@ -142,5 +161,27 @@ public class MainController {
         abc.runAlgorithm();
     }
 
+
+    private static void initWindList() throws FileNotFoundException {
+        BufferedReader br = new BufferedReader(new FileReader("wind_speed.txt"));
+        try {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                String[] data = line.split(" ");
+                windSpeed.add(Double.parseDouble(data[1]));
+                line = br.readLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }

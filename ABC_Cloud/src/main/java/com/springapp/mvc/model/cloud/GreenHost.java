@@ -2,10 +2,13 @@ package com.springapp.mvc.model.cloud;
 
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.VmScheduler;
+import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.power.PowerHostUtilizationHistory;
+import org.cloudbus.cloudsim.power.PowerVm;
 import org.cloudbus.cloudsim.power.models.PowerModel;
 import org.cloudbus.cloudsim.provisioners.BwProvisioner;
 import org.cloudbus.cloudsim.provisioners.RamProvisioner;
+import org.cloudbus.cloudsim.util.MathUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -42,14 +45,45 @@ public class GreenHost extends PowerHostUtilizationHistory implements Serializab
     }
 
     public double[] getGreenUtilizationHistory() {
+        try {
+            return getUtilizationHistory();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return getUtilizationHistory();
     }
 
-    public void addEnergyHistory(Double d) {
+    public synchronized void addEnergyHistory(Double d) {
         energyHystory.add(d);
     }
 
-    public List<Double> getEnergyHystory() {
+    public synchronized List<Double> getEnergyHystory() {
         return energyHystory;
+    }
+
+    public double getAvailableBandwidth() {
+        return getBwProvisioner().getAvailableBw();
+    }
+
+    protected double[] getUtilizationHistory() {
+        double[] utilizationHistory = new double[PowerVm.HISTORY_LENGTH];
+        int i;
+        GreenVm vm1;
+        double hostMips = getTotalMips();
+        try {
+            for (PowerVm vm : this.<PowerVm>getVmList()) {
+                vm1 = (GreenVm) vm;
+                for (i = 0; i < vm1.getUtilizationHistory().size(); i++) {
+                    System.out.println(vm1.getUtilizationHistory().size());
+                    if (i == 30) {
+                        System.out.println(CloudSim.clock());
+                    }
+                    utilizationHistory[i] += vm1.getUtilizationHistory().get(i) * vm.getMips() / hostMips;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return MathUtil.trimZeroTail(utilizationHistory);
     }
 }

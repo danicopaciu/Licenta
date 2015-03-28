@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,6 +29,8 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class GreenCloudBuilder extends CloudBuilder {
+
+    public static final String PLANETLAB_20110303 = "planetlab/20110303";
 
     @Override
     public FederationOfDataCenter createFederationOfDataCenters() {
@@ -48,8 +51,8 @@ public class GreenCloudBuilder extends CloudBuilder {
             }
 
 
-            String arch = "x86";      // system architecture
-            String os = "Linux";          // operating system
+            String arch = "x86";
+            String os = "Linux";
             String vmm = "Xen";
             double timeZone = 10.0;         // time zone this resource located
             double cost = 3.0;              // the cost of using processing in this resource
@@ -62,7 +65,6 @@ public class GreenCloudBuilder extends CloudBuilder {
                     costPerStorage, costPerBw, storageList);
             dataCenterList.add(dataCenter);
         }
-
         return dataCenterList;
     }
 
@@ -99,22 +101,30 @@ public class GreenCloudBuilder extends CloudBuilder {
 
     public List<GreenVm> createVMs() {
 
-        int mips = 250;
-        long size = 10000; //image size (MB)
-        int ram = 512; //vm memory (MB)
-        long bw = 1000;
-        int pesNumber = 1; //number of cpus
-        String vmm = "Xen"; //VMM name
+        int vmType = getVmType();
+
+        int mips = Constants.VM_MIPS[vmType];
+        long size = Constants.VM_SIZE;
+        int ram = Constants.VM_RAM[vmType];
+        long bw = Constants.VM_BW;
+        int pesNumber = Constants.VM_PES[vmType];
+        String vmm = "Xen";
         int priority = 1;
         double scheduleInterval = 300;
 
         vmList = new ArrayList<GreenVm>();
-        for (int i = 1; i <= Resources.VM_NUMBER; i++) {
-            vmList.add(new GreenVm(i, broker.getId(), mips, pesNumber, ram, bw, size, priority,
-                    vmm, new CloudletSchedulerDynamicWorkload(mips, pesNumber), scheduleInterval));
+        for (int i = 0; i < Resources.VM_NUMBER; i++) {
+            GreenVm vm = new GreenVm(i, broker.getId(), mips, pesNumber, ram, bw, size, priority,
+                    vmm, new CloudletSchedulerDynamicWorkload(mips, pesNumber), scheduleInterval);
+            vmList.add(vm);
         }
         broker.submitVmList(vmList);
         return vmList;
+    }
+
+    private int getVmType() {
+        Random random = new Random();
+        return random.nextInt(4);
     }
 
     @Override
@@ -164,16 +174,17 @@ public class GreenCloudBuilder extends CloudBuilder {
         long length = Resources.CLOUDLET_LENGTH;
         long fileSize = 300;
         long outputSize = 300;
-        UtilizationModel utilizationModelNull = new UtilizationModelNull();
+        UtilizationModel utilizationModel = new UtilizationModelStochastic();
         if(files!= null) {
             for (int i = 0; i < Resources.VM_NUMBER; i++) {
                 Cloudlet cloudlet = null;
                 try {
+                    UtilizationModelPlanetLabInMemory utilizationModelPlanetLabInMemory = new UtilizationModelPlanetLabInMemory(
+                            files[i].getAbsolutePath(),
+                            Resources.SCHEDULING_INTERVAL);
                     cloudlet = new Cloudlet(i, length, pesNumber, fileSize, outputSize,
-                            new UtilizationModelPlanetLabInMemory(
-                                    files[i].getAbsolutePath(),
-                                    300),
-                            utilizationModelNull, utilizationModelNull);
+                            utilizationModelPlanetLabInMemory,
+                            utilizationModelPlanetLabInMemory, utilizationModelPlanetLabInMemory);
                 } catch (IOException e) {
                     e.printStackTrace();
                     System.exit(0);
@@ -196,7 +207,7 @@ public class GreenCloudBuilder extends CloudBuilder {
 
     private String getInputFolder() {
         String inputFolder = "";
-        Resource resource = new ClassPathResource("planetlab/20110303");
+        Resource resource = new ClassPathResource(PLANETLAB_20110303);
         try {
             inputFolder = resource.getFile().getAbsolutePath();
         } catch (IOException e) {

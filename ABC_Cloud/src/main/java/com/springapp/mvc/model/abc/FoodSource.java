@@ -17,7 +17,18 @@ public class FoodSource implements Comparable<FoodSource> {
 
     private int conflictsNumber;
 
+    private double latencyParam;
+
     private Bee bee;
+    private OnlookerBee onlookerBee;
+
+    public FoodSource(List<Nectar> nectarList) {
+        this.nectarList = nectarList;
+        this.fitness = 0.0;
+        this.probability = 0.0;
+        this.trialsNumber = 0;
+        this.conflictsNumber = 0;
+    }
 
     public Bee getBee() {
         return bee;
@@ -33,16 +44,6 @@ public class FoodSource implements Comparable<FoodSource> {
 
     public void setOnlookerBee(OnlookerBee onlookerBee) {
         this.onlookerBee = onlookerBee;
-    }
-
-    private OnlookerBee onlookerBee;
-
-    public FoodSource(List<Nectar> nectarList) {
-        this.nectarList = nectarList;
-        this.fitness = 0.0;
-        this.probability = 0.0;
-        this.trialsNumber = 0;
-        this.conflictsNumber = 0;
     }
 
     public List<Nectar> getNectarList() {
@@ -111,5 +112,13 @@ public class FoodSource implements Comparable<FoodSource> {
 
     public void incrementTrialsNumber() {
         trialsNumber++;
+    }
+
+    public double getLatencyParam() {
+        return latencyParam;
+    }
+
+    public void setLatencyParam(double latencyParam) {
+        this.latencyParam = latencyParam;
     }
 }

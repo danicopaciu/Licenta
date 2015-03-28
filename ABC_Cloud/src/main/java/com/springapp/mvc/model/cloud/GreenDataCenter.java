@@ -19,6 +19,9 @@ public class GreenDataCenter extends PowerDatacenter {
 
     private double greenEnergyQuantity;
 
+    private double brownEnergyQuantity;
+
+
     public GreenDataCenter(String name, DatacenterCharacteristics characteristics,
                            VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList,
                            double schedulingInterval) throws Exception {
@@ -29,7 +32,8 @@ public class GreenDataCenter extends PowerDatacenter {
                            VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList,
                            double schedulingInterval, double greenEnergyQuantity) throws Exception {
         super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
-        this.greenEnergyQuantity = greenEnergyQuantity;
+        this.greenEnergyQuantity = 0;
+        this.brownEnergyQuantity = 0;
     }
 
     public double getGreenEnergyQuantity() {
@@ -51,14 +55,13 @@ public class GreenDataCenter extends PowerDatacenter {
         }
         double currentTime = CloudSim.clock();
 
-//        if( currentTime > 86400){
-//            System.out.println("Am terminat simularea");
-////            return;
-//        }
+        if (currentTime > 86400) {
+            System.out.println("Am terminat simularea");
+            return;
+        }
 
         // if some time passed since last processing
         if (currentTime > getLastProcessTime()) {
-            System.out.print(currentTime + " ");
 
             double minTime = updateCloudetProcessingWithoutSchedulingFutureEventsForce();
 
@@ -182,6 +185,13 @@ public class GreenDataCenter extends PowerDatacenter {
         }
 
         setPower(getPower() + timeFrameDatacenterEnergy);
+        double energy = greenEnergyQuantity - timeFrameDatacenterEnergy;
+        if (energy < 0) {
+            brownEnergyQuantity += timeFrameDatacenterEnergy - getGreenEnergyQuantity();
+            greenEnergyQuantity = 0;
+        } else {
+            greenEnergyQuantity = energy;
+        }
 
         checkCloudletCompletion();
 
@@ -203,5 +213,13 @@ public class GreenDataCenter extends PowerDatacenter {
     @Override
     public void processVmMigrate(SimEvent ev, boolean ack) {
         super.processVmMigrate(ev, ack);
+    }
+
+    public double getBrownEnergyQuantity() {
+        return brownEnergyQuantity;
+    }
+
+    public void setBrownEnergyQuantity(double brownEnergyQuantity) {
+        this.brownEnergyQuantity = brownEnergyQuantity;
     }
 }
