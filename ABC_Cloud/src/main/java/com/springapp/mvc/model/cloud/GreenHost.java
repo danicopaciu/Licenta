@@ -74,10 +74,6 @@ public class GreenHost extends PowerHostUtilizationHistory implements Serializab
             for (PowerVm vm : this.<PowerVm>getVmList()) {
                 vm1 = (GreenVm) vm;
                 for (i = 0; i < vm1.getUtilizationHistory().size(); i++) {
-                    System.out.println(vm1.getUtilizationHistory().size());
-                    if (i == 30) {
-                        System.out.println(CloudSim.clock());
-                    }
                     utilizationHistory[i] += vm1.getUtilizationHistory().get(i) * vm.getMips() / hostMips;
                 }
             }

@@ -42,48 +42,51 @@ public class MainController {
             fed = getFederationOfDatacenters();
             windSpeed = new ArrayList<Double>();
             initWindList();
-            Runnable monitor = new Runnable() {
-                @Override
-                public void run() {
-                    double current_time = -1;
-
-                     while(true){
-
-                         double x;
-//                         System.out.print("");
-                         x = CloudSim.clock();
-                         allocatedDC = getAllocatedDC();
-                         if ((((x - allocatedDC) % 300 == 0)) && (x != current_time) && (x != allocatedDC)) {
-                             current_time = CloudSim.clock();
-                             fed.computeGreenPower(windSpeed.get((int) (x - allocatedDC) / 300) + 1);
-                             if (x > 600)
-                                 migrateVMs(fed.getVmList());
-                         } else if (x > 86400) {
-                             break;
-                         }
-//                         if ((((x - 0.5) % 300 == 0)) && (x != current_time) && (x != 0.5) && (x > 1000)) {
-//                             System.out.println("timpul este " + current_time);
-//                             CloudSim.pauseSimulation();
-//                             CloudSim.resumeSimulation();
+            fed.setWindList(windSpeed);
+//            Runnable monitor = new Runnable() {
+//                @Override
+//                public void run() {
+//                    double current_time = -1;
+//
+//                     while(true){
+//
+//                         double x;
+////                         System.out.print("");
+//                         x = CloudSim.clock();
+//                         allocatedDC = getAllocatedDC();
+//                         if ((((x - allocatedDC) % 300 == 0)) && (x != current_time) && (x != allocatedDC)) {
+//                              System.out.print(x+ " ");
+//
+//                             current_time = CloudSim.clock();
+//                             fed.computeGreenPower(windSpeed.get((int) (x - allocatedDC) / 300) + 1);
+//                             if (x > 600){
+//                                 CloudSim.pauseSimulation();
+//                                 migrateVMs(fed.getVmList());
+//                                 CloudSim.resumeSimulation();
+//                             }
+//
+//                         } else if (x >= 86400) {
+//                             break;
 //                         }
-
-                     }
-                }
-            };
-
-            Thread thread = new Thread(monitor);
-            thread.start();
+//                     }
+//                }
+//            };
+//
+//            Thread thread = new Thread(monitor);
+//            thread.start();
 
             CloudSim.startSimulation();
-
 //          Final step: Print results when simulation is over
             DatacenterBroker broker = fed.getBroker();
             List<Cloudlet> newList = broker.getCloudletReceivedList();
             Log.printLine("Received " + newList.size() + " cloudlets");
 
+
+
             CloudSim.stopSimulation();
 
             printCloudletList(newList);
+
 
             Log.printLine("CloudSim finished!");
         } catch (Exception e) {
