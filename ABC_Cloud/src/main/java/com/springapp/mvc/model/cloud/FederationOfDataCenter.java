@@ -1,6 +1,7 @@
 package com.springapp.mvc.model.cloud;
 
 import com.springapp.mvc.controller.Resources;
+import com.springapp.mvc.model.abc.ArtificialBeeColony;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
@@ -12,8 +13,7 @@ import org.cloudbus.cloudsim.core.SimEvent;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Daniel on 3/12/2015.
@@ -41,19 +41,20 @@ public class FederationOfDataCenter extends SimEntity {
         }
     }
 
-    public void migrateVMs(GreenVm vm, GreenHost host) {
-        //  System.out.println("Vm " + vm.getId() + " is on host " + vm.getHost().getId());
-            GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
-            HashMap<String, Object> data = new HashMap<String, Object>();
-            data.put("vm", vm);
-            data.put("host", vm);
-            send(dataCenter.getId(), CloudSim.clock(), CloudSimTags.VM_MIGRATE, data);
-            System.out.println("Vm " + vm.getId() + " is on host " + vm.getHost().getId());
-    }
+//    public void migrateVMs(GreenVm vm, GreenHost host) {
+//        //  System.out.println("Vm " + vm.getId() + " is on host " + vm.getHost().getId());
+//            GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
+//            HashMap<String, Object> data = new HashMap<String, Object>();
+//            data.put("vm", vm);
+//            data.put("host", vm);
+//            send(dataCenter.getId(), CloudSim.clock(), CloudSimTags.VM_MIGRATE, data);
+//            System.out.println("Vm " + vm.getId() + " is on host " + vm.getHost().getId());
+//    }
 
     @Override
     public void startEntity() {
-        send(getId(), 600, PERIODIC_EVENT, new Object());
+
+        send(getId(), 600 , PERIODIC_EVENT, new Object());
     }
 
     @Override
@@ -76,8 +77,14 @@ public class FederationOfDataCenter extends SimEntity {
         System.out.print(clock + " " + getAllocatedDC() + " || ");
 
         computeGreenPower(windList.get((int) (clock - getAllocatedDC()) / 300) + 1);
+        migrateVMs(getVmList());
 
         float delay = 300; //contains the delay to the next periodic event
+
+        if (clock == 600){
+            delay += getAllocatedDC ();
+        }
+
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
         if (clock >= 86400) {
             generatePeriodicEvent = false;
@@ -175,8 +182,26 @@ public class FederationOfDataCenter extends SimEntity {
         }
     }
 
-    public void createEvent(int entityId, double delay, int cloudSimTag, Object data) {
-          send(entityId, delay, cloudSimTag, data);
+    private void migrateVMs(List<GreenVm> vmList){
+        Random rand = new Random();
+        int vmNr = rand.nextInt(vmList.size() - 2) + 1;
+
+        Set<GreenVm> migratingSet = new HashSet<GreenVm>();
+
+        while (migratingSet.size() <= vmNr) {
+            int index = rand.nextInt(vmList.size() -1);
+            GreenVm vm = vmList.get(index);
+            migratingSet.add(vm);
+        }
+        List<GreenVm> migratingList = new ArrayList<GreenVm>();
+        if (migratingSet.size() != 0) {
+            migratingList.addAll(migratingSet);
+        }
+
+        List<GreenDataCenter> DClist = getDataCenterList();
+
+        ArtificialBeeColony abc = new ArtificialBeeColony(DClist, migratingList);
+        abc.runAlgorithm();
     }
 
 }
