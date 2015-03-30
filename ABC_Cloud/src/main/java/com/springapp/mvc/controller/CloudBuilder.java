@@ -32,4 +32,52 @@ public abstract class CloudBuilder {
     public abstract List<GreenVm> createVMs();
     public abstract List<GreenHost> createHosts();
     public abstract List<Cloudlet> createCloudletss() throws FileNotFoundException;
+
+    public FederationOfDataCenter getFederationOfDataCenters() {
+        return federationOfDataCenters;
     }
+
+    public void setFederationOfDataCenters(FederationOfDataCenter federationOfDataCenters) {
+        this.federationOfDataCenters = federationOfDataCenters;
+    }
+
+    public List<GreenDataCenter> getDataCenterList() {
+        return dataCenterList;
+    }
+
+    public void setDataCenterList(List<GreenDataCenter> dataCenterList) {
+        this.dataCenterList = dataCenterList;
+    }
+
+    public List<GreenHost> getHostList() {
+        return hostList;
+    }
+
+    public void setHostList(List<GreenHost> hostList) {
+        this.hostList = hostList;
+    }
+
+    public List<GreenVm> getVmList() {
+        return vmList;
+    }
+
+    public void setVmList(List<GreenVm> vmList) {
+        this.vmList = vmList;
+    }
+
+    public List<Cloudlet> getCloudletList() {
+        return cloudletList;
+    }
+
+    public void setCloudletList(List<Cloudlet> cloudletList) {
+        this.cloudletList = cloudletList;
+    }
+
+    public DatacenterBroker getBroker() {
+        return broker;
+    }
+
+    public void setBroker(DatacenterBroker broker) {
+        this.broker = broker;
+    }
+}

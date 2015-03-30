@@ -1,14 +1,14 @@
 package com.springapp.mvc.model.cloud;
 
+import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Pe;
+import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmScheduler;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.power.PowerHostUtilizationHistory;
-import org.cloudbus.cloudsim.power.PowerVm;
 import org.cloudbus.cloudsim.power.models.PowerModel;
 import org.cloudbus.cloudsim.provisioners.BwProvisioner;
 import org.cloudbus.cloudsim.provisioners.RamProvisioner;
-import org.cloudbus.cloudsim.util.MathUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -65,21 +65,96 @@ public class GreenHost extends PowerHostUtilizationHistory implements Serializab
         return getBwProvisioner().getAvailableBw();
     }
 
-    protected double[] getUtilizationHistory() {
-        double[] utilizationHistory = new double[PowerVm.HISTORY_LENGTH];
-        int i;
-        GreenVm vm1;
-        double hostMips = getTotalMips();
+    @Override
+    public double updateVmsProcessing(double currentTime) {
+        double smallerTime = 0;
         try {
-            for (PowerVm vm : this.<PowerVm>getVmList()) {
-                vm1 = (GreenVm) vm;
-                for (i = 0; i < vm1.getUtilizationHistory().size(); i++) {
-                    utilizationHistory[i] += vm1.getUtilizationHistory().get(i) * vm.getMips() / hostMips;
-                }
-            }
+            smallerTime = super.updateVmsProcessing(currentTime);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return MathUtil.trimZeroTail(utilizationHistory);
+        setPreviousUtilizationMips(getUtilizationMips());
+        setUtilizationMips(0);
+        double hostTotalRequestedMips = 0;
+
+        for (Vm vm : getVmList()) {
+            getVmScheduler().deallocatePesForVm(vm);
+        }
+
+        for (Vm vm : getVmList()) {
+            getVmScheduler().allocatePesForVm(vm, vm.getCurrentRequestedMips());
+        }
+
+        for (Vm vm : getVmList()) {
+            double totalRequestedMips = vm.getCurrentRequestedTotalMips();
+            double totalAllocatedMips = getVmScheduler().getTotalAllocatedMipsForVm(vm);
+
+            double am;
+            double mips;
+            if (!Log.isDisabled()) {
+                try {
+                    am = totalAllocatedMips;
+                    mips = vm.getMips();
+                    Log.formatLine(
+                            "%.2f: [Host #" + getId() + "] Total allocated MIPS for VM #" + vm.getId()
+                                    + " (Host #" + vm.getHost().getId()
+                                    + ") is %.2f, was requested %.2f out of total %.2f (%.2f%%)",
+                            CloudSim.clock(),
+                            totalAllocatedMips,
+                            totalRequestedMips,
+                            vm.getMips(),
+                            totalRequestedMips / vm.getMips() * 100);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                List<Pe> pes = getVmScheduler().getPesAllocatedForVM(vm);
+                StringBuilder pesString = new StringBuilder();
+                for (Pe pe : pes) {
+                    pesString.append(String.format(" PE #" + pe.getId() + ": %.2f.", pe.getPeProvisioner()
+                            .getTotalAllocatedMipsForVm(vm)));
+                }
+                Log.formatLine(
+                        "%.2f: [Host #" + getId() + "] MIPS for VM #" + vm.getId() + " by PEs ("
+                                + getNumberOfPes() + " * " + getVmScheduler().getPeCapacity() + ")."
+                                + pesString,
+                        CloudSim.clock());
+            }
+
+            if (getVmsMigratingIn().contains(vm)) {
+                Log.formatLine("%.2f: [Host #" + getId() + "] VM #" + vm.getId()
+                        + " is being migrated to Host #" + getId(), CloudSim.clock());
+            } else {
+                if (totalAllocatedMips + 0.1 < totalRequestedMips) {
+                    Log.formatLine("%.2f: [Host #" + getId() + "] Under allocated MIPS for VM #" + vm.getId()
+                            + ": %.2f", CloudSim.clock(), totalRequestedMips - totalAllocatedMips);
+                }
+
+                vm.addStateHistoryEntry(
+                        currentTime,
+                        totalAllocatedMips,
+                        totalRequestedMips,
+                        (vm.isInMigration() && !getVmsMigratingIn().contains(vm)));
+
+                if (vm.isInMigration()) {
+                    Log.formatLine(
+                            "%.2f: [Host #" + getId() + "] VM #" + vm.getId() + " is in migration",
+                            CloudSim.clock());
+                    totalAllocatedMips /= 0.9; // performance degradation due to migration - 10%
+                }
+            }
+
+            setUtilizationMips(getUtilizationMips() + totalAllocatedMips);
+            hostTotalRequestedMips += totalRequestedMips;
+        }
+
+        addStateHistoryEntry(
+                currentTime,
+                getUtilizationMips(),
+                hostTotalRequestedMips,
+                (getUtilizationMips() > 0));
+
+        return smallerTime;
     }
+
 }

@@ -29,29 +29,27 @@ public class ArtificialBeeColony {
         DIMENSION = vmList.size();
     }
 
-    public boolean runAlgorithm() {
+    public FoodSource runAlgorithm() {
         boolean done = false;
         int epoch = 0;
         initialize();
-        FoodSource bestFoodSource = getBestSolution();
+        FoodSource bestFoodSource = null;
         while (!done) {
-            if (epoch < Constants.EPOCH_LIMIT) {
-//                if (bestFoodSource.getConflictsNumber() == 0) {
-//                    done = true;
-//                }
+            if (epoch < 2) {
                 sendEmployedBees();
                 sendOnlookerBees();
-                bestFoodSource = getBestSolution();
                 sendScoutBees();
                 epoch++;
             } else {
                 done = true;
+                bestFoodSource = getBestSolution();
+                System.out.println("fitness: " + bestFoodSource.getFitness());
             }
         }
         if (epoch == Constants.EPOCH_LIMIT) {
             done = false;
         }
-        return done;
+        return bestFoodSource;
     }
 
     private FoodSource getBestSolution() {
@@ -113,17 +111,16 @@ public class ArtificialBeeColony {
         for (FoodSource fs : list) {
             Bee bee = fs.getBee();
             bee.computeConflicts();
-            bee.computeLatency();
             bee.applyFitnessFunction(dataCenterList);
         }
         int index = 0;
         for (FoodSource fs : list) {
             int neighbourBeeIndex =
                     getRandomNeighbourIndex(FOOD_SOURCES_NUMBER - 1, index);
-            Bee currentBee = employedBeeList.get(index);
+            Bee currentBee = fs.getBee();
             Bee neighbourBee = employedBeeList.get(neighbourBeeIndex);
             currentBee.searchInNeighborhood(neighbourBee.getFoodSource(), DIMENSION, dataCenterList);
-//            currentBee.computeProbability(list);
+            currentBee.computeProbability(list);
             index++;
         }
     }
@@ -137,27 +134,13 @@ public class ArtificialBeeColony {
         }
         List<FoodSource> list = new ArrayList<FoodSource>();
         list.addAll(foodSourceSet);
-        for (FoodSource fs : list) {
-            OnlookerBee bee;
-            if (fs.getOnlookerBee() == null) {
-                bee = new OnlookerBee(0, fs);
-                fs.setOnlookerBee(bee);
-                onlookerBeeList.add(bee);
-            } else {
-                bee = fs.getOnlookerBee();
-            }
-            bee.computeProbability(list);
-        }
         int index = 0;
         int i = 0;
-        Object[] foodSourceArray = foodSourceSet.toArray();
-        for (int j = 0; j < foodSourceArray.length; j++) {
-            list.add((FoodSource) foodSourceArray[j]);
-        }
         while (index < FOOD_SOURCES_NUMBER) {
             Random random = new Random();
             double randomDouble = random.nextDouble();
-            FoodSource currentFoodSource = list.get(index);
+            FoodSource currentFoodSource = list.get(i);
+            randomDouble /= 10;
             if (randomDouble < currentFoodSource.getProbability()) {
                 int neighbourBeeIndex =
                         getRandomNeighbourIndex(FOOD_SOURCES_NUMBER - 1, i);

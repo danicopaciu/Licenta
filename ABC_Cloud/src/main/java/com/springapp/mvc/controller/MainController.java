@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class MainController {
 
-    public static double allocatedDC;
+
     private static FederationOfDataCenter fed;
     private static List<Double> windSpeed;
 

@@ -17,7 +17,6 @@ public class FoodSource implements Comparable<FoodSource> {
 
     private int conflictsNumber;
 
-    private double latencyParam;
 
     private Bee bee;
     private OnlookerBee onlookerBee;
@@ -112,13 +111,5 @@ public class FoodSource implements Comparable<FoodSource> {
 
     public void incrementTrialsNumber() {
         trialsNumber++;
-    }
-
-    public double getLatencyParam() {
-        return latencyParam;
-    }
-
-    public void setLatencyParam(double latencyParam) {
-        this.latencyParam = latencyParam;
     }
 }

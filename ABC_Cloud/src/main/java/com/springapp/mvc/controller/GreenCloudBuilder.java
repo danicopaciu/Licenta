@@ -4,8 +4,8 @@ import com.springapp.mvc.model.cloud.FederationOfDataCenter;
 import com.springapp.mvc.model.cloud.GreenDataCenter;
 import com.springapp.mvc.model.cloud.GreenHost;
 import com.springapp.mvc.model.cloud.GreenVm;
+import com.springapp.mvc.model.policy.MultipleDataCenterPowerVmAllocationPolicy;
 import org.cloudbus.cloudsim.*;
-import org.cloudbus.cloudsim.power.PowerVmAllocationPolicySimple;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
@@ -81,7 +81,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         GreenDataCenter dataCenter = null;
         try {
             dataCenter = new GreenDataCenter("DataCenter_" + id, characteristics,
-                    new PowerVmAllocationPolicySimple(thisHostList), storageList, 300);
+                    new MultipleDataCenterPowerVmAllocationPolicy(thisHostList), storageList, 300);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -241,7 +241,6 @@ public class GreenCloudBuilder extends CloudBuilder {
         file.createNewFile();
         Log.setOutput(new FileOutputStream(file));
     }
-
 
 
 }

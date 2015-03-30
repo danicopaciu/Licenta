@@ -3,7 +3,6 @@ package com.springapp.mvc.model.cloud;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
-import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerHost;
@@ -192,7 +191,8 @@ public class GreenDataCenter extends PowerDatacenter {
         } else {
             greenEnergyQuantity = energy;
         }
-
+        Log.formatLine("-----------------------------------------------------------------------------------");
+        Log.formatLine("\n%.2f: Data center %d green energy is %.2f W*sec\n", currentTime, getId(), greenEnergyQuantity);
         checkCloudletCompletion();
 
         /** Remove completed VMs **/
@@ -210,10 +210,6 @@ public class GreenDataCenter extends PowerDatacenter {
         return minTime;
     }
 
-    @Override
-    public void processVmMigrate(SimEvent ev, boolean ack) {
-        super.processVmMigrate(ev, ack);
-    }
 
     public double getBrownEnergyQuantity() {
         return brownEnergyQuantity;

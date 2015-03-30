@@ -12,6 +12,7 @@ public class Nectar {
     private GreenHost host;
 
     private GreenVm vm;
+
     private double latency;
 
     public Nectar(GreenHost host, GreenVm vm) {

@@ -2,9 +2,12 @@ package com.springapp.mvc.model.cloud;
 
 import com.springapp.mvc.controller.Resources;
 import com.springapp.mvc.model.abc.ArtificialBeeColony;
+import com.springapp.mvc.model.abc.FoodSource;
+import com.springapp.mvc.model.abc.Nectar;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
+import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEntity;
@@ -21,13 +24,15 @@ import java.util.*;
 public class FederationOfDataCenter extends SimEntity {
 
     public static final int PERIODIC_EVENT = 67567;
+    public static final int DC_NUMBER = 67568;
+    public static final int POWER_DATACENTER = 67569;
+    public static double allocatedDC;
     private List<GreenDataCenter> dataCenterList;
     private List<GreenHost> hostList;
     private List<GreenVm> vmList;
     private List<Cloudlet> cloudletList;
     private List<Double> windList;
     private DatacenterBroker broker;
-
     private PrintWriter fileWriter;
 
     public FederationOfDataCenter(String name) {
@@ -41,34 +46,42 @@ public class FederationOfDataCenter extends SimEntity {
         }
     }
 
-//    public void migrateVMs(GreenVm vm, GreenHost host) {
-//        //  System.out.println("Vm " + vm.getId() + " is on host " + vm.getHost().getId());
-//            GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
-//            HashMap<String, Object> data = new HashMap<String, Object>();
-//            data.put("vm", vm);
-//            data.put("host", vm);
-//            send(dataCenter.getId(), CloudSim.clock(), CloudSimTags.VM_MIGRATE, data);
-//            System.out.println("Vm " + vm.getId() + " is on host " + vm.getHost().getId());
-//    }
-
     @Override
     public void startEntity() {
-
-        send(getId(), 600 , PERIODIC_EVENT, new Object());
+        send(getId(), 100, DC_NUMBER, null);
     }
 
     @Override
     public void processEvent(SimEvent ev) {
-        if (ev == null){
+        if (ev == null) {
             Log.printLine("Warning: " + CloudSim.clock() + ": " + this.getName() + ": Null event ignored.");
         } else {
             int tag = ev.getTag();
-            switch(tag){
-                case PERIODIC_EVENT: processPeriodicEvent(ev); break;
-                default: Log.printLine("Warning: "+CloudSim.clock()+":"+this.getName()+": Unknown event ignored. Tag:" +tag);
+            switch (tag) {
+                case PERIODIC_EVENT:
+                    processPeriodicEvent(ev);
+                    break;
+                case DC_NUMBER:
+                    allocatedDC = getAllocatedDC();
+                    send(getId(), 200, POWER_DATACENTER, new Object());
+                    send(getId(), 500 + allocatedDC, PERIODIC_EVENT, new Object());
+                    break;
+                case POWER_DATACENTER:
+                    computeDataCenterPower();
+                    break;
+                default:
+                    Log.printLine("Warning: " + CloudSim.clock() + ":" + this.getName() + ": Unknown event ignored. Tag:" + tag);
             }
         }
 
+    }
+
+    private void computeDataCenterPower() {
+        double clock = CloudSim.clock();
+        if (clock < 86100 + allocatedDC) {
+            computeGreenPower(windList.get((int) (clock - getAllocatedDC()) / 300) + 1);
+            send(getId(), 300, POWER_DATACENTER, new Object());
+        }
     }
 
     private void processPeriodicEvent(SimEvent ev) {
@@ -76,23 +89,19 @@ public class FederationOfDataCenter extends SimEntity {
         double clock = CloudSim.clock();
         System.out.print(clock + " " + getAllocatedDC() + " || ");
 
-        computeGreenPower(windList.get((int) (clock - getAllocatedDC()) / 300) + 1);
-        migrateVMs(getVmList());
+
+        migrateVMs();
 
         float delay = 300; //contains the delay to the next periodic event
 
-        if (clock == 600){
-            delay += getAllocatedDC ();
-        }
-
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
-        if (clock >= 86400) {
+        if (clock >= 86100 + allocatedDC) {
             generatePeriodicEvent = false;
             fileWriter.close();
         }
 
 
-        if (generatePeriodicEvent) send(getId(),delay,PERIODIC_EVENT, null);
+        if (generatePeriodicEvent) send(getId(), delay, PERIODIC_EVENT, new Object());
     }
 
     public double getAllocatedDC() {
@@ -159,21 +168,21 @@ public class FederationOfDataCenter extends SimEntity {
     }
 
     public void computeGreenPower(double windSpeed) {
-        final int vin = 3;
-        final int vout = 25;
-        final int pr = 225000;
-        final int vr = 13;
+        final int vIn = 3; //starting speed of energy production m/s
+        final int vOut = 25; // finishing speed of energy production m/s
+        final int pr = 225000; //windmill power w
+        final int vr = 13; // speed for optimal production m/s
         double energy;
 
         fileWriter.println(CloudSim.clock());
 
         for (GreenDataCenter dc : dataCenterList) {
-            if (windSpeed < vin || windSpeed > vout) {
+            if (windSpeed < vIn || windSpeed > vOut) {
                 energy = 0;
-            } else if (windSpeed > vr && windSpeed < vout) {
+            } else if (windSpeed > vr && windSpeed < vOut) {
                 energy = pr;
             } else {
-                energy = (pr * (windSpeed - vin)) / (vr - vin);
+                energy = (pr * (windSpeed - vIn)) / (vr - vIn);
             }
             fileWriter.print(dc.getId() + " ");
             fileWriter.print(dc.getGreenEnergyQuantity() + " ");
@@ -182,26 +191,48 @@ public class FederationOfDataCenter extends SimEntity {
         }
     }
 
-    private void migrateVMs(List<GreenVm> vmList){
-        Random rand = new Random();
-        int vmNr = rand.nextInt(vmList.size() - 2) + 1;
+    private void migrateVMs() {
 
+        List<Vm> greenVmList = new ArrayList<Vm>();
+        for (GreenDataCenter dc : dataCenterList) {
+            List<GreenHost> greenHosts = dc.getHostList();
+            for (GreenHost h : greenHosts) {
+                greenVmList.addAll(h.getVmList());
+            }
+        }
+        Random rand = new Random();
+        int vmNr = rand.nextInt(greenVmList.size() - 2) + 1;
         Set<GreenVm> migratingSet = new HashSet<GreenVm>();
 
-        while (migratingSet.size() <= vmNr) {
-            int index = rand.nextInt(vmList.size() -1);
-            GreenVm vm = vmList.get(index);
-            migratingSet.add(vm);
+        while (migratingSet.size() < vmNr) {
+
+            int index = rand.nextInt(greenVmList.size() - 1);
+            GreenVm vm = (GreenVm) greenVmList.get(index);
+            if (vm.getHost() != null) {
+                migratingSet.add(vm);
+            }
+
         }
         List<GreenVm> migratingList = new ArrayList<GreenVm>();
         if (migratingSet.size() != 0) {
             migratingList.addAll(migratingSet);
         }
+        System.out.println("!!!!!!!!!!!!!" + migratingList.get(0).getId());
+        List<GreenDataCenter> DCList = getDataCenterList();
 
-        List<GreenDataCenter> DClist = getDataCenterList();
+        ArtificialBeeColony abc = new ArtificialBeeColony(DCList, migratingList);
+        FoodSource result = abc.runAlgorithm();
 
-        ArtificialBeeColony abc = new ArtificialBeeColony(DClist, migratingList);
-        abc.runAlgorithm();
+        for (Nectar n : result.getNectarList()) {
+            GreenHost host = n.getHost();
+            GreenVm vm = n.getVm();
+            GreenDataCenter dataCenter = (GreenDataCenter) vm.getHost().getDatacenter();
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("vm", vm);
+            data.put("host", host);
+            send(dataCenter.getId(), 0, CloudSimTags.VM_MIGRATE, data);
+        }
     }
+
 
 }

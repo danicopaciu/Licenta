@@ -1,6 +1,5 @@
 package com.springapp.mvc.model.cloud;
 
-import com.springapp.mvc.controller.MainController;
 import org.cloudbus.cloudsim.CloudletScheduler;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.power.PowerVm;
@@ -11,7 +10,6 @@ import java.util.List;
  * Created by Daniel on 3/12/2015.
  */
 public class GreenVm extends PowerVm {
-
 
     public GreenVm(int id, int userId, double mips, int pesNumber, int ram, long bw,
                    long size, int priority, String vmm, CloudletScheduler cloudletScheduler,
@@ -39,6 +37,7 @@ public class GreenVm extends PowerVm {
         hostEnergyMean /= host.getEnergyHystory().size();
 
         double energyVm = hostEnergyMean * getUtilizationMean() / hostUtilisedMips;
+
         return energyVm;
     }
 
@@ -55,7 +54,7 @@ public class GreenVm extends PowerVm {
     @Override
     public double updateVmProcessing(final double currentTime, final List<Double> mipsShare) {
         double time = super.updateVmProcessing(currentTime, mipsShare);
-        if (currentTime > getPreviousTime() && (currentTime - MainController.allocatedDC) % getSchedulingInterval() == 0) {
+        if (currentTime > getPreviousTime() && (currentTime - FederationOfDataCenter.allocatedDC) % getSchedulingInterval() == 0) {
             double utilization = getTotalUtilizationOfCpu(getCloudletScheduler().getPreviousTime());
             if (CloudSim.clock() != 0 || utilization != 0) {
                 addUtilizationHistoryValue(utilization);

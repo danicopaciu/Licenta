@@ -8,7 +8,6 @@ import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -18,13 +17,11 @@ import java.util.Random;
  */
 public class Bee {
 
-    private int id;
 
     private FoodSource foodSource;
 
 
-    public Bee(int id, FoodSource foodSource) {
-        this.id = id;
+    public Bee(FoodSource foodSource) {
         this.foodSource = foodSource;
     }
 
@@ -143,12 +140,13 @@ public class Bee {
             } else {
                 energy = vmEnergy / dc.getGreenEnergyQuantity();
             }
-            energy -= maxLatency;
+            energy -= energy * maxLatency;
             if (energy < 0) {
                 energy = 0;
             }
             result += energy;
         }
+
         foodSource.setFitness(result);
         return result;
     }
@@ -180,13 +178,4 @@ public class Bee {
         return thisProbability;
     }
 
-    public double computeLatency() {
-        List<Double> latencyArray = new ArrayList<Double>();
-        for (Nectar n : foodSource.getNectarList()) {
-            latencyArray.add(n.getLatency());
-        }
-        double latency = Collections.max(latencyArray);
-        foodSource.setLatencyParam(latency / 300);
-        return foodSource.getLatencyParam();
-    }
 }
