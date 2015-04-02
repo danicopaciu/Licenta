@@ -88,16 +88,13 @@ public class FederationOfDataCenter extends SimEntity {
         //your code here
         double clock = CloudSim.clock();
         System.out.print(clock + " " + getAllocatedDC() + " || ");
-
-
         migrateVMs();
-
         float delay = 300; //contains the delay to the next periodic event
-
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
         if (clock >= 86100 + allocatedDC) {
             generatePeriodicEvent = false;
             fileWriter.close();
+            com.springapp.mvc.model.csv.Log.close();
         }
 
 
@@ -217,7 +214,6 @@ public class FederationOfDataCenter extends SimEntity {
         if (migratingSet.size() != 0) {
             migratingList.addAll(migratingSet);
         }
-        System.out.println("!!!!!!!!!!!!!" + migratingList.get(0).getId());
         List<GreenDataCenter> DCList = getDataCenterList();
 
         ArtificialBeeColony abc = new ArtificialBeeColony(DCList, migratingList);

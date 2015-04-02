@@ -6,10 +6,5 @@ package com.springapp.mvc.model.abc;
  */
 public class Constants {
 
-    public static final int EPOCH_LIMIT = 10;
-
-    public static final int TRIALS_LIMIT = 50;
-
-    public static final int HOST_NUMBER = 15;
 
 }

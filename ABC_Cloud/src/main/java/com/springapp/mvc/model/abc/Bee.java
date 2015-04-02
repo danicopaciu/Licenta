@@ -49,15 +49,15 @@ public class Bee {
 
         int actualConflict = computeConflicts();
         double actualFitnessFunction = applyFitnessFunction(dataCenterList);
-        if (prevFitnessFunction > actualFitnessFunction) {
+        if (prevConflicts < actualConflict && prevFitnessFunction > actualFitnessFunction) {
             changedParameter.setHost(prevHost);
             applyFitnessFunction(dataCenterList);
             computeConflicts();
             foodSource.incrementTrialsNumber();
         } else {
             foodSource.setTrialsNumber(0);
-
         }
+
     }
 
     private Nectar getChangedParameter(int changedParameterIndex) {

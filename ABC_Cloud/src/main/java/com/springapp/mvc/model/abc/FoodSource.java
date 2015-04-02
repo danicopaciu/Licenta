@@ -18,8 +18,8 @@ public class FoodSource implements Comparable<FoodSource> {
     private int conflictsNumber;
 
 
-    private Bee bee;
-    private OnlookerBee onlookerBee;
+    private Bee employedBee;
+    private Bee onlookerBee;
 
     public FoodSource(List<Nectar> nectarList) {
         this.nectarList = nectarList;
@@ -29,19 +29,19 @@ public class FoodSource implements Comparable<FoodSource> {
         this.conflictsNumber = 0;
     }
 
-    public Bee getBee() {
-        return bee;
+    public Bee getEmployedBee() {
+        return employedBee;
     }
 
-    public void setBee(Bee bee) {
-        this.bee = bee;
+    public void setEmployedBee(Bee employedBee) {
+        this.employedBee = employedBee;
     }
 
-    public OnlookerBee getOnlookerBee() {
+    public Bee getOnlookerBee() {
         return onlookerBee;
     }
 
-    public void setOnlookerBee(OnlookerBee onlookerBee) {
+    public void setOnlookerBee(Bee onlookerBee) {
         this.onlookerBee = onlookerBee;
     }
 

@@ -159,6 +159,7 @@ public class GreenDataCenter extends PowerDatacenter {
                         previousUtilizationOfCpu,
                         utilizationOfCpu,
                         timeDiff);
+                com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Host#" + host.getId() + " has consumed " + timeFrameHostEnergy + " W * sec");
                 host.addEnergyHistory(timeFrameHostEnergy);
                 timeFrameDatacenterEnergy += timeFrameHostEnergy;
 
@@ -184,6 +185,8 @@ public class GreenDataCenter extends PowerDatacenter {
         }
 
         setPower(getPower() + timeFrameDatacenterEnergy);
+        com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has " + greenEnergyQuantity + " W * sec of green energy");
+        com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has consumed " + timeFrameDatacenterEnergy + " W * sec");
         double energy = greenEnergyQuantity - timeFrameDatacenterEnergy;
         if (energy < 0) {
             brownEnergyQuantity += timeFrameDatacenterEnergy - getGreenEnergyQuantity();
@@ -191,8 +194,7 @@ public class GreenDataCenter extends PowerDatacenter {
         } else {
             greenEnergyQuantity = energy;
         }
-        Log.formatLine("-----------------------------------------------------------------------------------");
-        Log.formatLine("\n%.2f: Data center %d green energy is %.2f W*sec\n", currentTime, getId(), greenEnergyQuantity);
+        com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has " + greenEnergyQuantity + " W * sec of green energy");
         checkCloudletCompletion();
 
         /** Remove completed VMs **/
