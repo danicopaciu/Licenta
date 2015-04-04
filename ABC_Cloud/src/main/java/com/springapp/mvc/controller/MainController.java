@@ -40,41 +40,7 @@ public class MainController {
             CloudSim.init(num_user, calendar, false);
 
             fed = getFederationOfDatacenters();
-            windSpeed = new ArrayList<Double>();
-            initWindList();
-            fed.setWindList(windSpeed);
-//            Runnable monitor = new Runnable() {
-//                @Override
-//                public void run() {
-//                    double current_time = -1;
-//
-//                     while(true){
-//
-//                         double x;
-////                         System.out.print("");
-//                         x = CloudSim.clock();
-//                         allocatedDC = getAllocatedDC();
-//                         if ((((x - allocatedDC) % 300 == 0)) && (x != current_time) && (x != allocatedDC)) {
-//                              System.out.print(x+ " ");
-//
-//                             current_time = CloudSim.clock();
-//                             fed.computeGreenPower(windSpeed.get((int) (x - allocatedDC) / 300) + 1);
-//                             if (x > 600){
-//                                 CloudSim.pauseSimulation();
-//                                 migrateVMs(fed.getVmList());
-//                                 CloudSim.resumeSimulation();
-//                             }
-//
-//                         } else if (x >= 86400) {
-//                             break;
-//                         }
-//                     }
-//                }
-//            };
-//
-//            Thread thread = new Thread(monitor);
-//            thread.start();
-
+            fed.setWindSpeedMap(initWindPower());
             CloudSim.startSimulation();
 //          Final step: Print results when simulation is over
             DatacenterBroker broker = fed.getBroker();
@@ -166,7 +132,7 @@ public class MainController {
 
 
     private static void initWindList() throws FileNotFoundException {
-        BufferedReader br = new BufferedReader(new FileReader("wind_speed.txt"));
+        BufferedReader br = new BufferedReader(new FileReader("wind_speed_Datacenter_0.txt"));
         try {
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
@@ -185,6 +151,35 @@ public class MainController {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static Map<String, List<Double>> initWindPower() throws FileNotFoundException {
+        Map<String, List<Double>> windSpeedMap = new HashMap<String, List<Double>>();
+        for (GreenDataCenter dc : fed.getDataCenterList()) {
+            List<Double> windValues = new ArrayList<Double>();
+            String fileName = "wind_speed_" + dc.getName() + ".txt";
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            try {
+                StringBuilder sb = new StringBuilder();
+                String line = br.readLine();
+
+                while (line != null) {
+                    String[] data = line.split(" ");
+                    windValues.add(Double.parseDouble(data[1]));
+                    line = br.readLine();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            windSpeedMap.put(dc.getName(), windValues);
+        }
+        return windSpeedMap;
     }
 
 }

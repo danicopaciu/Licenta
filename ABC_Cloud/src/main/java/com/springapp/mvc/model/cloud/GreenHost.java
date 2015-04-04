@@ -157,4 +157,17 @@ public class GreenHost extends PowerHostUtilizationHistory implements Serializab
         return smallerTime;
     }
 
+    public double getMeanPower() {
+        double mean = 0;
+        if (energyHystory != null) {
+            if (!energyHystory.isEmpty()) {
+                for (Double d : energyHystory) {
+                    mean += d;
+                }
+                return mean / energyHystory.size();
+            }
+        }
+        return 0;
+    }
+
 }

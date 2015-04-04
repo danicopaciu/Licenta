@@ -185,14 +185,15 @@ public class GreenDataCenter extends PowerDatacenter {
         }
 
         setPower(getPower() + timeFrameDatacenterEnergy);
-        com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has " + greenEnergyQuantity + " W * sec of green energy");
-        com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has consumed " + timeFrameDatacenterEnergy + " W * sec");
-        double energy = greenEnergyQuantity - timeFrameDatacenterEnergy;
-        if (energy < 0) {
-            brownEnergyQuantity += timeFrameDatacenterEnergy - getGreenEnergyQuantity();
-            greenEnergyQuantity = 0;
-        } else {
-            greenEnergyQuantity = energy;
+        if (currentTime != getLastProcessTime()) {
+            com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has " + greenEnergyQuantity + " W * sec of green energy");
+            com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has consumed " + timeFrameDatacenterEnergy + " W * sec");
+            double energy = greenEnergyQuantity - timeFrameDatacenterEnergy;
+            if (energy < 0) {
+                brownEnergyQuantity += timeFrameDatacenterEnergy - getGreenEnergyQuantity();
+            } else {
+                greenEnergyQuantity = energy;
+            }
         }
         com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has " + greenEnergyQuantity + " W * sec of green energy");
         checkCloudletCompletion();

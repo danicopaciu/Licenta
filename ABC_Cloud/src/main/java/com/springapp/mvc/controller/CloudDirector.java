@@ -10,17 +10,12 @@ import java.io.FileNotFoundException;
 public class CloudDirector {
 
     public FederationOfDataCenter constructFederationOfDataCenters(CloudBuilder cloudBuilder) throws FileNotFoundException {
-        cloudBuilder.createHosts();
-        cloudBuilder.createDataCenter();
-        cloudBuilder.createBroker();
-        cloudBuilder.createVMs();
-        cloudBuilder.createCloudletss();
         FederationOfDataCenter federationOfDataCenter = cloudBuilder.createFederationOfDataCenters();
-        federationOfDataCenter.setHostList(cloudBuilder.getHostList());
-        federationOfDataCenter.setDataCenterList(cloudBuilder.getDataCenterList());
-        federationOfDataCenter.setBroker(cloudBuilder.getBroker());
-        federationOfDataCenter.setVmList(cloudBuilder.getVmList());
-        federationOfDataCenter.setCloudletList(cloudBuilder.getCloudletList());
+        federationOfDataCenter.setHostList(cloudBuilder.createHosts());
+        federationOfDataCenter.setDataCenterList(cloudBuilder.createDataCenter());
+        federationOfDataCenter.setBroker(cloudBuilder.createBroker());
+        federationOfDataCenter.setVmList(cloudBuilder.createVMs());
+        federationOfDataCenter.setCloudletList(cloudBuilder.createCloudletss());
         return federationOfDataCenter;
     }
 }

@@ -31,7 +31,7 @@ public class FederationOfDataCenter extends SimEntity {
     private List<GreenHost> hostList;
     private List<GreenVm> vmList;
     private List<Cloudlet> cloudletList;
-    private List<Double> windList;
+    private Map<String, List<Double>> windSpeedMap;
     private DatacenterBroker broker;
     private PrintWriter fileWriter;
 
@@ -39,6 +39,7 @@ public class FederationOfDataCenter extends SimEntity {
         super(name);
         try {
             fileWriter = new PrintWriter("energies.txt", "UTF-8");
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (UnsupportedEncodingException e) {
@@ -62,9 +63,7 @@ public class FederationOfDataCenter extends SimEntity {
                     processPeriodicEvent(ev);
                     break;
                 case DC_NUMBER:
-                    allocatedDC = getAllocatedDC();
-                    send(getId(), 200, POWER_DATACENTER, new Object());
-                    send(getId(), 500 + allocatedDC, PERIODIC_EVENT, new Object());
+                    computeDCNumber();
                     break;
                 case POWER_DATACENTER:
                     computeDataCenterPower();
@@ -76,29 +75,39 @@ public class FederationOfDataCenter extends SimEntity {
 
     }
 
+    private void computeDCNumber() {
+        allocatedDC = getAllocatedDC();
+        double nextTimeStamp = allocatedDC + 200;
+        send(getId(), nextTimeStamp, POWER_DATACENTER, new Object());
+    }
+
     private void computeDataCenterPower() {
         double clock = CloudSim.clock();
-        if (clock < 86100 + allocatedDC) {
-            computeGreenPower(windList.get((int) (clock - getAllocatedDC()) / 300) + 1);
-            send(getId(), 300, POWER_DATACENTER, new Object());
+        if (clock < 1500 + allocatedDC) {
+            computeGreenPower(clock);
+            if (clock >= 600 + allocatedDC) {
+                sendNow(getId(), PERIODIC_EVENT, new Object());
+            } else {
+                send(getId(), 300, POWER_DATACENTER, new Object());
+            }
         }
     }
 
     private void processPeriodicEvent(SimEvent ev) {
         //your code here
         double clock = CloudSim.clock();
-        System.out.print(clock + " " + getAllocatedDC() + " || ");
+        System.out.println(clock);
         migrateVMs();
         float delay = 300; //contains the delay to the next periodic event
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
-        if (clock >= 86100 + allocatedDC) {
+        if (clock >= 1500 + allocatedDC) {
             generatePeriodicEvent = false;
             fileWriter.close();
             com.springapp.mvc.model.csv.Log.close();
         }
 
 
-        if (generatePeriodicEvent) send(getId(), delay, PERIODIC_EVENT, new Object());
+        if (generatePeriodicEvent) send(getId(), delay, POWER_DATACENTER, new Object());
     }
 
     public double getAllocatedDC() {
@@ -114,14 +123,6 @@ public class FederationOfDataCenter extends SimEntity {
     @Override
     public void shutdownEntity() {
 
-    }
-
-    public List<Double> getWindList() {
-        return windList;
-    }
-
-    public void setWindList(List<Double> windList) {
-        this.windList = windList;
     }
 
     public DatacenterBroker getBroker() {
@@ -164,16 +165,17 @@ public class FederationOfDataCenter extends SimEntity {
         this.cloudletList = cloudletList;
     }
 
-    public void computeGreenPower(double windSpeed) {
+    public void computeGreenPower(double clock) {
         final int vIn = 3; //starting speed of energy production m/s
         final int vOut = 25; // finishing speed of energy production m/s
         final int pr = 225000; //windmill power w
         final int vr = 13; // speed for optimal production m/s
         double energy;
-
         fileWriter.println(CloudSim.clock());
 
         for (GreenDataCenter dc : dataCenterList) {
+            List<Double> windSpeedList = windSpeedMap.get(dc.getName());
+            double windSpeed = windSpeedList.get((int) (clock - getAllocatedDC()) / 300);
             if (windSpeed < vIn || windSpeed > vOut) {
                 energy = 0;
             } else if (windSpeed > vr && windSpeed < vOut) {
@@ -183,7 +185,7 @@ public class FederationOfDataCenter extends SimEntity {
             }
             fileWriter.print(dc.getId() + " ");
             fileWriter.print(dc.getGreenEnergyQuantity() + " ");
-            dc.setGreenEnergyQuantity(dc.getGreenEnergyQuantity() + Resources.SCHEDULING_INTERVAL * energy);
+            dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy);
             fileWriter.println(dc.getGreenEnergyQuantity() + " ");
         }
     }
@@ -199,6 +201,7 @@ public class FederationOfDataCenter extends SimEntity {
         }
         Random rand = new Random();
         int vmNr = rand.nextInt(greenVmList.size() - 2) + 1;
+//        int vmNr = 5;
         Set<GreenVm> migratingSet = new HashSet<GreenVm>();
 
         while (migratingSet.size() < vmNr) {
@@ -226,9 +229,11 @@ public class FederationOfDataCenter extends SimEntity {
             Map<String, Object> data = new HashMap<String, Object>();
             data.put("vm", vm);
             data.put("host", host);
-            send(dataCenter.getId(), 0, CloudSimTags.VM_MIGRATE, data);
+            sendNow(dataCenter.getId(), CloudSimTags.VM_MIGRATE, data);
         }
     }
 
-
+    public void setWindSpeedMap(Map<String, List<Double>> windSpeedMap) {
+        this.windSpeedMap = windSpeedMap;
+    }
 }

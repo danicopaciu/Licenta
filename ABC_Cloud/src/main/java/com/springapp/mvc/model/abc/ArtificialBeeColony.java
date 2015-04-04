@@ -17,9 +17,10 @@ import java.util.*;
 public class ArtificialBeeColony {
 
     public static final int EPOCH_LIMIT = 100;
-    public static final int TRIALS_LIMIT = 20;
+    public static final int TRIALS_LIMIT = 50;
     private final int FOOD_SOURCES_NUMBER = 20;
     private final int DIMENSION;
+
     private List<FoodSource> foodSourceList;
     private List<GreenDataCenter> dataCenterList;
     private List<GreenVm> vmList;
@@ -34,6 +35,7 @@ public class ArtificialBeeColony {
 
     public FoodSource runAlgorithm() {
         double clock = CloudSim.clock();
+        double prevFitness = 0;
         Log.printLine(clock + ": ABC algorithm starting");
         boolean done = false;
         int epoch = 0;
@@ -42,14 +44,16 @@ public class ArtificialBeeColony {
         FoodSource bestFoodSource = null;
         while (!done) {
             if (epoch < EPOCH_LIMIT) {
-                Log.printLine(clock + ": epoch: " + epoch);
-                Log.printLine(clock + ": employed bees phase is starting...");
+                System.out.println(epoch);
                 sendEmployedBees();
-                Log.printLine(clock + ": onlooker bees phase is starting...");
+                applyFitness();
+                computeProbability();
                 sendOnlookerBees();
+                if (bestFoodSource != null) {
+                    prevFitness = bestFoodSource.getFitness();
+                }
                 bestFoodSource = getBestSolution();
-                Log.printLine(clock + ": temporary best food source has fitness function: " + bestFoodSource.getFitness());
-                Log.printLine(clock + ": scout bees phase is starting...");
+                System.out.println(clock + ": " + prevFitness + " " + bestFoodSource.getFitness() + " " + bestFoodSource);
                 sendScoutBees();
                 epoch++;
             } else {
@@ -67,13 +71,13 @@ public class ArtificialBeeColony {
     }
 
     private FoodSource getBestSolution() {
-        FoodSource minFoodSource = foodSourceList.get(0);
+        FoodSource maxFoodSource = foodSourceList.get(0);
         for (FoodSource fs : foodSourceList) {
-            if (fs.getFitness() < minFoodSource.getFitness()) {
-                minFoodSource = fs;
+            if (fs.getFitness() > maxFoodSource.getFitness()) {
+                maxFoodSource = fs;
             }
         }
-        return minFoodSource;
+        return maxFoodSource;
     }
 
     /**
@@ -118,8 +122,16 @@ public class ArtificialBeeColony {
     private GreenHost getRandomHost() {
         Random random = new Random();
         List<GreenHost> hosts = getHostList();
-        int selectedHostIndex = random.nextInt(hosts.size());
-        return hosts.get(selectedHostIndex);
+        GreenHost host;
+        double greenEnergy;
+        do {
+            int selectedHostIndex = random.nextInt(hosts.size());
+            host = hosts.get(selectedHostIndex);
+            GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
+            greenEnergy = dataCenter.getGreenEnergyQuantity();
+        } while (greenEnergy == 0);
+
+        return host;
     }
 
     private void sendEmployedBees() {
@@ -135,7 +147,6 @@ public class ArtificialBeeColony {
             Bee currentBee = fs.getEmployedBee();
             Bee neighbourBee = employedBeeList.get(neighbourBeeIndex);
             currentBee.searchInNeighborhood(neighbourBee.getFoodSource(), DIMENSION, dataCenterList);
-            currentBee.computeProbability(foodSourceList);
             index++;
         }
     }
@@ -150,11 +161,12 @@ public class ArtificialBeeColony {
             Random random = new Random();
             double randomDouble = random.nextDouble();
             FoodSource currentFoodSource = foodSourceList.get(i);
-            randomDouble /= 10;
-            if (randomDouble < currentFoodSource.getProbability()) {
+            double currentProbability = currentFoodSource.getProbability();
+            if (randomDouble < currentProbability) {
                 int neighbourBeeIndex =
                         getRandomNeighbourIndex(FOOD_SOURCES_NUMBER - 1, i);
                 Bee onlookerBee = new Bee(currentFoodSource);
+                currentFoodSource.setOnlookerBee(onlookerBee);
                 onlookerBeeList.add(onlookerBee);
                 FoodSource neighbourFoodSource = foodSourceList.get(neighbourBeeIndex);
                 onlookerBee.searchInNeighborhood(neighbourFoodSource, DIMENSION, dataCenterList);
@@ -176,7 +188,7 @@ public class ArtificialBeeColony {
                 foodSource.setNectarList(nectarList);
             }
         }
-        Log.printLine(CloudSim.clock() + " : " + counter + " solutions have been abandoned");
+//        Log.printLine(CloudSim.clock() + " : " + counter + " solutions have been abandoned");
     }
 
     private int getRandomNeighbourIndex(int low, int high) {
@@ -194,5 +206,37 @@ public class ArtificialBeeColony {
             }
         }
         return hostList;
+    }
+
+    private void computeProbability() {
+        for (FoodSource fs : foodSourceList) {
+            Bee employedBee = fs.getEmployedBee();
+            if (employedBee != null) {
+                employedBee.computeProbability(foodSourceList);
+            }
+        }
+    }
+
+    private void applyFitness() {
+        double minFitness = foodSourceList.get(0).getFitness();
+        for (FoodSource fs : foodSourceList) {
+            double currentFitness = fs.getFitness();
+            if (currentFitness < minFitness) {
+                minFitness = currentFitness;
+            }
+        }
+        double maxFitness = foodSourceList.get(0).getFitness();
+        for (FoodSource fs : foodSourceList) {
+            double currentFitness = fs.getFitness();
+            if (currentFitness > maxFitness) {
+                maxFitness = currentFitness;
+            }
+        }
+
+        for (FoodSource fs : foodSourceList) {
+            double newFitness = ((fs.getFitness() - minFitness) / (maxFitness - minFitness)) * 100;
+            fs.setFitnessFactor(newFitness);
+        }
+
     }
 }

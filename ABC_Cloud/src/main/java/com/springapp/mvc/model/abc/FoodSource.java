@@ -11,6 +11,8 @@ public class FoodSource implements Comparable<FoodSource> {
 
     private double fitness;
 
+    private double fitnessFactor;
+
     private double probability;
 
     private int trialsNumber;
@@ -85,6 +87,14 @@ public class FoodSource implements Comparable<FoodSource> {
         this.conflictsNumber = conflictsNumber;
     }
 
+    public double getFitnessFactor() {
+        return fitnessFactor;
+    }
+
+    public void setFitnessFactor(double fitnessFactor) {
+        this.fitnessFactor = fitnessFactor;
+    }
+
     @Override
     public int compareTo(FoodSource o) {
         return this.conflictsNumber - o.getConflictsNumber();
@@ -111,5 +121,9 @@ public class FoodSource implements Comparable<FoodSource> {
 
     public void incrementTrialsNumber() {
         trialsNumber++;
+    }
+
+    public boolean deleteNectar(Nectar n) {
+        return nectarList.remove(n);
     }
 }

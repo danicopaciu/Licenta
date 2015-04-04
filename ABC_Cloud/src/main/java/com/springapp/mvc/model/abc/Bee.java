@@ -7,9 +7,7 @@ import com.springapp.mvc.model.cloud.GreenVm;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by Daniel on 3/14/2015.
@@ -44,12 +42,11 @@ public class Bee {
         int newHostId = determineNewHostId(phi, prevHostId, nextHostId);
 
         GreenHost newHost = getNewHost(dataCenterList, newHostId);
-
         changedParameter.setHost(newHost);
 
         int actualConflict = computeConflicts();
         double actualFitnessFunction = applyFitnessFunction(dataCenterList);
-        if (prevConflicts < actualConflict && prevFitnessFunction > actualFitnessFunction) {
+        if (prevConflicts <= actualConflict && prevFitnessFunction > actualFitnessFunction) {
             changedParameter.setHost(prevHost);
             applyFitnessFunction(dataCenterList);
             computeConflicts();
@@ -117,36 +114,45 @@ public class Bee {
     }
 
     public double applyFitnessFunction(List<GreenDataCenter> dataCenterList) {
+        List<GreenHost> hostList = getHostList(dataCenterList);
         List<Nectar> nectarList = foodSource.getNectarList();
-        double result = 0;
-        for (GreenDataCenter dc : dataCenterList) {
-            double maxLatency = 0;
-            double vmEnergy = 0;
-            for (Nectar n : nectarList) {
-                GreenHost host = n.getHost();
-                String currentDataCenterName = host.getDatacenter().getName();
-                if (currentDataCenterName != null && currentDataCenterName.equals(dc.getName())) {
-                    GreenVm vm = n.getVm();
-                    double necessaryEnergy = vm.getNecessaryEnergy();
-                    vmEnergy += necessaryEnergy;
-                    if (n.getLatency() > maxLatency) {
-                        maxLatency = n.getLatency();
+        Map<GreenHost, Double> consumedEnergyMap = new HashMap<GreenHost, Double>();
+        for (GreenHost host : hostList) {
+            List<GreenVm> vmList = new ArrayList<GreenVm>();
+            if (!consumedEnergyMap.containsKey(host)) {
+                for (Nectar nectar : nectarList) {
+                    int hostId = nectar.getHost().getId();
+                    if (hostId == host.getId()) {
+                        vmList.add(nectar.getVm());
                     }
                 }
             }
-            double energy;
-            if (dc.getGreenEnergyQuantity() <= 0) {
-                energy = 0;
-            } else {
-                energy = vmEnergy / dc.getGreenEnergyQuantity();
+            double consumedEnergy = host.getMeanPower();
+            double vmConsumedEnergy = 0;
+            double ram = 0;
+            for (GreenVm vm : vmList) {
+                vmConsumedEnergy += vm.getNecessaryEnergy();
+                ram += vm.getRam();
             }
-            energy -= energy * maxLatency;
-            if (energy < 0) {
-                energy = 0;
-            }
-            result += energy;
+            double penalty = ram / host.getAvailableBandwidth();
+            double fitness;
+            fitness = (consumedEnergy * (1 - penalty) + vmConsumedEnergy);
+            consumedEnergyMap.put(host, fitness);
         }
-
+        double dataCenterFitness = 0;
+        double localFitness;
+        for (GreenDataCenter dc : dataCenterList) {
+            List<GreenHost> dcHostList = dc.getHostList();
+            localFitness = 0;
+            for (GreenHost host : dcHostList) {
+                localFitness += consumedEnergyMap.get(host);
+            }
+            double energy = dc.getGreenEnergyQuantity();
+            if (energy != 0) {
+                dataCenterFitness += localFitness / dc.getGreenEnergyQuantity();
+            }
+        }
+        double result = dataCenterFitness / dataCenterList.size();
         foodSource.setFitness(result);
         return result;
     }
@@ -166,16 +172,16 @@ public class Bee {
     }
 
     public double computeProbability(List<FoodSource> foodSourceList) {
-        double fitnessSum = 0;
+        double maxFitness = foodSourceList.get(0).getFitnessFactor();
         for (FoodSource fs : foodSourceList) {
-            double fitnessValue = fs.getFitness();
-            fitnessSum += fitnessValue;
+            double currentFitness = fs.getFitnessFactor();
+            if (currentFitness > maxFitness) {
+                maxFitness = currentFitness;
+            }
         }
-        FoodSource thisFoodSource = getFoodSource();
-        double thisFitnessValue = thisFoodSource.getFitness();
-        double thisProbability = thisFitnessValue / fitnessSum;
-        thisFoodSource.setProbability(thisProbability);
-        return thisProbability;
+        double probability = (0.9 * (foodSource.getFitnessFactor() / maxFitness)) + 0.1;
+        foodSource.setProbability(probability);
+        return probability;
     }
 
 }
