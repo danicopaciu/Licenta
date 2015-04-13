@@ -146,7 +146,8 @@ public class Bee {
                 double heat = localFitness * 3.5;
                 double cop = computeCOP();
                 double cooling = localFitness / cop;
-                dataCenterFitness += (localFitness + heat - cooling) / energy;
+//                dataCenterFitness += (localFitness + heat*0 - cooling*0) / energy;
+                dataCenterFitness += localFitness / energy - (cooling/heat);
                 if (Double.isNaN(dataCenterFitness)) {
                     System.out.println();
                 }

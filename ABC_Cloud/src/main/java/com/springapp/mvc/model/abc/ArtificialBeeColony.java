@@ -35,7 +35,7 @@ public class ArtificialBeeColony {
     public FoodSource runAlgorithm() {
         double clock = CloudSim.clock();
         int epoch = 0;
-        double counter = 0;
+        int counter = 0;
         double prevFitness = 0;
         FoodSource bestFoodSource = null;
         Log.printLine(clock + ": ABC algorithm starting");
@@ -60,6 +60,7 @@ public class ArtificialBeeColony {
             System.out.println(clock + ": Actual fitness function is: " + bestFoodSource.getFitness());
 
             if (epoch >= 500) {
+                System.out.println(counter + " " + bestFoodSource.getConflictsNumber());
                 initialize();
                 epoch = 0;
             }
@@ -70,7 +71,7 @@ public class ArtificialBeeColony {
             }
             sendScoutBees();
             epoch++;
-        } while (bestFoodSource.getConflictsNumber() != 0 || counter <= 50);
+        } while (bestFoodSource.getConflictsNumber() != 0 || counter <= 10);
 
         bestFoodSource = getBestSolution();
         Log.printLine(clock + ": final best food source has fitness function: " + bestFoodSource.getFitness());
