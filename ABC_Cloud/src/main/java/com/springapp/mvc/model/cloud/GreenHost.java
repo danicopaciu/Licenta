@@ -73,7 +73,13 @@ public class GreenHost extends PowerHostUtilizationHistory {
 
     public boolean isMigrationPossible(Vm vm) {
         if (migratingInVms.isEmpty()) {
-            return isSuitableForVm(vm);
+
+            if(isSuitableForVm(vm)){
+                addMigratingVm(vm);
+                return true;
+            }
+
+            return false;
         } else {
             VmScheduler scheduler = getVmScheduler();
             double peCapacity = scheduler.getPeCapacity();
