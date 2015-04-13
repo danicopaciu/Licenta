@@ -29,6 +29,9 @@ public class Bee {
         double prevFitnessFunction = foodSource.getFitness();
         int prevConflicts = foodSource.getConflictsNumber();
 
+        if (dimension <= 0) {
+            System.out.println();
+        }
         int changedParameterIndex = determineChangedParameterIndex(dimension);
 
         double phi = determinePhi();
@@ -47,7 +50,8 @@ public class Bee {
 
         int actualConflict = computeConflicts();
         double actualFitnessFunction = applyFitnessFunction(dataCenterList);
-        if (prevConflicts <= actualConflict && prevFitnessFunction > actualFitnessFunction) {
+        if (prevConflicts < actualConflict || (prevConflicts >= actualConflict && prevFitnessFunction > actualFitnessFunction)) {
+            newHost.removeMigratingVm(changedParameter.getVm());
             changedParameter.setHost(prevHost);
             applyFitnessFunction(dataCenterList);
             computeConflicts();
@@ -118,6 +122,9 @@ public class Bee {
         Map<GreenHost, Double> consumedEnergyMap = getGreenHostConsumedEnergyMap(dataCenterList);
         double dataCenterFitness = getDataCenterFitness(dataCenterList, consumedEnergyMap);
         double result = dataCenterFitness / dataCenterList.size();
+        if (Double.isNaN(result)) {
+            System.out.println(result);
+        }
         foodSource.setFitness(result);
         return result;
     }
@@ -130,13 +137,30 @@ public class Bee {
             localFitness = 0;
             for (GreenHost host : dcHostList) {
                 localFitness += consumedEnergyMap.get(host);
+                if (Double.isNaN(localFitness)) {
+                    System.out.println();
+                }
             }
             double energy = dc.getGreenEnergyQuantity();
             if (energy != 0) {
-                dataCenterFitness += localFitness / dc.getGreenEnergyQuantity();
+                double heat = localFitness * 3.5;
+                double cop = computeCOP();
+                double cooling = localFitness / cop;
+                dataCenterFitness += (localFitness + heat - cooling) / energy;
+                if (Double.isNaN(dataCenterFitness)) {
+                    System.out.println();
+                }
             }
         }
+        if (Double.isNaN(dataCenterFitness)) {
+            System.out.println("nan");
+        }
         return dataCenterFitness;
+    }
+
+    private double computeCOP() {
+        return 0.0068 * GreenDataCenter.SUPPLIED_TEMPERATURE * GreenDataCenter.SUPPLIED_TEMPERATURE +
+                0.0008 * GreenDataCenter.SUPPLIED_TEMPERATURE + 0.458;
     }
 
     private Map<GreenHost, Double> getGreenHostConsumedEnergyMap(List<GreenDataCenter> dataCenterList) {
@@ -176,8 +200,6 @@ public class Bee {
             GreenVm vm = n.getVm();
             if (!host.isMigrationPossible(vm)) {
                 conflicts++;
-            } else {
-                host.addMigratingVm(vm);
             }
         }
         foodSource.setConflictsNumber(conflicts);

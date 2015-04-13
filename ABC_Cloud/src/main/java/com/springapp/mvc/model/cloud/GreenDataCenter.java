@@ -16,20 +16,13 @@ import java.util.Map;
 public class GreenDataCenter extends PowerDatacenter {
 
 
+    public static final int SUPPLIED_TEMPERATURE = 15; //degrees
     private double greenEnergyQuantity;
-
     private double brownEnergyQuantity;
-
 
     public GreenDataCenter(String name, DatacenterCharacteristics characteristics,
                            VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList,
                            double schedulingInterval) throws Exception {
-        super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
-    }
-
-    public GreenDataCenter(String name, DatacenterCharacteristics characteristics,
-                           VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList,
-                           double schedulingInterval, double greenEnergyQuantity) throws Exception {
         super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
         this.greenEnergyQuantity = 0;
         this.brownEnergyQuantity = 0;
@@ -184,7 +177,7 @@ public class GreenDataCenter extends PowerDatacenter {
                     timeFrameDatacenterEnergy);
         }
 
-        setPower(getPower() + timeFrameDatacenterEnergy);
+        setPower(timeFrameDatacenterEnergy);
         if (currentTime != getLastProcessTime()) {
             com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has " + greenEnergyQuantity + " W * sec of green energy");
             com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has consumed " + timeFrameDatacenterEnergy + " W * sec");
@@ -221,4 +214,5 @@ public class GreenDataCenter extends PowerDatacenter {
     public void setBrownEnergyQuantity(double brownEnergyQuantity) {
         this.brownEnergyQuantity = brownEnergyQuantity;
     }
+
 }

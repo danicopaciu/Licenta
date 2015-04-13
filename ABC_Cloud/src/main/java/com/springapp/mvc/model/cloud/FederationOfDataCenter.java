@@ -26,6 +26,7 @@ public class FederationOfDataCenter extends SimEntity {
     public static final int DC_NUMBER = 67568;
     public static final int POWER_DATACENTER = 67569;
     public static final int DELAY = 300;
+    public static final int TIME_STOP = 86100;
     public static double allocatedDC;
     private List<GreenDataCenter> dataCenterList;
     private List<GreenHost> hostList;
@@ -80,7 +81,7 @@ public class FederationOfDataCenter extends SimEntity {
 
     private void computeDataCenterPower() {
         double clock = CloudSim.clock();
-        if (clock < 1500 + allocatedDC) {
+        if (clock <= TIME_STOP + allocatedDC) {
             computeGreenPower(clock);
             if (clock >= 600 + allocatedDC) {
                 sendNow(getId(), PERIODIC_EVENT, new Object());
@@ -95,7 +96,7 @@ public class FederationOfDataCenter extends SimEntity {
         System.out.println(clock);
         runMigrationAlgorithm();
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
-        if (clock >= 1500 + allocatedDC) {
+        if (clock >= TIME_STOP + allocatedDC) {
             generatePeriodicEvent = false;
             fileWriter.close();
             com.springapp.mvc.model.csv.Log.close();
@@ -160,7 +161,7 @@ public class FederationOfDataCenter extends SimEntity {
 
     private Set<GreenVm> getMigrationVms(List<Vm> greenVmList) {
         Random rand = new Random();
-        int vmNr = rand.nextInt(greenVmList.size() - 2) + 1;
+        int vmNr = ((rand.nextInt(greenVmList.size() - 2) + 1) / 2) + 1;
         Set<GreenVm> migratingSet = new HashSet<GreenVm>();
 
         while (migratingSet.size() < vmNr) {

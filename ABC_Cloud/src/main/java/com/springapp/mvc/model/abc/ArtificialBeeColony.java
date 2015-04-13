@@ -6,6 +6,7 @@ import com.springapp.mvc.model.cloud.GreenVm;
 import com.springapp.mvc.model.csv.Log;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
+import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 
 import java.util.*;
@@ -16,16 +17,14 @@ import java.util.*;
  */
 public class ArtificialBeeColony {
 
-    public static final int EPOCH_LIMIT = 100;
     public static final int TRIALS_LIMIT = 50;
-    private final int FOOD_SOURCES_NUMBER = 20;
+    private final int FOOD_SOURCES_NUMBER = 5;
     private final int DIMENSION;
 
-    private List<FoodSource> foodSourceList;
     private List<GreenDataCenter> dataCenterList;
     private List<GreenVm> vmList;
-    private List<Bee> employedBeeList;
-    private List<Bee> onlookerBeeList;
+    private List<FoodSource> foodSourceList;
+
 
     public ArtificialBeeColony(List<GreenDataCenter> dataCenterList, List<GreenVm> vmList) {
         this.dataCenterList = dataCenterList;
@@ -35,38 +34,52 @@ public class ArtificialBeeColony {
 
     public FoodSource runAlgorithm() {
         double clock = CloudSim.clock();
-        double prevFitness = 0;
-        Log.printLine(clock + ": ABC algorithm starting");
-        boolean done = false;
         int epoch = 0;
-        initialize();
-        Log.printLine(clock + ": random initialization");
+        double counter = 0;
+        double prevFitness = 0;
         FoodSource bestFoodSource = null;
-        while (!done) {
-            if (epoch < EPOCH_LIMIT) {
-                System.out.println(epoch);
-                sendEmployedBees();
-                applyFitness();
-                computeProbability();
-                sendOnlookerBees();
-                if (bestFoodSource != null) {
-                    prevFitness = bestFoodSource.getFitness();
-                }
-                bestFoodSource = getBestSolution();
-                System.out.println(clock + ": " + prevFitness + " " + bestFoodSource.getFitness() + " " + bestFoodSource);
-                sendScoutBees();
-                epoch++;
-            } else {
-                done = true;
-                bestFoodSource = getBestSolution();
-                Log.printLine(clock + ": final best food source has fitness function: " + bestFoodSource.getFitness());
-                for (Nectar n : bestFoodSource.getNectarList()) {
-                    Log.printLine(clock + ": Vm#" + n.getVm().getId() + " will be migrated to host#" + n.getHost().getId()
-                            + " on Datacenter#" + n.getHost().getDatacenter().getId());
-                }
-            }
-        }
+        Log.printLine(clock + ": ABC algorithm starting");
+        Log.printLine(clock + ": random initialization");
+        initialize();
 
+        do {
+            System.out.println(epoch);
+
+            if (bestFoodSource != null) {
+                prevFitness = bestFoodSource.getFitness();
+            }
+            System.out.println(clock + ": Previous fitness function was: " + prevFitness);
+            sendEmployedBees();
+            applyFitness();
+            computeProbability();
+            sendOnlookerBees();
+            bestFoodSource = getBestSolution();
+            if (bestFoodSource.getFitness() > 1) {
+                System.out.println();
+            }
+            System.out.println(clock + ": Actual fitness function is: " + bestFoodSource.getFitness());
+
+            if (epoch >= 500) {
+                initialize();
+                epoch = 0;
+            }
+            if (prevFitness == bestFoodSource.getFitness()) {
+                counter++;
+            } else {
+                counter = 0;
+            }
+            sendScoutBees();
+            epoch++;
+        } while (bestFoodSource.getConflictsNumber() != 0 || counter <= 50);
+
+        bestFoodSource = getBestSolution();
+        Log.printLine(clock + ": final best food source has fitness function: " + bestFoodSource.getFitness());
+        for (Nectar n : bestFoodSource.getNectarList()) {
+            Log.printLine(clock + ": Vm#" + n.getVm().getId() + " will be migrated to host#" + n.getHost().getId()
+                    + " on Datacenter#" + n.getHost().getDatacenter().getId());
+        }
+        System.out.println("Number of epochs: " + epoch);
+        System.out.println("Conflicts: " + bestFoodSource.getConflictsNumber());
         return bestFoodSource;
     }
 
@@ -85,7 +98,6 @@ public class ArtificialBeeColony {
      */
     private void initialize() {
         foodSourceList = new ArrayList<FoodSource>();
-        employedBeeList = new ArrayList<Bee>();
         int index = 0;
         Set<FoodSource> foodSourceSet = new HashSet<FoodSource>();
         while (index < FOOD_SOURCES_NUMBER) {
@@ -94,7 +106,6 @@ public class ArtificialBeeColony {
             if (foodSourceSet.add(foodSource)) {
                 Bee employedBee = new Bee(foodSource);
                 foodSource.setEmployedBee(employedBee);
-                employedBeeList.add(employedBee);
                 index++;
             }
         }
@@ -111,7 +122,7 @@ public class ArtificialBeeColony {
     private List<Nectar> initializeNectarList() {
         List<Nectar> nectarList = new ArrayList<Nectar>();
         for (GreenVm vm : vmList) {
-            GreenHost selectedHost = getRandomHost();
+            GreenHost selectedHost = getRandomHost(vm);
             Nectar nectar = new Nectar(selectedHost, vm);
             nectar.setLatency();
             nectarList.add(nectar);
@@ -119,7 +130,7 @@ public class ArtificialBeeColony {
         return nectarList;
     }
 
-    private GreenHost getRandomHost() {
+    private GreenHost getRandomHost(Vm vm) {
         Random random = new Random();
         List<GreenHost> hosts = getHostList();
         GreenHost host;
@@ -129,7 +140,7 @@ public class ArtificialBeeColony {
             host = hosts.get(selectedHostIndex);
             GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
             greenEnergy = dataCenter.getGreenEnergyQuantity();
-        } while (greenEnergy == 0);
+        } while (greenEnergy == 0 || !host.isMigrationPossible(vm));
 
         return host;
     }
@@ -145,16 +156,14 @@ public class ArtificialBeeColony {
             int neighbourBeeIndex =
                     getRandomNeighbourIndex(FOOD_SOURCES_NUMBER - 1, index);
             Bee currentBee = fs.getEmployedBee();
-            Bee neighbourBee = employedBeeList.get(neighbourBeeIndex);
+            FoodSource neighbourFoodSource = foodSourceList.get(neighbourBeeIndex);
+            Bee neighbourBee = neighbourFoodSource.getEmployedBee();
             currentBee.searchInNeighborhood(neighbourBee.getFoodSource(), DIMENSION, dataCenterList);
             index++;
         }
     }
 
     private void sendOnlookerBees() {
-        if (onlookerBeeList == null) {
-            onlookerBeeList = new ArrayList<Bee>();
-        }
         int index = 0;
         int i = 0;
         while (index < FOOD_SOURCES_NUMBER) {
@@ -167,7 +176,6 @@ public class ArtificialBeeColony {
                         getRandomNeighbourIndex(FOOD_SOURCES_NUMBER - 1, i);
                 Bee onlookerBee = new Bee(currentFoodSource);
                 currentFoodSource.setOnlookerBee(onlookerBee);
-                onlookerBeeList.add(onlookerBee);
                 FoodSource neighbourFoodSource = foodSourceList.get(neighbourBeeIndex);
                 onlookerBee.searchInNeighborhood(neighbourFoodSource, DIMENSION, dataCenterList);
                 index++;
@@ -180,15 +188,12 @@ public class ArtificialBeeColony {
     }
 
     private void sendScoutBees() {
-        int counter = 0;
         for (FoodSource foodSource : foodSourceList) {
             if (foodSource.getTrialsNumber() >= TRIALS_LIMIT) {
-                counter++;
                 List<Nectar> nectarList = initializeNectarList();
                 foodSource.setNectarList(nectarList);
             }
         }
-//        Log.printLine(CloudSim.clock() + " : " + counter + " solutions have been abandoned");
     }
 
     private int getRandomNeighbourIndex(int low, int high) {
@@ -234,7 +239,12 @@ public class ArtificialBeeColony {
         }
 
         for (FoodSource fs : foodSourceList) {
-            double newFitness = ((fs.getFitness() - minFitness) / (maxFitness - minFitness)) * 100;
+            double newFitness;
+            if (maxFitness == minFitness) {
+                newFitness = 100;
+            } else {
+                newFitness = ((fs.getFitness() - minFitness) / (maxFitness - minFitness)) * 100;
+            }
             fs.setFitnessFactor(newFitness);
         }
 

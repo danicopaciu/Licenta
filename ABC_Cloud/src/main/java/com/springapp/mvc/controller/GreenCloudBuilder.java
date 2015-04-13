@@ -124,7 +124,7 @@ public class GreenCloudBuilder extends CloudBuilder {
 
     private int getVmType() {
         Random random = new Random();
-        return random.nextInt(4);
+        return random.nextInt(Constants.VM_TYPES);
     }
 
     @Override

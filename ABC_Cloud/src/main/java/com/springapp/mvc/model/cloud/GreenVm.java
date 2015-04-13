@@ -28,17 +28,23 @@ public class GreenVm extends PowerVm {
             hostHistoryMean += aHostHistory;
         }
         hostHistoryMean /= hostHistory.length;
+        if (Double.isNaN(hostHistoryMean)) {
+            System.out.println();
+        }
         double hostUtilisedMips = hostHistoryMean * host.getTotalMips();
 
         double hostEnergyMean = 0;
         for (double d : host.getEnergyHistory()) {
             hostEnergyMean += d;
         }
-        hostEnergyMean /= host.getEnergyHistory().size();
+        if (hostEnergyMean != 0) {
+            hostEnergyMean /= host.getEnergyHistory().size();
+        }
 
-        double energyVm = hostEnergyMean * getUtilizationMean() / hostUtilisedMips;
-
-        return energyVm;
+        if (hostUtilisedMips != 0) {
+            return hostEnergyMean * getUtilizationMean() / hostUtilisedMips;
+        }
+        return 0;
     }
 
     /**
