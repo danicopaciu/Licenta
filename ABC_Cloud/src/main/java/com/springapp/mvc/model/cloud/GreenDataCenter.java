@@ -3,31 +3,49 @@ package com.springapp.mvc.model.cloud;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
-import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerHost;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by Daniel on 3/12/2015.
+ * GreenDataCenter
  */
 public class GreenDataCenter extends PowerDatacenter {
 
 
     public static final int SUPPLIED_TEMPERATURE = 15; //degrees
+    public static final String TIME = "Time";
+    public static final String GREEN_ENERGY = "GreenEnergy";
+    public static final String BROWN_ENERGY = "BrownEnergy";
+    public static final String SERVERS_ENERGY = "ServersEnergy";
+    public static final String COOLING = "Cooling";
+    public static final String HEAT = "Heat";
     private double greenEnergyQuantity;
     private double brownEnergyQuantity;
+    private Map<String, List<Double>> statistics;
 
     public GreenDataCenter(String name, DatacenterCharacteristics characteristics,
                            VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList,
                            double schedulingInterval) throws Exception {
         super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
+
         this.greenEnergyQuantity = 0;
         this.brownEnergyQuantity = 0;
+
+        statistics = new HashMap<String, List<Double>>();
+        statistics.put(TIME, new ArrayList<Double>());
+        statistics.put(GREEN_ENERGY, new ArrayList<Double>());
+        statistics.put(BROWN_ENERGY, new ArrayList<Double>());
+        statistics.put(SERVERS_ENERGY, new ArrayList<Double>());
+        statistics.put(COOLING, new ArrayList<Double>());
+        statistics.put(HEAT, new ArrayList<Double>());
+
     }
 
     public double getGreenEnergyQuantity() {
@@ -181,16 +199,25 @@ public class GreenDataCenter extends PowerDatacenter {
 
         setPower(timeFrameDatacenterEnergy);
         if (currentTime != getLastProcessTime()) {
-            com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has " + greenEnergyQuantity + " W * sec of green energy");
-            com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has consumed " + timeFrameDatacenterEnergy + " W * sec");
             double energy = greenEnergyQuantity - timeFrameDatacenterEnergy;
             if (energy < 0) {
-                brownEnergyQuantity += timeFrameDatacenterEnergy - getGreenEnergyQuantity();
-            } else {
-                greenEnergyQuantity = energy;
+                setBrownEnergyQuantity(timeFrameDatacenterEnergy - getGreenEnergyQuantity());
+            }
+//            else {
+//                greenEnergyQuantity = energy;
+//            }
+            if (currentTime >= 600) {
+                putTime(currentTime);
+                putGreenEnergy(getGreenEnergyQuantity());
+                putServerEnergy(getPower());
+                putBrownEnergy(getBrownEnergyQuantity());
+                double heat = 3.5 * getPower();
+                putHeat(heat);
+                double cop = computeCOP();
+                double cooling = getPower() / cop;
+                putCooling(cooling);
             }
         }
-        com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Datacenter#" + getId() + " has " + greenEnergyQuantity + " W * sec of green energy");
         checkCloudletCompletion();
 
         /** Remove completed VMs **/
@@ -208,6 +235,11 @@ public class GreenDataCenter extends PowerDatacenter {
         return minTime;
     }
 
+    private double computeCOP() {
+        return 0.0068 * GreenDataCenter.SUPPLIED_TEMPERATURE *
+                GreenDataCenter.SUPPLIED_TEMPERATURE +
+                0.0008 * GreenDataCenter.SUPPLIED_TEMPERATURE + 0.458;
+    }
 
     public double getBrownEnergyQuantity() {
         return brownEnergyQuantity;
@@ -215,5 +247,33 @@ public class GreenDataCenter extends PowerDatacenter {
 
     public void setBrownEnergyQuantity(double brownEnergyQuantity) {
         this.brownEnergyQuantity = brownEnergyQuantity;
+    }
+
+    public void putTime(Double time) {
+        statistics.get(TIME).add(time);
+    }
+
+    public void putGreenEnergy(Double greenEnergy) {
+        statistics.get(GREEN_ENERGY).add(greenEnergy);
+    }
+
+    public void putBrownEnergy(Double brownEnergy) {
+        statistics.get(BROWN_ENERGY).add(brownEnergy);
+    }
+
+    public void putServerEnergy(Double serverEnergy) {
+        statistics.get(SERVERS_ENERGY).add(serverEnergy);
+    }
+
+    public void putCooling(Double cooling) {
+        statistics.get(COOLING).add(cooling);
+    }
+
+    public void putHeat(Double heat) {
+        statistics.get(HEAT).add(heat);
+    }
+
+    public Map<String, List<Double>> getStatistics() {
+        return statistics;
     }
 }

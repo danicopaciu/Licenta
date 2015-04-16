@@ -4,6 +4,7 @@ import com.springapp.mvc.controller.Resources;
 import com.springapp.mvc.model.abc.ArtificialBeeColony;
 import com.springapp.mvc.model.abc.FoodSource;
 import com.springapp.mvc.model.abc.Nectar;
+import com.springapp.mvc.model.statistics.Statistics;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
@@ -27,6 +28,10 @@ public class FederationOfDataCenter extends SimEntity {
     public static final int POWER_DATACENTER = 67569;
     public static final int DELAY = 300;
     public static final int TIME_STOP = 86100;
+    private static final int V_IN = 3; //starting speed of energy production m/s
+    private static final int V_OUT = 25; // finishing speed of energy production m/s
+    private static final int PR = 225000; //windmill power w
+    private static final int VR = 13; // speed for optimal production m/s
     public static double allocatedDC;
     private List<GreenDataCenter> dataCenterList;
     private List<GreenHost> hostList;
@@ -73,6 +78,11 @@ public class FederationOfDataCenter extends SimEntity {
 
     }
 
+    @Override
+    public void shutdownEntity() {
+        System.out.println();
+    }
+
     private void computeDCNumber() {
         allocatedDC = getAllocatedDCFactor();
         double nextTimeStamp = allocatedDC + 200;
@@ -93,13 +103,14 @@ public class FederationOfDataCenter extends SimEntity {
 
     private void processPeriodicEvent() {
         double clock = CloudSim.clock();
-        System.out.println(clock);
+//        System.out.println(clock);
         runMigrationAlgorithm();
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
         if (clock >= TIME_STOP + allocatedDC) {
             generatePeriodicEvent = false;
             fileWriter.close();
-            com.springapp.mvc.model.csv.Log.close();
+            //statistics to be added
+            Statistics.printResults(dataCenterList);
         }
         if (generatePeriodicEvent) send(getId(), DELAY, POWER_DATACENTER, new Object());
     }
@@ -114,34 +125,31 @@ public class FederationOfDataCenter extends SimEntity {
         return counter / 10;
     }
 
-    @Override
-    public void shutdownEntity() {
-
-    }
 
     public void computeGreenPower(double clock) {
-        final int vIn = 3; //starting speed of energy production m/s
-        final int vOut = 25; // finishing speed of energy production m/s
-        final int pr = 225000; //windmill power w
-        final int vr = 13; // speed for optimal production m/s
         double energy;
         fileWriter.println(CloudSim.clock());
-
         for (GreenDataCenter dc : dataCenterList) {
             List<Double> windSpeedList = windSpeedMap.get(dc.getName());
             double windSpeed = windSpeedList.get((int) (clock - getAllocatedDCFactor()) / 300);
-            if (windSpeed < vIn || windSpeed > vOut) {
-                energy = 0;
-            } else if (windSpeed > vr && windSpeed < vOut) {
-                energy = pr;
-            } else {
-                energy = (pr * (windSpeed - vIn)) / (vr - vIn);
-            }
+            energy = getWindEnergy(windSpeed);
             fileWriter.print(dc.getId() + " ");
             fileWriter.print(dc.getGreenEnergyQuantity() + " ");
             dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy);
             fileWriter.println(dc.getGreenEnergyQuantity() + " ");
         }
+    }
+
+    private double getWindEnergy(double windSpeed) {
+        double energy;
+        if (windSpeed < V_IN || windSpeed > V_OUT) {
+            energy = 0;
+        } else if (windSpeed > VR && windSpeed < V_OUT) {
+            energy = PR;
+        } else {
+            energy = (PR * (windSpeed - V_IN)) / (VR - V_IN);
+        }
+        return energy;
     }
 
     private void runMigrationAlgorithm() {
@@ -204,6 +212,7 @@ public class FederationOfDataCenter extends SimEntity {
             sendNow(dataCenter.getId(), CloudSimTags.VM_MIGRATE, data);
         }
     }
+
 
     public DatacenterBroker getBroker() {
         return broker;

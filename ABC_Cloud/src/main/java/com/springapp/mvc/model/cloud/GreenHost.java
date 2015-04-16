@@ -78,7 +78,6 @@ public class GreenHost extends PowerHostUtilizationHistory {
                 addMigratingVm(vm);
                 return true;
             }
-
             return false;
         } else {
             VmScheduler scheduler = getVmScheduler();
@@ -87,18 +86,24 @@ public class GreenHost extends PowerHostUtilizationHistory {
             if (peCapacity >= currentRequestedMaxMips) {
                 double availableMips = scheduler.getAvailableMips();
                 for (Vm i : migratingInVms) {
-                    availableMips -= i.getCurrentRequestedTotalMips();
+                    if (i != vm) {
+                        availableMips -= i.getCurrentRequestedTotalMips();
+                    }
                 }
                 double currentRequestedTotalMips = vm.getCurrentRequestedTotalMips();
                 if (availableMips >= currentRequestedTotalMips) {
                     double availableRam = getRamProvisioner().getAvailableRam();
                     for (Vm i : migratingInVms) {
-                        availableRam -= i.getCurrentRequestedRam();
+                        if (i != vm) {
+                            availableRam -= i.getCurrentRequestedRam();
+                        }
                     }
                     if (availableRam >= vm.getCurrentRequestedRam()) {
                         double availableBw = getBwProvisioner().getAvailableBw();
                         for (Vm i : migratingInVms) {
-                            availableBw -= i.getCurrentRequestedBw();
+                            if (i != vm) {
+                                availableBw -= i.getCurrentRequestedBw();
+                            }
                         }
                         if (availableBw >= vm.getCurrentRequestedBw()) {
                             addMigratingVm(vm);

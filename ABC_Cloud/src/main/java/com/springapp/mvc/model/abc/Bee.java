@@ -29,9 +29,6 @@ public class Bee {
         double prevFitnessFunction = foodSource.getFitness();
         int prevConflicts = foodSource.getConflictsNumber();
 
-        if (dimension <= 0) {
-            System.out.println();
-        }
         int changedParameterIndex = determineChangedParameterIndex(dimension);
 
         double phi = determinePhi();
@@ -50,7 +47,9 @@ public class Bee {
 
         int actualConflict = computeConflicts();
         double actualFitnessFunction = applyFitnessFunction(dataCenterList);
-        if (prevConflicts < actualConflict || (prevConflicts >= actualConflict && prevFitnessFunction > actualFitnessFunction)) {
+        if (prevConflicts < actualConflict ||
+                (prevConflicts >= actualConflict &&
+                        prevFitnessFunction > actualFitnessFunction)) {
             newHost.removeMigratingVm(changedParameter.getVm());
             changedParameter.setHost(prevHost);
             applyFitnessFunction(dataCenterList);
@@ -119,52 +118,50 @@ public class Bee {
     }
 
     public double applyFitnessFunction(List<GreenDataCenter> dataCenterList) {
-        Map<GreenHost, Double> consumedEnergyMap = getGreenHostConsumedEnergyMap(dataCenterList);
-        double dataCenterFitness = getDataCenterFitness(dataCenterList, consumedEnergyMap);
+        Map<GreenHost, Double> consumedEnergyMap =
+                getGreenHostConsumedEnergyMap(dataCenterList);
+        double dataCenterFitness =
+                getDataCenterFitness(dataCenterList, consumedEnergyMap);
         double result = dataCenterFitness / dataCenterList.size();
-        if (Double.isNaN(result)) {
-            System.out.println(result);
-        }
         foodSource.setFitness(result);
         return result;
     }
 
-    private double getDataCenterFitness(List<GreenDataCenter> dataCenterList, Map<GreenHost, Double> consumedEnergyMap) {
-        double localFitness;
+    private double getDataCenterFitness(List<GreenDataCenter> dataCenterList,
+                                        Map<GreenHost, Double> consumedEnergyMap) {
         double dataCenterFitness = 0;
         for (GreenDataCenter dc : dataCenterList) {
             List<GreenHost> dcHostList = dc.getHostList();
-            localFitness = 0;
-            for (GreenHost host : dcHostList) {
-                localFitness += consumedEnergyMap.get(host);
-                if (Double.isNaN(localFitness)) {
-                    System.out.println();
-                }
-            }
-            double energy = dc.getGreenEnergyQuantity();
-            if (energy != 0) {
-                double heat = localFitness * 3.5;
+            double hostsEnergy = getHostsEnergy(consumedEnergyMap, dcHostList);
+            double greenEnergy = dc.getGreenEnergyQuantity();
+            if (greenEnergy != 0) {
+                double heat = hostsEnergy * 3.5;
                 double cop = computeCOP();
-                double cooling = localFitness / cop;
-//                dataCenterFitness += (localFitness + heat*0 - cooling*0) / energy;
-                dataCenterFitness += localFitness / energy - (cooling/heat);
-                if (Double.isNaN(dataCenterFitness)) {
-                    System.out.println();
-                }
+                double cooling = hostsEnergy / cop;
+                double penalty = computePenalty(dataCenterList);
+                dataCenterFitness += ((hostsEnergy + cooling) / (greenEnergy + heat)) - penalty;
             }
-        }
-        if (Double.isNaN(dataCenterFitness)) {
-            System.out.println("nan");
         }
         return dataCenterFitness;
     }
 
+    private double getHostsEnergy(Map<GreenHost,
+            Double> consumedEnergyMap, List<GreenHost> dcHostList) {
+        double hostsEnergy = 0;
+        for (GreenHost host : dcHostList) {
+            hostsEnergy += consumedEnergyMap.get(host);
+        }
+        return hostsEnergy;
+    }
+
     private double computeCOP() {
-        return 0.0068 * GreenDataCenter.SUPPLIED_TEMPERATURE * GreenDataCenter.SUPPLIED_TEMPERATURE +
+        return 0.0068 * GreenDataCenter.SUPPLIED_TEMPERATURE *
+                GreenDataCenter.SUPPLIED_TEMPERATURE +
                 0.0008 * GreenDataCenter.SUPPLIED_TEMPERATURE + 0.458;
     }
 
-    private Map<GreenHost, Double> getGreenHostConsumedEnergyMap(List<GreenDataCenter> dataCenterList) {
+    private Map<GreenHost, Double> getGreenHostConsumedEnergyMap(
+            List<GreenDataCenter> dataCenterList) {
         List<GreenHost> hostList = getHostList(dataCenterList);
         List<Nectar> nectarList = foodSource.getNectarList();
         Map<GreenHost, Double> consumedEnergyMap = new HashMap<GreenHost, Double>();
@@ -180,17 +177,39 @@ public class Bee {
             }
             double consumedEnergy = host.getMeanPower();
             double vmConsumedEnergy = 0;
-            double ram = 0;
             for (GreenVm vm : vmList) {
                 vmConsumedEnergy += vm.getNecessaryEnergy();
-                ram += vm.getRam();
             }
-            double penalty = ram / host.getAvailableBandwidth();
             double fitness;
-            fitness = (consumedEnergy * (1 - penalty) + vmConsumedEnergy);
+            fitness = (consumedEnergy + vmConsumedEnergy);
             consumedEnergyMap.put(host, fitness);
         }
         return consumedEnergyMap;
+    }
+
+    private double computePenalty(List<GreenDataCenter> dataCenterList) {
+        List<GreenHost> hostList = getHostList(dataCenterList);
+        List<Nectar> nectarList = foodSource.getNectarList();
+        List<GreenVm> vmList;
+        double penalty = 0;
+        int vmNumber = 0;
+        for (GreenHost host : hostList) {
+            vmList = new ArrayList<GreenVm>();
+            for (Nectar nectar : nectarList) {
+                int hostId = nectar.getHost().getId();
+                if (hostId == host.getId()) {
+                    vmList.add(nectar.getVm());
+                }
+            }
+            double ram = 0;
+            for (GreenVm vm : vmList) {
+                ram += vm.getRam();
+            }
+            vmNumber += vmList.size();
+            penalty += ram / host.getAvailableBandwidth();
+        }
+        penalty /= vmNumber;
+        return penalty / Resources.SCHEDULING_INTERVAL;
     }
 
     public int computeConflicts() {

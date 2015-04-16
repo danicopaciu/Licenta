@@ -3,7 +3,6 @@ package com.springapp.mvc.model.abc;
 import com.springapp.mvc.model.cloud.GreenDataCenter;
 import com.springapp.mvc.model.cloud.GreenHost;
 import com.springapp.mvc.model.cloud.GreenVm;
-import com.springapp.mvc.model.csv.Log;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
@@ -38,17 +37,17 @@ public class ArtificialBeeColony {
         int counter = 0;
         double prevFitness = 0;
         FoodSource bestFoodSource = null;
-        Log.printLine(clock + ": ABC algorithm starting");
-        Log.printLine(clock + ": random initialization");
+//        Log.printLine(clock + ": ABC algorithm starting");
+//        Log.printLine(clock + ": random initialization");
         initialize();
-
+        System.out.println(clock);
         do {
-            System.out.println(epoch);
+//            System.out.println(epoch);
 
             if (bestFoodSource != null) {
                 prevFitness = bestFoodSource.getFitness();
             }
-            System.out.println(clock + ": Previous fitness function was: " + prevFitness);
+//            System.out.println(clock + ": Previous fitness function was: " + prevFitness);
             sendEmployedBees();
             applyFitness();
             computeProbability();
@@ -57,7 +56,7 @@ public class ArtificialBeeColony {
             if (bestFoodSource.getFitness() > 1) {
                 System.out.println();
             }
-            System.out.println(clock + ": Actual fitness function is: " + bestFoodSource.getFitness());
+//            System.out.println(clock + ": Actual fitness function is: " + bestFoodSource.getFitness());
 
             if (epoch >= 500) {
                 System.out.println(counter + " " + bestFoodSource.getConflictsNumber());
@@ -71,16 +70,16 @@ public class ArtificialBeeColony {
             }
             sendScoutBees();
             epoch++;
-        } while (bestFoodSource.getConflictsNumber() != 0 || counter <= 10);
+        } while (bestFoodSource.getConflictsNumber() != 0 || counter <= 5);
 
         bestFoodSource = getBestSolution();
-        Log.printLine(clock + ": final best food source has fitness function: " + bestFoodSource.getFitness());
-        for (Nectar n : bestFoodSource.getNectarList()) {
-            Log.printLine(clock + ": Vm#" + n.getVm().getId() + " will be migrated to host#" + n.getHost().getId()
-                    + " on Datacenter#" + n.getHost().getDatacenter().getId());
-        }
+//        Log.printLine(clock + ": final best food source has fitness function: " + bestFoodSource.getFitness());
+//        for (Nectar n : bestFoodSource.getNectarList()) {
+//            Log.printLine(clock + ": Vm#" + n.getVm().getId() + " will be migrated to host#" + n.getHost().getId()
+//                    + " on Datacenter#" + n.getHost().getDatacenter().getId());
+//        }
         System.out.println("Number of epochs: " + epoch);
-        System.out.println("Conflicts: " + bestFoodSource.getConflictsNumber());
+//        System.out.println("Conflicts: " + bestFoodSource.getConflictsNumber());
         return bestFoodSource;
     }
 
@@ -125,7 +124,6 @@ public class ArtificialBeeColony {
         for (GreenVm vm : vmList) {
             GreenHost selectedHost = getRandomHost(vm);
             Nectar nectar = new Nectar(selectedHost, vm);
-            nectar.setLatency();
             nectarList.add(nectar);
         }
         return nectarList;
