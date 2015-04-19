@@ -16,8 +16,8 @@ import java.util.*;
  */
 public class ArtificialBeeColony {
 
-    public static final int TRIALS_LIMIT = 50;
-    private final int FOOD_SOURCES_NUMBER = 5;
+    public static final int TRIALS_LIMIT = 20;
+    private final int FOOD_SOURCES_NUMBER = 20;
     private final int DIMENSION;
 
     private List<GreenDataCenter> dataCenterList;
@@ -58,11 +58,11 @@ public class ArtificialBeeColony {
             }
 //            System.out.println(clock + ": Actual fitness function is: " + bestFoodSource.getFitness());
 
-            if (epoch >= 500) {
-                System.out.println(counter + " " + bestFoodSource.getConflictsNumber());
-                initialize();
-                epoch = 0;
-            }
+//            if (epoch >= 500) {
+//                System.out.println(counter + " " + bestFoodSource.getConflictsNumber());
+//                initialize();
+//                epoch = 0;
+//            }
             if (prevFitness == bestFoodSource.getFitness()) {
                 counter++;
             } else {
@@ -100,46 +100,73 @@ public class ArtificialBeeColony {
         foodSourceList = new ArrayList<FoodSource>();
         int index = 0;
         Set<FoodSource> foodSourceSet = new HashSet<FoodSource>();
+//        while (index < FOOD_SOURCES_NUMBER) {
+//            List<Nectar> nectarList = initializeNectarList();
+//            FoodSource foodSource = new FoodSource(nectarList);
+//            if (foodSourceSet.add(foodSource)) {
+//                Bee employedBee = new Bee(foodSource);
+//                foodSource.setEmployedBee(employedBee);
+//                clearMigrationLists();
+//                index++;
+//
+//            }
+//        }
         while (index < FOOD_SOURCES_NUMBER) {
-            List<Nectar> nectarList = initializeNectarList();
-            FoodSource foodSource = new FoodSource(nectarList);
-            if (foodSourceSet.add(foodSource)) {
-                Bee employedBee = new Bee(foodSource);
-                foodSource.setEmployedBee(employedBee);
-                index++;
-            }
+            FoodSource foodSource = getFoodSource();
+            foodSourceSet.add(foodSource);
+            index++;
         }
         if (foodSourceSet.size() != 0) {
             foodSourceList.addAll(foodSourceSet);
         }
     }
 
+    private FoodSource getFoodSource() {
+        FoodSource foodSource = new FoodSource();
+        for (Vm vm : vmList) {
+            Host host = getRandomHost(vm, foodSource);
+            Nectar nectar = new Nectar(host, vm);
+            foodSource.addNectar(nectar);
+            Bee employedBee = new Bee(foodSource);
+            foodSource.setEmployedBee(employedBee);
+        }
+        return foodSource;
+    }
+
+//    private void clearMigrationLists() {
+//        for (GreenHost h : getHostList()) {
+//            h.clearMigratingInVms();
+//        }
+//    }
+
     /**
      * This method initializes the nectar list of a particular food source
      *
      * @return the nectar list of the food source
      */
-    private List<Nectar> initializeNectarList() {
-        List<Nectar> nectarList = new ArrayList<Nectar>();
-        for (GreenVm vm : vmList) {
-            GreenHost selectedHost = getRandomHost(vm);
-            Nectar nectar = new Nectar(selectedHost, vm);
-            nectarList.add(nectar);
-        }
-        return nectarList;
-    }
-
-    private GreenHost getRandomHost(Vm vm) {
+//    private List<Nectar> initializeNectarList(List<Vm> assignedBeforeVms) {
+//        List<Nectar> nectarList = new ArrayList<Nectar>();
+//        for (GreenVm vm : vmList) {
+//            GreenHost selectedHost = getRandomHost(vm, assignedBeforeVms);
+//            Nectar nectar = new Nectar(selectedHost, vm);
+//            nectarList.add(nectar);
+//
+//        }
+//        return nectarList;
+//    }
+    private GreenHost getRandomHost(Vm vm, FoodSource foodSource) {
         Random random = new Random();
         List<GreenHost> hosts = getHostList();
         GreenHost host;
         double greenEnergy;
+        List<Vm> assignedBeforeVms;
         do {
             int selectedHostIndex = random.nextInt(hosts.size());
             host = hosts.get(selectedHostIndex);
+            assignedBeforeVms = foodSource.getVmListForHost(host);
             GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
             greenEnergy = dataCenter.getGreenEnergyQuantity();
-        } while (greenEnergy == 0 || !host.isMigrationPossible(vm));
+        } while (greenEnergy == 0 || !host.isMigrationPossible(vm, assignedBeforeVms));
 
         return host;
     }
@@ -189,8 +216,9 @@ public class ArtificialBeeColony {
     private void sendScoutBees() {
         for (FoodSource foodSource : foodSourceList) {
             if (foodSource.getTrialsNumber() >= TRIALS_LIMIT) {
-                List<Nectar> nectarList = initializeNectarList();
-                foodSource.setNectarList(nectarList);
+                FoodSource newFoodSource = getFoodSource();
+                foodSource.setNectarList(newFoodSource.getNectarList());
+                foodSource.setMigrationMap(newFoodSource.getMigrationMap());
             }
         }
     }

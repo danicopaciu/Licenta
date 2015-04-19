@@ -26,6 +26,8 @@ public class GreenDataCenter extends PowerDatacenter {
     public static final String SERVERS_ENERGY = "ServersEnergy";
     public static final String COOLING = "Cooling";
     public static final String HEAT = "Heat";
+    public static final String VMS_IN = "MigratingInVms";
+    public static final String VMS_OUT = "MigratingOutVms";
     private double greenEnergyQuantity;
     private double brownEnergyQuantity;
     private Map<String, List<Double>> statistics;
@@ -45,6 +47,8 @@ public class GreenDataCenter extends PowerDatacenter {
         statistics.put(SERVERS_ENERGY, new ArrayList<Double>());
         statistics.put(COOLING, new ArrayList<Double>());
         statistics.put(HEAT, new ArrayList<Double>());
+        statistics.put(VMS_IN, new ArrayList<Double>());
+        statistics.put(VMS_OUT, new ArrayList<Double>());
 
     }
 
@@ -202,10 +206,10 @@ public class GreenDataCenter extends PowerDatacenter {
             double energy = greenEnergyQuantity - timeFrameDatacenterEnergy;
             if (energy < 0) {
                 setBrownEnergyQuantity(timeFrameDatacenterEnergy - getGreenEnergyQuantity());
-            }
-//            else {
+            } else {
 //                greenEnergyQuantity = energy;
-//            }
+                setBrownEnergyQuantity(0);
+            }
             if (currentTime >= 600) {
                 putTime(currentTime);
                 putGreenEnergy(getGreenEnergyQuantity());
@@ -233,6 +237,14 @@ public class GreenDataCenter extends PowerDatacenter {
 
         setLastProcessTime(currentTime);
         return minTime;
+    }
+
+    public boolean addToMigratingInVms(int d) {
+        return statistics.get(VMS_IN).add((double) d);
+    }
+
+    public boolean addToMigratingOutVms(int d) {
+        return statistics.get(VMS_OUT).add((double) d);
     }
 
     private double computeCOP() {

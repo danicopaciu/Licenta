@@ -3,19 +3,20 @@ package com.springapp.mvc.model.abc;
 import com.springapp.mvc.model.cloud.GreenHost;
 import com.springapp.mvc.model.cloud.GreenVm;
 import org.cloudbus.cloudsim.Host;
+import org.cloudbus.cloudsim.Vm;
 
 /**
  * Created by Daniel on 3/14/2015.
  */
 public class Nectar {
 
-    private GreenHost host;
+    private Host host;
 
-    private GreenVm vm;
+    private Vm vm;
 
     private double latency;
 
-    public Nectar(GreenHost host, GreenVm vm) {
+    public Nectar(Host host, Vm vm) {
         this.host = host;
         this.vm = vm;
         this.latency = 0;
@@ -29,7 +30,7 @@ public class Nectar {
         this.latency = latency;
     }
 
-    public GreenHost getHost() {
+    public Host getHost() {
         return host;
     }
 
@@ -37,7 +38,7 @@ public class Nectar {
         this.host = host;
     }
 
-    public GreenVm getVm() {
+    public Vm getVm() {
         return vm;
     }
 
@@ -55,18 +56,5 @@ public class Nectar {
             }
         }
         return false;
-    }
-
-    public double setLatency() {
-        Host currentHost = vm.getHost();
-        if (currentHost != null && currentHost instanceof GreenHost) {
-            GreenHost greenHost = (GreenHost) currentHost;
-            double sourceBw = greenHost.getAvailableBandwidth();
-            double destinationBw = host.getAvailableBandwidth();
-            double availableBw = Math.min(sourceBw, destinationBw);
-            double ram = vm.getRam();
-            latency = ram / availableBw;
-        }
-        return latency;
     }
 }

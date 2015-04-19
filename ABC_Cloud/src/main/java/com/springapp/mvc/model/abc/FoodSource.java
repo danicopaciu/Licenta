@@ -1,9 +1,13 @@
 package com.springapp.mvc.model.abc;
 
-import java.util.List;
+import org.cloudbus.cloudsim.Host;
+import org.cloudbus.cloudsim.Vm;
+
+import java.util.*;
 
 /**
  * Created by Daniel on 3/14/2015.
+ * FoodSource
  */
 public class FoodSource implements Comparable<FoodSource> {
 
@@ -19,16 +23,25 @@ public class FoodSource implements Comparable<FoodSource> {
 
     private int conflictsNumber;
 
+    private Map<Host, List<Vm>> migrationMap;
+
 
     private Bee employedBee;
+
     private Bee onlookerBee;
 
-    public FoodSource(List<Nectar> nectarList) {
-        this.nectarList = nectarList;
+    public FoodSource() {
         this.fitness = 0.0;
         this.probability = 0.0;
         this.trialsNumber = 0;
         this.conflictsNumber = 0;
+        this.nectarList = new LinkedList<Nectar>();
+        this.migrationMap = new HashMap<Host, List<Vm>>();
+    }
+
+    public boolean addNectar(Nectar n) {
+        addToMigrationMap(n.getHost(), n.getVm());
+        return nectarList.add(n);
     }
 
     public Bee getEmployedBee() {
@@ -123,7 +136,46 @@ public class FoodSource implements Comparable<FoodSource> {
         trialsNumber++;
     }
 
-    public boolean deleteNectar(Nectar n) {
-        return nectarList.remove(n);
+    public void addToMigrationMap(Host host, Vm vm) {
+        if (migrationMap.containsKey(host)) {
+            setMigrationMapEntry(host, vm);
+        } else {
+            createMigrationMapEntry(host, vm);
+        }
+    }
+
+    private void createMigrationMapEntry(Host host, Vm vm) {
+        List<Vm> vmList = new ArrayList<Vm>();
+        vmList.add(vm);
+        migrationMap.put(host, vmList);
+    }
+
+    private boolean setMigrationMapEntry(Host host, Vm vm) {
+        List<Vm> vmList = migrationMap.get(host);
+        return !vmList.contains(vm) && vmList.add(vm);
+    }
+
+    public void removeFromMigrationMap(Host host, Vm vm) {
+        if (migrationMap.containsKey(host)) {
+            List<Vm> vmList = migrationMap.get(host);
+            if (vmList.contains(vm)) {
+                vmList.remove(vm);
+            }
+        }
+    }
+
+    public List<Vm> getVmListForHost(Host host) {
+        if (migrationMap.containsKey(host)) {
+            return migrationMap.get(host);
+        }
+        return null;
+    }
+
+    public Map<Host, List<Vm>> getMigrationMap() {
+        return migrationMap;
+    }
+
+    public void setMigrationMap(Map<Host, List<Vm>> migrationMap) {
+        this.migrationMap = migrationMap;
     }
 }

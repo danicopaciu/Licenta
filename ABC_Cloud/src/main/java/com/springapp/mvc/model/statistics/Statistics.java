@@ -1,12 +1,15 @@
 package com.springapp.mvc.model.statistics;
 
 import com.springapp.mvc.model.abc.FoodSource;
+import com.springapp.mvc.model.abc.Nectar;
 import com.springapp.mvc.model.cloud.GreenDataCenter;
 import org.cloudbus.cloudsim.Datacenter;
+import org.cloudbus.cloudsim.Host;
+import org.cloudbus.cloudsim.Vm;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.awt.*;
+import java.io.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +19,7 @@ import java.util.Map;
  */
 public class Statistics {
 
-    private static final String FILE_NAME = "results.txt";
+    private static final String FILE_PATH = "D:\\GithubRepositories\\Licenta\\ABC_Cloud\\results.csv";
     private static final String ENCODING = "utf-8";
     private static FoodSource solution;
     private static Map<Datacenter, List<Double>> datacenterResults;
@@ -40,10 +43,10 @@ public class Statistics {
             List<Double> serverEnergyList = statistics.get(GreenDataCenter.SERVERS_ENERGY);
             List<Double> heatList = statistics.get(GreenDataCenter.HEAT);
             List<Double> coolingList = statistics.get(GreenDataCenter.COOLING);
+            List<Double> inVms = statistics.get(GreenDataCenter.VMS_IN);
+            List<Double> outVms = statistics.get(GreenDataCenter.VMS_OUT);
             writer.println(dc.getName());
-            writer.println("========================================================================================================");
-            writer.println("Time \t | Green Energy \t | Brown Energy \t | Server Energy \t | Heat Recovered \t | Cooling Energy");
-            writer.println("========================================================================================================");
+            writer.println("Time,Green Energy,Brown Energy,Server Energy,Heat Recovered,Cooling Energy");
             for (int i = 0; i < timeList.size(); i++) {
                 StringBuilder sb = new StringBuilder();
                 double time = timeList.get(i);
@@ -53,32 +56,72 @@ public class Statistics {
                 double heat = heatList.get(i);
                 double cooling = coolingList.get(i);
                 sb.append(time);
-                sb.append("\t");
+                sb.append(",");
                 sb.append(greenEnergy);
-                sb.append("\t");
+                sb.append(",");
                 sb.append(brownEnergy);
-                sb.append("\t");
+                sb.append(",");
                 sb.append(serverEnergy);
-                sb.append("\t");
+                sb.append(",");
                 sb.append(heat);
-                sb.append("\t");
+                sb.append(",");
                 sb.append(cooling);
-                sb.append("\t");
+                sb.append(",");
                 writer.println(sb.toString());
             }
 
         }
         writer.close();
+        openFile();
+
+    }
+
+    private static void openFile() {
+        try {
+            Desktop dt = Desktop.getDesktop();
+            dt.open(new File(FILE_PATH));
+            Process p = Runtime.getRuntime()
+                    .exec("rundll32 url.dll,FileProtocolHandler " + FILE_PATH);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void initWriter() {
         if (writer == null) {
             try {
-                writer = new PrintWriter(FILE_NAME, ENCODING);
+                writer = new PrintWriter(FILE_PATH, ENCODING);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    public static void analizeSolution(List<GreenDataCenter> dataCenters, FoodSource solution) {
+        Map<Datacenter, int[]> result = new HashMap<Datacenter, int[]>();
+        for (Datacenter dc : dataCenters) {
+            int[] vms = new int[2];
+            vms[0] = vms[1] = 0;
+            result.put(dc, vms);
+        }
+        for (Nectar n : solution.getNectarList()) {
+            Vm vm = n.getVm();
+            Host prevHost = vm.getHost();
+            Host nextHost = n.getHost();
+            Datacenter prevDc = prevHost.getDatacenter();
+            Datacenter nextDc = nextHost.getDatacenter();
+            int[] out = result.get(prevDc);
+            out[1]++;
+            int[] in = result.get(nextDc);
+            in[0]++;
+        }
+        for (Datacenter dc : dataCenters) {
+            if (dc instanceof GreenDataCenter) {
+                int[] vms = result.get(dc);
+                ((GreenDataCenter) dc).addToMigratingInVms(vms[0]);
+                ((GreenDataCenter) dc).addToMigratingOutVms(vms[1]);
             }
         }
     }

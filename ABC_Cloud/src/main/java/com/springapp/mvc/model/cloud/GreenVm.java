@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * Created by Daniel on 3/12/2015.
+ * Green Vm
  */
 public class GreenVm extends PowerVm {
 
@@ -22,25 +23,8 @@ public class GreenVm extends PowerVm {
         if (host == null) {
             return 0;
         }
-        double[] hostHistory = host.getGreenUtilizationHistory();
-        double hostHistoryMean = 0;
-        for (double aHostHistory : hostHistory) {
-            hostHistoryMean += aHostHistory;
-        }
-        hostHistoryMean /= hostHistory.length;
-        if (Double.isNaN(hostHistoryMean)) {
-            System.out.println();
-        }
-        double hostUtilisedMips = hostHistoryMean * host.getTotalMips();
-
-        double hostEnergyMean = 0;
-        for (double d : host.getEnergyHistory()) {
-            hostEnergyMean += d;
-        }
-        if (hostEnergyMean != 0) {
-            hostEnergyMean /= host.getEnergyHistory().size();
-        }
-
+        double hostUtilisedMips = host.getUtilisedMips();
+        double hostEnergyMean = host.getMeanPower();
         if (hostUtilisedMips != 0) {
             return hostEnergyMean * getUtilizationMean() / hostUtilisedMips;
         }

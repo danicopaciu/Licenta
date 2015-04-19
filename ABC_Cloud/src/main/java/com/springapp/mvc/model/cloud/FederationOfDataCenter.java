@@ -5,10 +5,7 @@ import com.springapp.mvc.model.abc.ArtificialBeeColony;
 import com.springapp.mvc.model.abc.FoodSource;
 import com.springapp.mvc.model.abc.Nectar;
 import com.springapp.mvc.model.statistics.Statistics;
-import org.cloudbus.cloudsim.Cloudlet;
-import org.cloudbus.cloudsim.DatacenterBroker;
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEntity;
@@ -103,13 +100,11 @@ public class FederationOfDataCenter extends SimEntity {
 
     private void processPeriodicEvent() {
         double clock = CloudSim.clock();
-//        System.out.println(clock);
         runMigrationAlgorithm();
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
         if (clock >= TIME_STOP + allocatedDC) {
             generatePeriodicEvent = false;
             fileWriter.close();
-            //statistics to be added
             Statistics.printResults(dataCenterList);
         }
         if (generatePeriodicEvent) send(getId(), DELAY, POWER_DATACENTER, new Object());
@@ -164,7 +159,7 @@ public class FederationOfDataCenter extends SimEntity {
         ArtificialBeeColony abc = new ArtificialBeeColony(DCList, migratingList);
         FoodSource result = abc.runAlgorithm();
         scheduleMigrations(result);
-        clearMigrationLists();
+//        Statistics.analizeSolution(dataCenterList, result);
     }
 
     private Set<GreenVm> getMigrationVms(List<Vm> greenVmList) {
@@ -195,16 +190,10 @@ public class FederationOfDataCenter extends SimEntity {
         return greenVmList;
     }
 
-    private void clearMigrationLists() {
-        for (GreenHost h : getHostList()) {
-            h.clearMigratingInVms();
-        }
-    }
-
     private void scheduleMigrations(FoodSource result) {
         for (Nectar n : result.getNectarList()) {
-            GreenHost host = n.getHost();
-            GreenVm vm = n.getVm();
+            Host host = n.getHost();
+            Vm vm = n.getVm();
             GreenDataCenter dataCenter = (GreenDataCenter) vm.getHost().getDatacenter();
             Map<String, Object> data = new HashMap<String, Object>();
             data.put("vm", vm);

@@ -20,26 +20,35 @@ public class GreenHost extends PowerHostUtilizationHistory {
 
     private List<Double> energyHistory;
 
-    private List<Vm> migratingInVms;
 
     public GreenHost(int id, RamProvisioner ramProvisioner, BwProvisioner bwProvisioner,
                      long storage, List<? extends Pe> peList, VmScheduler vmScheduler, PowerModel powerModel) {
         super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler, powerModel);
         energyHistory = new ArrayList<Double>();
-        migratingInVms = new ArrayList<Vm>();
     }
 
     public double[] getGreenUtilizationHistory() {
-        try {
-            return getUtilizationHistory();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return getUtilizationHistory();
     }
 
     public synchronized void addEnergyHistory(Double d) {
         energyHistory.add(d);
+    }
+
+    public double getUtilizationMean() {
+        double[] hostHistory = getUtilizationHistory();
+        double hostHistoryMean = 0;
+        for (double aHostHistory : hostHistory) {
+            hostHistoryMean += aHostHistory;
+        }
+        hostHistoryMean /= hostHistory.length;
+        return hostHistoryMean;
+    }
+
+    public double getUtilisedMips() {
+        double hostHistoryMean = getUtilizationMean();
+        double hostTotalMips = getTotalMips();
+        return hostHistoryMean * hostTotalMips;
     }
 
     public synchronized List<Double> getEnergyHistory() {
@@ -59,7 +68,7 @@ public class GreenHost extends PowerHostUtilizationHistory {
                 }
                 int size = energyHistory.size();
                 if (size != 0) {
-                    mean /= energyHistory.size();
+                    mean /= size;
                     return mean;
                 }
             }
@@ -67,18 +76,10 @@ public class GreenHost extends PowerHostUtilizationHistory {
         return 0;
     }
 
-    public void clearMigratingInVms() {
-        migratingInVms.clear();
-    }
 
-    public boolean isMigrationPossible(Vm vm) {
-        if (migratingInVms.isEmpty()) {
-
-            if(isSuitableForVm(vm)){
-                addMigratingVm(vm);
-                return true;
-            }
-            return false;
+    public boolean isMigrationPossible(Vm vm, List<Vm> migratingInVms) {
+        if (migratingInVms == null || migratingInVms.isEmpty()) {
+            return isSuitableForVm(vm);
         } else {
             VmScheduler scheduler = getVmScheduler();
             double peCapacity = scheduler.getPeCapacity();
@@ -106,7 +107,6 @@ public class GreenHost extends PowerHostUtilizationHistory {
                             }
                         }
                         if (availableBw >= vm.getCurrentRequestedBw()) {
-                            addMigratingVm(vm);
                             return true;
                         }
                     }
@@ -115,14 +115,6 @@ public class GreenHost extends PowerHostUtilizationHistory {
             }
         }
         return false;
-    }
-
-    public boolean addMigratingVm(Vm vm) {
-        return migratingInVms.contains(vm) || migratingInVms.add(vm);
-    }
-
-    public boolean removeMigratingVm(Vm vm) {
-        return migratingInVms.contains(vm) && migratingInVms.remove(vm);
     }
 
 }
