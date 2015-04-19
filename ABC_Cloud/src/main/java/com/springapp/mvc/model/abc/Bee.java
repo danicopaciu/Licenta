@@ -142,10 +142,13 @@ public class Bee {
             double hostsEnergy = getHostsEnergy(consumedEnergyMap, dc);
             double greenEnergy = dc.getGreenEnergyQuantity();
             if (greenEnergy != 0) {
+                double coolingFactor = 1;
+                double heatFactor = 0;
                 double heat = getGainedHeat(hostsEnergy);
                 double cooling = getCoolingEnergy(hostsEnergy);
                 double penalty = computePenalty(dc);
-                dataCenterFitness += ((hostsEnergy + cooling) / (greenEnergy + heat)) - penalty;
+                dataCenterFitness += ((hostsEnergy + coolingFactor * cooling) /
+                        (greenEnergy + heatFactor * heat)) - penalty;
             }
         }
         return dataCenterFitness;
