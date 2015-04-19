@@ -9,6 +9,9 @@ import org.cloudbus.cloudsim.Vm;
 
 import java.awt.*;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +22,8 @@ import java.util.Map;
  */
 public class Statistics {
 
-    private static final String FILE_PATH = "D:\\GithubRepositories\\Licenta\\ABC_Cloud\\results.csv";
+    private static final String FILE_PATH = "D:\\GithubRepositories\\Licenta\\ABC_Cloud\\results_";
+    private static final String FILE_EXTENSION = ".csv";
     private static final String ENCODING = "utf-8";
     private static FoodSource solution;
     private static Map<Datacenter, List<Double>> datacenterResults;
@@ -43,8 +47,6 @@ public class Statistics {
             List<Double> serverEnergyList = statistics.get(GreenDataCenter.SERVERS_ENERGY);
             List<Double> heatList = statistics.get(GreenDataCenter.HEAT);
             List<Double> coolingList = statistics.get(GreenDataCenter.COOLING);
-            List<Double> inVms = statistics.get(GreenDataCenter.VMS_IN);
-            List<Double> outVms = statistics.get(GreenDataCenter.VMS_OUT);
             writer.println(dc.getName());
             writer.println("Time,Green Energy,Brown Energy,Server Energy,Heat Recovered,Cooling Energy");
             for (int i = 0; i < timeList.size(); i++) {
@@ -90,7 +92,10 @@ public class Statistics {
     private static void initWriter() {
         if (writer == null) {
             try {
-                writer = new PrintWriter(FILE_PATH, ENCODING);
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                Date date = new Date();
+                String fileName = FILE_PATH + dateFormat.format(date) + FILE_EXTENSION;
+                writer = new PrintWriter(fileName, ENCODING);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (UnsupportedEncodingException e) {

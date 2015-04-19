@@ -23,11 +23,13 @@ public class ArtificialBeeColony {
     private List<GreenDataCenter> dataCenterList;
     private List<GreenVm> vmList;
     private List<FoodSource> foodSourceList;
+    private List<GreenHost> hostList;
 
 
     public ArtificialBeeColony(List<GreenDataCenter> dataCenterList, List<GreenVm> vmList) {
         this.dataCenterList = dataCenterList;
         this.vmList = vmList;
+        hostList = getHostList();
         DIMENSION = vmList.size();
     }
 
@@ -37,8 +39,7 @@ public class ArtificialBeeColony {
         int counter = 0;
         double prevFitness = 0;
         FoodSource bestFoodSource = null;
-//        Log.printLine(clock + ": ABC algorithm starting");
-//        Log.printLine(clock + ": random initialization");
+        System.out.println("Dimension: " + DIMENSION);
         initialize();
         System.out.println(clock);
         do {
@@ -48,11 +49,18 @@ public class ArtificialBeeColony {
                 prevFitness = bestFoodSource.getFitness();
             }
 //            System.out.println(clock + ": Previous fitness function was: " + prevFitness);
+//            long start = System.currentTimeMillis();
             sendEmployedBees();
+//            long finish = System.currentTimeMillis();
+//            System.out.println("Execution time for employed bees: " + (finish-start));
             applyFitness();
             computeProbability();
+//            start = System.currentTimeMillis();
             sendOnlookerBees();
+//            finish = System.currentTimeMillis();
+//            System.out.println("Execution time for onlooker bees: " + (finish-start));
             bestFoodSource = getBestSolution();
+
             if (bestFoodSource.getFitness() > 1) {
                 System.out.println();
             }
@@ -156,13 +164,12 @@ public class ArtificialBeeColony {
 //    }
     private GreenHost getRandomHost(Vm vm, FoodSource foodSource) {
         Random random = new Random();
-        List<GreenHost> hosts = getHostList();
         GreenHost host;
         double greenEnergy;
         List<Vm> assignedBeforeVms;
         do {
-            int selectedHostIndex = random.nextInt(hosts.size());
-            host = hosts.get(selectedHostIndex);
+            int selectedHostIndex = random.nextInt(hostList.size());
+            host = hostList.get(selectedHostIndex);
             assignedBeforeVms = foodSource.getVmListForHost(host);
             GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
             greenEnergy = dataCenter.getGreenEnergyQuantity();
@@ -174,7 +181,6 @@ public class ArtificialBeeColony {
     private void sendEmployedBees() {
         for (FoodSource fs : foodSourceList) {
             Bee bee = fs.getEmployedBee();
-            bee.computeConflicts();
             bee.applyFitnessFunction(dataCenterList);
         }
         int index = 0;

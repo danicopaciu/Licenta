@@ -202,7 +202,6 @@ public class Bee {
     private double computePenalty(Datacenter dataCenter) {
         double penalty = 0;
         double ram;
-        int vmNumber = 0;
         List<GreenHost> hostList = dataCenter.getHostList();
         for (GreenHost host : hostList) {
             ram = 0;
@@ -210,12 +209,10 @@ public class Bee {
             if (assignedVms != null) {
                 for (Vm vm : foodSource.getVmListForHost(host)) {
                     ram += vm.getRam();
-                    vmNumber++;
                 }
             }
             penalty += ram / host.getAvailableBandwidth();
         }
-//        penalty /= vmNumber;
         return penalty / Resources.SCHEDULING_INTERVAL;
     }
 
