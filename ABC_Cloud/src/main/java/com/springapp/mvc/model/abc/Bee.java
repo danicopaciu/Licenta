@@ -48,9 +48,10 @@ public class Bee {
         changedParameter.setHost(newHost);
 
         int actualConflict = computeConflicts();
-        double actualFitnessFunction = applyFitnessFunction(dataCenterList);
+        applyFitnessFunction(dataCenterList);
+        double actualFitnessFunction = foodSource.getFitness();
 //        if(prevFitnessFunction > actualFitnessFunction){
-//            System.out.println();
+//            System.out.println(actualFitnessFunction);
 //        }
 
         if (prevConflicts < actualConflict ||
@@ -125,33 +126,64 @@ public class Bee {
     }
 
     public double applyFitnessFunction(List<GreenDataCenter> dataCenterList) {
+        foodSource.setFitness(0);
         Map<GreenHost, Double> consumedEnergyMap =
                 getGreenHostConsumedEnergyMap(dataCenterList);
-        double dataCenterFitness =
-                getDataCenterFitness(dataCenterList, consumedEnergyMap);
+        getDataCenterFitness(dataCenterList, consumedEnergyMap);
         int dataCenterNumber = dataCenterList.size();
-        double result = dataCenterFitness / dataCenterNumber;
-        foodSource.setFitness(result);
-        return result;
+        foodSource.setFitness(foodSource.getFitness() / dataCenterNumber);
+        return foodSource.getFitness();
     }
 
-    private double getDataCenterFitness(List<GreenDataCenter> dataCenterList,
-                                        Map<GreenHost, Double> consumedEnergyMap) {
-        double dataCenterFitness = 0;
+    private double getDataCenterFitness(final List<GreenDataCenter> dataCenterList,
+                                        final Map<GreenHost, Double> consumedEnergyMap) {
         for (GreenDataCenter dc : dataCenterList) {
             double hostsEnergy = getHostsEnergy(consumedEnergyMap, dc);
             double greenEnergy = dc.getGreenEnergyQuantity();
             if (greenEnergy != 0) {
-                double coolingFactor = 1;
+                double coolingFactor = 0;
                 double heatFactor = 0;
                 double heat = getGainedHeat(hostsEnergy);
                 double cooling = getCoolingEnergy(hostsEnergy);
                 double penalty = computePenalty(dc);
-                dataCenterFitness += ((hostsEnergy + coolingFactor * cooling) /
+                double result = ((hostsEnergy + coolingFactor * cooling) /
                         (greenEnergy + heatFactor * heat)) - penalty;
+                foodSource.setFitness(foodSource.getFitness() + result);
             }
         }
-        return dataCenterFitness;
+//        int dataCenterNumbers = dataCenterList.size();
+//        foodSource.setFitness(0);
+//        ExecutorService executor = Executors.newFixedThreadPool(dataCenterNumbers);
+//        List<Callable<Object>> todo = new ArrayList<Callable<Object>>(dataCenterNumbers);
+//        for(int i = 0; i < dataCenterNumbers; i++){
+//            final int dcIndex = i;
+//            todo.add(Executors.callable(new Runnable() {
+//                @Override
+//                public void run() {
+//                    GreenDataCenter dc = dataCenterList.get(dcIndex);
+//                    double hostsEnergy = getHostsEnergy(consumedEnergyMap, dc);
+//                    double greenEnergy = dc.getGreenEnergyQuantity();
+//                    if (greenEnergy != 0) {
+//                        double coolingFactor = 1;
+//                        double heatFactor = 0;
+//                        double heat = getGainedHeat(hostsEnergy);
+//                        double cooling = getCoolingEnergy(hostsEnergy);
+//                        double penalty = computePenalty(dc);
+//                        double result = ((hostsEnergy + coolingFactor * cooling) /
+//                                (greenEnergy + heatFactor * heat)) - penalty;
+//                        foodSource.setFitness(foodSource.getFitness() + result);
+//                }
+//            }}));
+//        }
+//        try {
+//            executor.invokeAll(todo);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        executor.shutdown();
+
+        return foodSource.getFitness();
     }
 
     private double getCoolingEnergy(double hostsEnergy) {
@@ -191,12 +223,15 @@ public class Bee {
                 hostConsumedEnergy = host.getMeanPower();
                 List<Vm> assignedVms = foodSource.getVmListForHost(host);
                 if (assignedVms != null) {
+                    double vmEnergy = 0;
                     for (Vm vm : foodSource.getVmListForHost(host)) {
                         GreenVm greenVm = (GreenVm) vm;
-                        hostConsumedEnergy += greenVm.getNecessaryEnergy();
+                        vmEnergy += greenVm.getNecessaryEnergy();
                     }
+                    hostConsumedEnergy += vmEnergy;
                 }
             }
+
             consumedEnergyMap.put(host, hostConsumedEnergy);
         }
         return consumedEnergyMap;
@@ -210,8 +245,16 @@ public class Bee {
             ram = 0;
             List<Vm> assignedVms = foodSource.getVmListForHost(host);
             if (assignedVms != null) {
-                for (Vm vm : foodSource.getVmListForHost(host)) {
-                    ram += vm.getRam();
+//                for (Vm vm : assignedVms) {
+//                    ram += vm.getRam();
+//                }
+                for (int i = 0; i < assignedVms.size(); i++) {
+                    Vm vm = assignedVms.get(i);
+                    if (vm != null) {
+                        ram += vm.getRam();
+                    } else {
+                        System.out.println();
+                    }
                 }
             }
             penalty += ram / host.getAvailableBandwidth();

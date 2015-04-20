@@ -159,7 +159,7 @@ public class FederationOfDataCenter extends SimEntity {
         ArtificialBeeColony abc = new ArtificialBeeColony(DCList, migratingList);
         FoodSource result = abc.runAlgorithm();
         scheduleMigrations(result);
-//        Statistics.analizeSolution(dataCenterList, result);
+        Statistics.analizeSolution(dataCenterList, result);
     }
 
     private Set<GreenVm> getMigrationVms(List<Vm> greenVmList) {

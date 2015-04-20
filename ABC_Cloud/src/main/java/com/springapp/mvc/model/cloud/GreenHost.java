@@ -61,12 +61,15 @@ public class GreenHost extends PowerHostUtilizationHistory {
 
     public double getMeanPower() {
         double mean = 0;
+        int size = 0;
         if (energyHistory != null) {
             if (!energyHistory.isEmpty()) {
                 for (Double d : energyHistory) {
-                    mean += d;
+                    if (d > 0) {
+                        mean += d;
+                        size++;
+                    }
                 }
-                int size = energyHistory.size();
                 if (size != 0) {
                     mean /= size;
                     return mean;
