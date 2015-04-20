@@ -82,7 +82,7 @@ public class Statistics {
         try {
             Desktop dt = Desktop.getDesktop();
             dt.open(new File(FILE_PATH));
-            Process p = Runtime.getRuntime()
+            Runtime.getRuntime()
                     .exec("rundll32 url.dll,FileProtocolHandler " + FILE_PATH);
         } catch (IOException e) {
             e.printStackTrace();

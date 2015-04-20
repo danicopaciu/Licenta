@@ -176,7 +176,6 @@ public class GreenDataCenter extends PowerDatacenter {
                         previousUtilizationOfCpu,
                         utilizationOfCpu,
                         timeDiff);
-                com.springapp.mvc.model.csv.Log.printLine(currentTime + ": Host#" + host.getId() + " has consumed " + timeFrameHostEnergy + " W * sec");
                 host.addEnergyHistory(timeFrameHostEnergy);
                 timeFrameDatacenterEnergy += timeFrameHostEnergy;
 
