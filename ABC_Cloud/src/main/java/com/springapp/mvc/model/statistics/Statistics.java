@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class Statistics {
 
-    private static final String FILE_PATH = "D:\\GithubRepositories\\Licenta\\ABC_Cloud\\results_";
+    private static final String FILE_PATH = "results";
     private static final String FILE_EXTENSION = ".csv";
     private static final String ENCODING = "utf-8";
     private static FoodSource solution;
@@ -81,9 +81,9 @@ public class Statistics {
     private static void openFile() {
         try {
             Desktop dt = Desktop.getDesktop();
-            dt.open(new File(FILE_PATH));
+            dt.open(new File(FILE_PATH + FILE_EXTENSION ));
             Process p = Runtime.getRuntime()
-                    .exec("rundll32 url.dll,FileProtocolHandler " + FILE_PATH);
+                    .exec("rundll32 url.dll,FileProtocolHandler " + FILE_PATH + FILE_EXTENSION);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -94,7 +94,8 @@ public class Statistics {
             try {
                 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 Date date = new Date();
-                String fileName = FILE_PATH + dateFormat.format(date) + FILE_EXTENSION;
+//                String fileName = FILE_PATH + dateFormat.format(date) + FILE_EXTENSION;
+                String fileName = FILE_PATH + FILE_EXTENSION;
                 writer = new PrintWriter(fileName, ENCODING);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
