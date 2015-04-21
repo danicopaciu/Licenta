@@ -1,8 +1,10 @@
 package com.springapp.mvc.model.cloud;
 
+import com.springapp.mvc.controller.Resources;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
+import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerHost;
@@ -299,9 +301,9 @@ public class GreenDataCenter extends PowerDatacenter {
             List<Double> dataList = statistics.get(time);
             dataList.add(TOTAL_VMS, totalVms);
         } else {
-            List<Double> dataList = new ArrayList<Double>();
-            dataList.add(TOTAL_VMS, totalVms);
-            statistics.put(time, dataList);
+//            List<Double> dataList = new ArrayList<Double>();
+//            dataList.add(TOTAL_VMS, totalVms);
+//            statistics.put(time, dataList);
 
         }
     }
@@ -331,4 +333,45 @@ public class GreenDataCenter extends PowerDatacenter {
     public Map<Double, List<Double>> getStatistics() {
         return statistics;
     }
+
+    protected void processVmCreate(SimEvent ev, boolean ack) {
+        Vm vm = (Vm) ev.getData();
+
+        boolean result = getVmAllocationPolicy().allocateHostForVm(vm);
+
+        if (totalVms>= Resources.VM_NUMBER/Resources.DATACENTER_NUMBER){
+            result = false;
+        }
+
+        if(vm.getId() == 76){
+            System.out.println("");
+        }
+
+        if (ack) {
+            int[] data = new int[3];
+            data[0] = getId();
+            data[1] = vm.getId();
+
+            if (result) {
+                data[2] = CloudSimTags.TRUE;
+            } else {
+                data[2] = CloudSimTags.FALSE;
+            }
+            send(vm.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimTags.VM_CREATE_ACK, data);
+        }
+
+        if (result) {
+            getVmList().add(vm);
+            totalVms++;
+
+            if (vm.isBeingInstantiated()) {
+                vm.setBeingInstantiated(false);
+            }
+
+            vm.updateVmProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getVmScheduler()
+                    .getAllocatedMipsForVm(vm));
+        }
+
+    }
+
 }
