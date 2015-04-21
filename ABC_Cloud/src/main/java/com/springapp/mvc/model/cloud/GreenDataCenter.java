@@ -7,10 +7,7 @@ import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerHost;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Daniel on 3/12/2015.
@@ -20,17 +17,20 @@ public class GreenDataCenter extends PowerDatacenter {
 
 
     public static final int SUPPLIED_TEMPERATURE = 15; //degrees
-    public static final String TIME = "Time";
-    public static final String GREEN_ENERGY = "GreenEnergy";
-    public static final String BROWN_ENERGY = "BrownEnergy";
-    public static final String SERVERS_ENERGY = "ServersEnergy";
-    public static final String COOLING = "Cooling";
-    public static final String HEAT = "Heat";
-    public static final String VMS_IN = "MigratingInVms";
-    public static final String VMS_OUT = "MigratingOutVms";
+    public static final int GREEN_ENERGY = 0;
+    public static final int BROWN_ENERGY = 1;
+    public static final int SERVERS_ENERGY = 2;
+    public static final int COOLING = 3;
+    public static final int HEAT = 4;
+    public static final int VMS_IN = 5;
+    public static final int VMS_OUT = 6;
+    public static final int TOTAL_VMS = 7;
     private double greenEnergyQuantity;
     private double brownEnergyQuantity;
-    private Map<String, List<Double>> statistics;
+
+    private Map<Double, List<Double>> statistics;
+
+    private int totalVms;
 
     public GreenDataCenter(String name, DatacenterCharacteristics characteristics,
                            VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList,
@@ -39,17 +39,9 @@ public class GreenDataCenter extends PowerDatacenter {
 
         this.greenEnergyQuantity = 0;
         this.brownEnergyQuantity = 0;
+        this.totalVms = 0;
 
-        statistics = new HashMap<String, List<Double>>();
-        statistics.put(TIME, new ArrayList<Double>());
-        statistics.put(GREEN_ENERGY, new ArrayList<Double>());
-        statistics.put(BROWN_ENERGY, new ArrayList<Double>());
-        statistics.put(SERVERS_ENERGY, new ArrayList<Double>());
-        statistics.put(COOLING, new ArrayList<Double>());
-        statistics.put(HEAT, new ArrayList<Double>());
-        statistics.put(VMS_IN, new ArrayList<Double>());
-        statistics.put(VMS_OUT, new ArrayList<Double>());
-
+        statistics = new HashMap<Double, List<Double>>();
     }
 
     public double getGreenEnergyQuantity() {
@@ -163,6 +155,9 @@ public class GreenDataCenter extends PowerDatacenter {
                     host.getUtilizationOfCpu() * 100);
         }
 
+        if (totalVms == 0) {
+            totalVms = setTotalVms();
+        }
         if (timeDiff > 0) {
             Log.formatLine(
                     "\nEnergy consumption for the last time frame from %.2f to %.2f:",
@@ -210,15 +205,14 @@ public class GreenDataCenter extends PowerDatacenter {
                 setBrownEnergyQuantity(0);
             }
             if (currentTime >= 600) {
-                putTime(currentTime);
-                putGreenEnergy(getGreenEnergyQuantity());
-                putServerEnergy(getPower());
-                putBrownEnergy(getBrownEnergyQuantity());
-                double heat = 3.5 * getPower();
-                putHeat(heat);
-                double cop = computeCOP();
-                double cooling = getPower() / cop;
-                putCooling(cooling);
+                if (!statistics.containsKey(currentTime)) {
+                    statistics.put(currentTime, new LinkedList<Double>());
+                    putGreenEnergy(currentTime, getGreenEnergyQuantity());
+                    putBrownEnergy(currentTime, getBrownEnergyQuantity());
+                    putServerEnergy(currentTime, getPower());
+                    putCooling(currentTime, getPower() / computeCOP());
+                    putHeat(currentTime, 3.5 * getPower());
+                }
             }
         }
         checkCloudletCompletion();
@@ -238,12 +232,16 @@ public class GreenDataCenter extends PowerDatacenter {
         return minTime;
     }
 
-    public boolean addToMigratingInVms(int d) {
-        return statistics.get(VMS_IN).add((double) d);
-    }
-
-    public boolean addToMigratingOutVms(int d) {
-        return statistics.get(VMS_OUT).add((double) d);
+    private int setTotalVms() {
+        int total = 0;
+        for (Host host : getHostList()) {
+            List<Vm> vmList = host.getVmList();
+            if (vmList != null) {
+                int vmNumber = vmList.size();
+                total += vmNumber;
+            }
+        }
+        return total;
     }
 
     private double computeCOP() {
@@ -260,31 +258,77 @@ public class GreenDataCenter extends PowerDatacenter {
         this.brownEnergyQuantity = brownEnergyQuantity;
     }
 
-    public void putTime(Double time) {
-        statistics.get(TIME).add(time);
+
+    public void putGreenEnergy(Double time, Double greenEnergy) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(GREEN_ENERGY, greenEnergy);
+        }
     }
 
-    public void putGreenEnergy(Double greenEnergy) {
-        statistics.get(GREEN_ENERGY).add(greenEnergy);
+    public void putBrownEnergy(Double time, Double brownEnergy) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(BROWN_ENERGY, brownEnergy);
+        }
     }
 
-    public void putBrownEnergy(Double brownEnergy) {
-        statistics.get(BROWN_ENERGY).add(brownEnergy);
+    public void putServerEnergy(Double time, Double serverEnergy) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(SERVERS_ENERGY, serverEnergy);
+        }
     }
 
-    public void putServerEnergy(Double serverEnergy) {
-        statistics.get(SERVERS_ENERGY).add(serverEnergy);
+    public void putCooling(Double time, Double cooling) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(COOLING, cooling);
+        }
     }
 
-    public void putCooling(Double cooling) {
-        statistics.get(COOLING).add(cooling);
+    public void putHeat(Double time, Double heat) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(HEAT, heat);
+        }
     }
 
-    public void putHeat(Double heat) {
-        statistics.get(HEAT).add(heat);
+    public void putTotalVms(Double time, Double totalVms) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(TOTAL_VMS, totalVms);
+        } else {
+            List<Double> dataList = new ArrayList<Double>();
+            dataList.add(TOTAL_VMS, totalVms);
+            statistics.put(time, dataList);
+
+        }
     }
 
-    public Map<String, List<Double>> getStatistics() {
+    public void putVmsIn(Double time, Double vmsIn) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(VMS_IN, vmsIn);
+        }
+    }
+
+    public void putVmsOut(Double time, Double vmsOut) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(VMS_OUT, vmsOut);
+        }
+    }
+
+    public int getTotalVms() {
+        return totalVms;
+    }
+
+    public void setTotalVms(int totalVms) {
+        this.totalVms = totalVms;
+    }
+
+    public Map<Double, List<Double>> getStatistics() {
         return statistics;
     }
 }

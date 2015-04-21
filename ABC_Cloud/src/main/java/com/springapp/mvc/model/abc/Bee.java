@@ -135,14 +135,14 @@ public class Bee {
         return foodSource.getFitness();
     }
 
-    private double getDataCenterFitness(final List<GreenDataCenter> dataCenterList,
-                                        final Map<GreenHost, Double> consumedEnergyMap) {
+    private double getDataCenterFitness(List<GreenDataCenter> dataCenterList,
+                                        Map<GreenHost, Double> consumedEnergyMap) {
         for (GreenDataCenter dc : dataCenterList) {
             double hostsEnergy = getHostsEnergy(consumedEnergyMap, dc);
             double greenEnergy = dc.getGreenEnergyQuantity();
             if (greenEnergy != 0) {
-                double coolingFactor = 0;
-                double heatFactor = 0;
+                double coolingFactor = 1;
+                double heatFactor = 1;
                 double heat = getGainedHeat(hostsEnergy);
                 double cooling = getCoolingEnergy(hostsEnergy);
                 double penalty = computePenalty(dc);

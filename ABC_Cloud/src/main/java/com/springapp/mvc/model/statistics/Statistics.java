@@ -6,6 +6,7 @@ import com.springapp.mvc.model.cloud.GreenDataCenter;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.core.CloudSim;
 
 import java.awt.*;
 import java.io.*;
@@ -22,7 +23,7 @@ import java.util.Map;
  */
 public class Statistics {
 
-    private static final String FILE_PATH = "D:\\GithubRepositories\\Licenta\\ABC_Cloud\\results_";
+    private static final String FILE_PATH = "D:\\GithubRepositories\\Licenta\\ABC_Cloud\\results.csv";
     private static final String FILE_EXTENSION = ".csv";
     private static final String ENCODING = "utf-8";
     private static FoodSource solution;
@@ -39,40 +40,40 @@ public class Statistics {
 
     public static void printResults(List<GreenDataCenter> dataCenterList) {
         initWriter();
-        for (GreenDataCenter dc : dataCenterList) {
-            Map<String, List<Double>> statistics = dc.getStatistics();
-            List<Double> timeList = statistics.get(GreenDataCenter.TIME);
-            List<Double> greenEnergyList = statistics.get(GreenDataCenter.GREEN_ENERGY);
-            List<Double> brownEnergyList = statistics.get(GreenDataCenter.BROWN_ENERGY);
-            List<Double> serverEnergyList = statistics.get(GreenDataCenter.SERVERS_ENERGY);
-            List<Double> heatList = statistics.get(GreenDataCenter.HEAT);
-            List<Double> coolingList = statistics.get(GreenDataCenter.COOLING);
-            writer.println(dc.getName());
-            writer.println("Time,Green Energy,Brown Energy,Server Energy,Heat Recovered,Cooling Energy");
-            for (int i = 0; i < timeList.size(); i++) {
-                StringBuilder sb = new StringBuilder();
-                double time = timeList.get(i);
-                double greenEnergy = greenEnergyList.get(i);
-                double brownEnergy = brownEnergyList.get(i);
-                double serverEnergy = serverEnergyList.get(i);
-                double heat = heatList.get(i);
-                double cooling = coolingList.get(i);
-                sb.append(time);
-                sb.append(",");
-                sb.append(greenEnergy);
-                sb.append(",");
-                sb.append(brownEnergy);
-                sb.append(",");
-                sb.append(serverEnergy);
-                sb.append(",");
-                sb.append(heat);
-                sb.append(",");
-                sb.append(cooling);
-                sb.append(",");
-                writer.println(sb.toString());
-            }
-
-        }
+//        for (GreenDataCenter dc : dataCenterList) {
+//            Map<String, List<Double>> statistics = dc.getStatistics();
+//            List<Double> timeList = statistics.get(GreenDataCenter.TIME);
+//            List<Double> greenEnergyList = statistics.get(GreenDataCenter.GREEN_ENERGY);
+//            List<Double> brownEnergyList = statistics.get(GreenDataCenter.BROWN_ENERGY);
+//            List<Double> serverEnergyList = statistics.get(GreenDataCenter.SERVERS_ENERGY);
+//            List<Double> heatList = statistics.get(GreenDataCenter.HEAT);
+//            List<Double> coolingList = statistics.get(GreenDataCenter.COOLING);
+//            writer.println(dc.getName());
+//            writer.println("Time,Green Energy,Brown Energy,Server Energy,Heat Recovered,Cooling Energy");
+//            for (int i = 0; i < timeList.size(); i++) {
+//                StringBuilder sb = new StringBuilder();
+//                double time = timeList.get(i);
+//                double greenEnergy = greenEnergyList.get(i);
+//                double brownEnergy = brownEnergyList.get(i);
+//                double serverEnergy = serverEnergyList.get(i);
+//                double heat = heatList.get(i);
+//                double cooling = coolingList.get(i);
+//                sb.append(time);
+//                sb.append(",");
+//                sb.append(greenEnergy);
+//                sb.append(",");
+//                sb.append(brownEnergy);
+//                sb.append(",");
+//                sb.append(serverEnergy);
+//                sb.append(",");
+//                sb.append(heat);
+//                sb.append(",");
+//                sb.append(cooling);
+//                sb.append(",");
+//                writer.println(sb.toString());
+//            }
+//
+//        }
         writer.close();
         openFile();
 
@@ -94,7 +95,7 @@ public class Statistics {
             try {
                 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 Date date = new Date();
-                String fileName = FILE_PATH + dateFormat.format(date) + FILE_EXTENSION;
+                String fileName = FILE_PATH;
                 writer = new PrintWriter(fileName, ENCODING);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -125,8 +126,11 @@ public class Statistics {
         for (Datacenter dc : dataCenters) {
             if (dc instanceof GreenDataCenter) {
                 int[] vms = result.get(dc);
-                ((GreenDataCenter) dc).addToMigratingInVms(vms[0]);
-                ((GreenDataCenter) dc).addToMigratingOutVms(vms[1]);
+                GreenDataCenter gdc = (GreenDataCenter) dc;
+                gdc.putVmsIn(CloudSim.clock(), (double) vms[0]);
+                gdc.putVmsOut(CloudSim.clock(), (double) vms[1]);
+                gdc.setTotalVms(gdc.getTotalVms() - vms[1] + vms[0]);
+                gdc.putTotalVms(CloudSim.clock(), (double) gdc.getTotalVms());
             }
         }
     }

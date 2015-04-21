@@ -93,10 +93,16 @@ public class ArtificialBeeColony {
 
     private FoodSource getBestSolution() {
         FoodSource maxFoodSource = foodSourceList.get(0);
+        double diff = Double.POSITIVE_INFINITY;
         for (FoodSource fs : foodSourceList) {
-            if (fs.getFitness() > maxFoodSource.getFitness()) {
+//            if (fs.getFitness() > maxFoodSource.getFitness()) {
+//                maxFoodSource = fs;
+//            }
+            if (Math.abs(1.0 - fs.getFitness()) < diff) {
+                diff = Math.abs(1 - fs.getFitness());
                 maxFoodSource = fs;
             }
+
         }
         return maxFoodSource;
     }
