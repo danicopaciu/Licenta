@@ -221,7 +221,7 @@ public class GreenDataCenter extends PowerDatacenter {
             if (currentTime >= 600) {
                 setCoolingEnergy(getPower() / computeCOP());
                 setHeatGained(getPower() * 3.5);
-                setTotalEnergy(getPower() + getTotalEnergy());
+                setTotalEnergy(getPower() + getCoolingEnergy());
 
                 if (!statistics.containsKey(currentTime)) {
                     statistics.put(currentTime, new ArrayList<Double>());
@@ -345,10 +345,6 @@ public class GreenDataCenter extends PowerDatacenter {
 
     protected void processVmCreate(SimEvent ev, boolean ack) {
         Vm vm = (Vm) ev.getData();
-
-        if (getName().equals("DataCenter_4")) {
-            System.out.println();
-        }
 
         boolean result = false;
         if (totalVms < MAX_NUMBER_OF_VMS) {

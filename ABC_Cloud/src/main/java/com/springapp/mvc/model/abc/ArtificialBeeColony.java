@@ -61,9 +61,9 @@ public class ArtificialBeeColony {
 //            System.out.println("Execution time for onlooker bees: " + (finish-start));
             bestFoodSource = getBestSolution();
 
-            if (bestFoodSource.getFitness() > 1) {
-                System.out.println();
-            }
+//            if (bestFoodSource.getFitness() > 1) {
+//                System.out.println();
+//            }
 //            System.out.println(clock + ": Actual fitness function is: " + bestFoodSource.getFitness());
 
 //            if (epoch >= 500) {

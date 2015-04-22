@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class Statistics {
 
-    private static final String FILE_PATH = "D:\\GithubRepositories\\Licenta\\ABC_Cloud\\results.csv";
+    private static final String FILE_PATH = "results.csv";
     private static final String FILE_EXTENSION = ".csv";
     private static final String ENCODING = "utf-8";
     private static FoodSource solution;
@@ -49,17 +49,29 @@ public class Statistics {
             while (time < FederationOfDataCenter.TIME_STOP) {
                 double greenEnergy, brownEnergy, serverEnergy, coolingEnergy, heatRecovered, totalEnergy, vmsIn, vmsOut, totalVms;
                 List<Double> values;
-                try {
+
                     values = statistics.get(time);
-                    greenEnergy = values.get(GreenDataCenter.GREEN_ENERGY);
-                    brownEnergy = values.get(GreenDataCenter.BROWN_ENERGY);
-                    serverEnergy = values.get(GreenDataCenter.SERVERS_ENERGY);
-                    coolingEnergy = values.get(GreenDataCenter.COOLING);
-                    heatRecovered = values.get(GreenDataCenter.HEAT);
-                    totalEnergy = values.get(GreenDataCenter.DATACENTER_ENERGY);
-                    vmsIn = values.get(GreenDataCenter.VMS_IN);
-                    vmsOut = values.get(GreenDataCenter.VMS_OUT);
-                    totalVms = values.get(GreenDataCenter.TOTAL_VMS);
+                    if ((values == null) || (values.size() == 0)){
+                        greenEnergy = 0;
+                        brownEnergy = 0;
+                        serverEnergy = 0;
+                        coolingEnergy = 0;
+                        heatRecovered = 0;
+                        totalEnergy = 0;
+                        vmsIn = 0;
+                        vmsOut = 0;
+                        totalVms = 0;
+                    }else{
+                        greenEnergy = values.get(GreenDataCenter.GREEN_ENERGY);
+                        brownEnergy = values.get(GreenDataCenter.BROWN_ENERGY);
+                        serverEnergy = values.get(GreenDataCenter.SERVERS_ENERGY);
+                        coolingEnergy = values.get(GreenDataCenter.COOLING);
+                        heatRecovered = values.get(GreenDataCenter.HEAT);
+                        totalEnergy = values.get(GreenDataCenter.DATACENTER_ENERGY);
+                        vmsIn = values.get(GreenDataCenter.VMS_IN);
+                        vmsOut = values.get(GreenDataCenter.VMS_OUT);
+                        totalVms = values.get(GreenDataCenter.TOTAL_VMS);
+                    }
                     StringBuilder sb = new StringBuilder();
                     sb.append(time);
                     sb.append(",");
@@ -83,9 +95,7 @@ public class Statistics {
                     sb.append(",");
                     writer.println(sb.toString());
                     time += 300;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+
             }
 
         }
