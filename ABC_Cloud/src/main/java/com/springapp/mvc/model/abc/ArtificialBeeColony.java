@@ -179,7 +179,7 @@ public class ArtificialBeeColony {
             assignedBeforeVms = foodSource.getVmListForHost(host);
             GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
             greenEnergy = dataCenter.getGreenEnergyQuantity();
-        } while (greenEnergy == 0 || !host.isMigrationPossible(vm, assignedBeforeVms));
+        } while (greenEnergy == 0 || !host.isMigrationPossible(vm, assignedBeforeVms) || host.getDatacenter() == vm.getHost().getDatacenter());
 
         return host;
     }

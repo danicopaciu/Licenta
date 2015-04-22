@@ -130,7 +130,13 @@ public class FederationOfDataCenter extends SimEntity {
             energy = getWindEnergy(windSpeed);
             fileWriter.print(dc.getId() + " ");
             fileWriter.print(dc.getGreenEnergyQuantity() + " ");
-            dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy);
+
+            if(dc.getName().equals("DataCenter_1") || dc.getName().equals("DataCenter_3")){
+                dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy);
+            }else{
+                dc.setGreenEnergyQuantity(0);
+            }
+
             fileWriter.println(dc.getGreenEnergyQuantity() + " ");
         }
     }
