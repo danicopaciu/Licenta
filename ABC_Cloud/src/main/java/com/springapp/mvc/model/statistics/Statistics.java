@@ -2,6 +2,7 @@ package com.springapp.mvc.model.statistics;
 
 import com.springapp.mvc.model.abc.FoodSource;
 import com.springapp.mvc.model.abc.Nectar;
+import com.springapp.mvc.model.cloud.FederationOfDataCenter;
 import com.springapp.mvc.model.cloud.GreenDataCenter;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
@@ -40,40 +41,54 @@ public class Statistics {
 
     public static void printResults(List<GreenDataCenter> dataCenterList) {
         initWriter();
-//        for (GreenDataCenter dc : dataCenterList) {
-//            Map<String, List<Double>> statistics = dc.getStatistics();
-//            List<Double> timeList = statistics.get(GreenDataCenter.TIME);
-//            List<Double> greenEnergyList = statistics.get(GreenDataCenter.GREEN_ENERGY);
-//            List<Double> brownEnergyList = statistics.get(GreenDataCenter.BROWN_ENERGY);
-//            List<Double> serverEnergyList = statistics.get(GreenDataCenter.SERVERS_ENERGY);
-//            List<Double> heatList = statistics.get(GreenDataCenter.HEAT);
-//            List<Double> coolingList = statistics.get(GreenDataCenter.COOLING);
-//            writer.println(dc.getName());
-//            writer.println("Time,Green Energy,Brown Energy,Server Energy,Heat Recovered,Cooling Energy");
-//            for (int i = 0; i < timeList.size(); i++) {
-//                StringBuilder sb = new StringBuilder();
-//                double time = timeList.get(i);
-//                double greenEnergy = greenEnergyList.get(i);
-//                double brownEnergy = brownEnergyList.get(i);
-//                double serverEnergy = serverEnergyList.get(i);
-//                double heat = heatList.get(i);
-//                double cooling = coolingList.get(i);
-//                sb.append(time);
-//                sb.append(",");
-//                sb.append(greenEnergy);
-//                sb.append(",");
-//                sb.append(brownEnergy);
-//                sb.append(",");
-//                sb.append(serverEnergy);
-//                sb.append(",");
-//                sb.append(heat);
-//                sb.append(",");
-//                sb.append(cooling);
-//                sb.append(",");
-//                writer.println(sb.toString());
-//            }
-//
-//        }
+        for (GreenDataCenter dc : dataCenterList) {
+            double time = 600 + FederationOfDataCenter.allocatedDC;
+            writer.println(dc.getName());
+            writer.println("Time,Green Energy,Brown Energy,Server Energy,Cooling Energy, HeatRecovered, DC Energy, VMs In, VMs Out, Total VMs");
+            Map<Double, List<Double>> statistics = dc.getStatistics();
+            while (time < FederationOfDataCenter.TIME_STOP) {
+                double greenEnergy, brownEnergy, serverEnergy, coolingEnergy, heatRecovered, totalEnergy, vmsIn, vmsOut, totalVms;
+                List<Double> values;
+                try {
+                    values = statistics.get(time);
+                    greenEnergy = values.get(GreenDataCenter.GREEN_ENERGY);
+                    brownEnergy = values.get(GreenDataCenter.BROWN_ENERGY);
+                    serverEnergy = values.get(GreenDataCenter.SERVERS_ENERGY);
+                    coolingEnergy = values.get(GreenDataCenter.COOLING);
+                    heatRecovered = values.get(GreenDataCenter.HEAT);
+                    totalEnergy = values.get(GreenDataCenter.DATACENTER_ENERGY);
+                    vmsIn = values.get(GreenDataCenter.VMS_IN);
+                    vmsOut = values.get(GreenDataCenter.VMS_OUT);
+                    totalVms = values.get(GreenDataCenter.TOTAL_VMS);
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(time);
+                    sb.append(",");
+                    sb.append(greenEnergy);
+                    sb.append(",");
+                    sb.append(brownEnergy);
+                    sb.append(",");
+                    sb.append(serverEnergy);
+                    sb.append(",");
+                    sb.append(coolingEnergy);
+                    sb.append(",");
+                    sb.append(heatRecovered);
+                    sb.append(",");
+                    sb.append(totalEnergy);
+                    sb.append(",");
+                    sb.append(vmsIn);
+                    sb.append(",");
+                    sb.append(vmsOut);
+                    sb.append(",");
+                    sb.append(totalVms);
+                    sb.append(",");
+                    writer.println(sb.toString());
+                    time += 300;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
         writer.close();
         openFile();
 
@@ -126,11 +141,20 @@ public class Statistics {
         for (Datacenter dc : dataCenters) {
             if (dc instanceof GreenDataCenter) {
                 int[] vms = result.get(dc);
+                Double currentTime = CloudSim.clock();
                 GreenDataCenter gdc = (GreenDataCenter) dc;
-                gdc.putVmsIn(CloudSim.clock(), (double) vms[0]);
-                gdc.putVmsOut(CloudSim.clock(), (double) vms[1]);
+                gdc.setMigratingInVms(vms[0]);
+                gdc.setMigratingOutVms(vms[1]);
                 gdc.setTotalVms(gdc.getTotalVms() - vms[1] + vms[0]);
-                gdc.putTotalVms(CloudSim.clock(), (double) gdc.getTotalVms());
+                gdc.putGreenEnergy(currentTime, gdc.getGreenEnergyQuantity());
+                gdc.putBrownEnergy(currentTime, gdc.getBrownEnergyQuantity());
+                gdc.putServerEnergy(currentTime, gdc.getPower());
+                gdc.putCooling(currentTime, gdc.getCoolingEnergy());
+                gdc.putHeat(currentTime, gdc.getHeatGained());
+                gdc.putTotalEnergy(currentTime, gdc.getTotalEnergy());
+                gdc.putVmsIn(currentTime, gdc.getMigratingInVms());
+                gdc.putVmsOut(currentTime, gdc.getMigratingOutVms());
+                gdc.putTotalVms(currentTime, (double) gdc.getTotalVms());
             }
         }
     }

@@ -179,8 +179,10 @@ public class GreenCloudBuilder extends CloudBuilder {
             for (int i = 0; i < Resources.VM_NUMBER; i++) {
                 Cloudlet cloudlet = null;
                 try {
+                    Random random = new Random();
+                    int fileIndex = random.nextInt(files.length - 1);
                     UtilizationModelPlanetLabInMemory utilizationModelPlanetLabInMemory = new UtilizationModelPlanetLabInMemory(
-                            files[i].getAbsolutePath(),
+                            files[fileIndex].getAbsolutePath(),
                             Resources.SCHEDULING_INTERVAL);
                     cloudlet = new Cloudlet(i, length, pesNumber, fileSize, outputSize,
                             utilizationModelPlanetLabInMemory,

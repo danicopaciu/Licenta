@@ -9,7 +9,10 @@ import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerHost;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Daniel on 3/12/2015.
@@ -24,15 +27,23 @@ public class GreenDataCenter extends PowerDatacenter {
     public static final int SERVERS_ENERGY = 2;
     public static final int COOLING = 3;
     public static final int HEAT = 4;
-    public static final int VMS_IN = 5;
-    public static final int VMS_OUT = 6;
-    public static final int TOTAL_VMS = 7;
+    public static final int DATACENTER_ENERGY = 5;
+    public static final int VMS_IN = 6;
+    public static final int VMS_OUT = 7;
+    public static final int TOTAL_VMS = 8;
+    public static final int MAX_NUMBER_OF_VMS = Resources.VM_NUMBER / Resources.DATACENTER_NUMBER;
+
+
     private double greenEnergyQuantity;
     private double brownEnergyQuantity;
+    private double totalEnergy;
+    private double coolingEnergy;
+    private double heatGained;
+    private double migratingInVms;
+    private double migratingOutVms;
+    private int totalVms;
 
     private Map<Double, List<Double>> statistics;
-
-    private int totalVms;
 
     public GreenDataCenter(String name, DatacenterCharacteristics characteristics,
                            VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList,
@@ -41,6 +52,11 @@ public class GreenDataCenter extends PowerDatacenter {
 
         this.greenEnergyQuantity = 0;
         this.brownEnergyQuantity = 0;
+        this.totalEnergy = 0;
+        this.coolingEnergy = 0;
+        this.heatGained = 0;
+        this.migratingInVms = 0;
+        this.migratingOutVms = 0;
         this.totalVms = 0;
 
         statistics = new HashMap<Double, List<Double>>();
@@ -157,9 +173,6 @@ public class GreenDataCenter extends PowerDatacenter {
                     host.getUtilizationOfCpu() * 100);
         }
 
-        if (totalVms == 0) {
-            totalVms = setTotalVms();
-        }
         if (timeDiff > 0) {
             Log.formatLine(
                     "\nEnergy consumption for the last time frame from %.2f to %.2f:",
@@ -203,17 +216,15 @@ public class GreenDataCenter extends PowerDatacenter {
             if (energy < 0) {
                 setBrownEnergyQuantity(timeFrameDatacenterEnergy - getGreenEnergyQuantity());
             } else {
-//                greenEnergyQuantity = energy;
                 setBrownEnergyQuantity(0);
             }
             if (currentTime >= 600) {
+                setCoolingEnergy(getPower() / computeCOP());
+                setHeatGained(getPower() * 3.5);
+                setTotalEnergy(getPower() + getTotalEnergy());
+
                 if (!statistics.containsKey(currentTime)) {
-                    statistics.put(currentTime, new LinkedList<Double>());
-                    putGreenEnergy(currentTime, getGreenEnergyQuantity());
-                    putBrownEnergy(currentTime, getBrownEnergyQuantity());
-                    putServerEnergy(currentTime, getPower());
-                    putCooling(currentTime, getPower() / computeCOP());
-                    putHeat(currentTime, 3.5 * getPower());
+                    statistics.put(currentTime, new ArrayList<Double>());
                 }
             }
         }
@@ -234,16 +245,12 @@ public class GreenDataCenter extends PowerDatacenter {
         return minTime;
     }
 
-    private int setTotalVms() {
-        int total = 0;
-        for (Host host : getHostList()) {
-            List<Vm> vmList = host.getVmList();
-            if (vmList != null) {
-                int vmNumber = vmList.size();
-                total += vmNumber;
-            }
-        }
-        return total;
+    public double getTotalEnergy() {
+        return totalEnergy;
+    }
+
+    public void setTotalEnergy(double totalEnergy) {
+        this.totalEnergy = totalEnergy;
     }
 
     private double computeCOP() {
@@ -300,11 +307,6 @@ public class GreenDataCenter extends PowerDatacenter {
         if (statistics.containsKey(time)) {
             List<Double> dataList = statistics.get(time);
             dataList.add(TOTAL_VMS, totalVms);
-        } else {
-//            List<Double> dataList = new ArrayList<Double>();
-//            dataList.add(TOTAL_VMS, totalVms);
-//            statistics.put(time, dataList);
-
         }
     }
 
@@ -319,6 +321,13 @@ public class GreenDataCenter extends PowerDatacenter {
         if (statistics.containsKey(time)) {
             List<Double> dataList = statistics.get(time);
             dataList.add(VMS_OUT, vmsOut);
+        }
+    }
+
+    public void putTotalEnergy(Double time, Double totalEnergy) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(DATACENTER_ENERGY, totalEnergy);
         }
     }
 
@@ -337,14 +346,13 @@ public class GreenDataCenter extends PowerDatacenter {
     protected void processVmCreate(SimEvent ev, boolean ack) {
         Vm vm = (Vm) ev.getData();
 
-        boolean result = getVmAllocationPolicy().allocateHostForVm(vm);
-
-        if (totalVms>= Resources.VM_NUMBER/Resources.DATACENTER_NUMBER){
-            result = false;
+        if (getName().equals("DataCenter_4")) {
+            System.out.println();
         }
 
-        if(vm.getId() == 76){
-            System.out.println("");
+        boolean result = false;
+        if (totalVms < MAX_NUMBER_OF_VMS) {
+            result = getVmAllocationPolicy().allocateHostForVm(vm);
         }
 
         if (ack) {
@@ -362,7 +370,7 @@ public class GreenDataCenter extends PowerDatacenter {
 
         if (result) {
             getVmList().add(vm);
-            totalVms++;
+            incrementTotalVms();
 
             if (vm.isBeingInstantiated()) {
                 vm.setBeingInstantiated(false);
@@ -371,7 +379,41 @@ public class GreenDataCenter extends PowerDatacenter {
             vm.updateVmProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getVmScheduler()
                     .getAllocatedMipsForVm(vm));
         }
-
     }
 
+    public void incrementTotalVms() {
+        totalVms++;
+    }
+
+    public double getCoolingEnergy() {
+        return coolingEnergy;
+    }
+
+    public void setCoolingEnergy(double coolingEnergy) {
+        this.coolingEnergy = coolingEnergy;
+    }
+
+    public double getHeatGained() {
+        return heatGained;
+    }
+
+    public void setHeatGained(double heatGained) {
+        this.heatGained = heatGained;
+    }
+
+    public double getMigratingInVms() {
+        return migratingInVms;
+    }
+
+    public void setMigratingInVms(double migratingInVms) {
+        this.migratingInVms = migratingInVms;
+    }
+
+    public double getMigratingOutVms() {
+        return migratingOutVms;
+    }
+
+    public void setMigratingOutVms(double migratingOutVms) {
+        this.migratingOutVms = migratingOutVms;
+    }
 }
