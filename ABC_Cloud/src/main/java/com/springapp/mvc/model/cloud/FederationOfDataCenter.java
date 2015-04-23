@@ -24,7 +24,7 @@ public class FederationOfDataCenter extends SimEntity {
     public static final int DC_NUMBER = 67568;
     public static final int POWER_DATACENTER = 67569;
     public static final int DELAY = 300;
-    public static final int TIME_STOP = 86100 / 2;
+    public static final int TIME_STOP = 43200;
     private static final int V_IN = 3; //starting speed of energy production m/s
     private static final int V_OUT = 25; // finishing speed of energy production m/s
     private static final int PR = 225000; //windmill power w
@@ -134,7 +134,7 @@ public class FederationOfDataCenter extends SimEntity {
             if (dc.getName().equals("DataCenter_0") || dc.getName().equals("DataCenter_1")) {
                 dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy);
             }else{
-                dc.setGreenEnergyQuantity(0);
+                dc.setGreenEnergyQuantity(0.1);
             }
 
             fileWriter.println(dc.getGreenEnergyQuantity() + " ");
@@ -144,7 +144,7 @@ public class FederationOfDataCenter extends SimEntity {
     private double getWindEnergy(double windSpeed) {
         double energy;
         if (windSpeed < V_IN || windSpeed > V_OUT) {
-            energy = 0;
+            energy = 0.5;
         } else if (windSpeed > VR && windSpeed < V_OUT) {
             energy = PR;
         } else {
@@ -170,7 +170,13 @@ public class FederationOfDataCenter extends SimEntity {
 
     private Set<GreenVm> getMigrationVms(List<Vm> greenVmList) {
         Random rand = new Random();
-        int vmNr = ((rand.nextInt(greenVmList.size() - 2) + 1) / 2) + 1;
+//        int vmNr = ((rand.nextInt(greenVmList.size() - 2) + 1) / 2) + 1;
+
+        int Low = (int) (greenVmList.size()*0.5);
+        int High = (int) (greenVmList.size()*0.8);
+        int vmNr = rand.nextInt(High-Low) + Low;
+
+
         Set<GreenVm> migratingSet = new HashSet<GreenVm>();
 
         while (migratingSet.size() < vmNr) {

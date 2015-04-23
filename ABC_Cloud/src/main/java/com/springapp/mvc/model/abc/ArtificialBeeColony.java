@@ -64,7 +64,7 @@ public class ArtificialBeeColony {
             }
             sendScoutBees();
             epoch++;
-        } while (bestFoodSource.getConflictsNumber() != 0 || counter <= 20);
+        } while (bestFoodSource.getConflictsNumber() != 0 || counter <= 40);
 
         bestFoodSource = getBestSolution();
         System.out.println("Number of epochs: " + epoch);

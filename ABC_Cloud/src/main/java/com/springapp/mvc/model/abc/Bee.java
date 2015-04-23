@@ -136,7 +136,7 @@ public class Bee {
             double hostsEnergy = getHostsEnergy(consumedEnergyMap, dc);
             double greenEnergy = dc.getGreenEnergyQuantity();
             if (greenEnergy != 0) {
-                double coolingFactor = 1;
+                double coolingFactor = 0;
                 double heatFactor = 0;
                 double heat = getGainedHeat(hostsEnergy);
                 double cooling = getCoolingEnergy(hostsEnergy);
