@@ -38,7 +38,6 @@ public class Bee {
 
         GreenHost prevHost = (GreenHost) changedParameter.getHost();
         foodSource.removeFromMigrationMap(prevHost, changedParameter.getVm());
-//        prevHost.removeMigratingVm(changedParameter.getVm());
 
         int prevHostId = prevHost.getId();
         int nextHostId = getNextHostId(neighbourFoodSource, changedParameterIndex);
@@ -50,15 +49,11 @@ public class Bee {
         int actualConflict = computeConflicts();
         applyFitnessFunction(dataCenterList);
         double actualFitnessFunction = foodSource.getFitness();
-//        if(prevFitnessFunction > actualFitnessFunction){
-//            System.out.println(actualFitnessFunction);
-//        }
 
         if (prevConflicts < actualConflict ||
                 (prevConflicts == actualConflict &&
                         prevFitnessFunction > actualFitnessFunction)) {
             foodSource.removeFromMigrationMap(newHost, changedParameter.getVm());
-//            newHost.removeMigratingVm(changedParameter.getVm());
             changedParameter.setHost(prevHost);
             computeConflicts();
             applyFitnessFunction(dataCenterList);
@@ -142,7 +137,7 @@ public class Bee {
             double greenEnergy = dc.getGreenEnergyQuantity();
             if (greenEnergy != 0) {
                 double coolingFactor = 1;
-                double heatFactor = 1;
+                double heatFactor = 0;
                 double heat = getGainedHeat(hostsEnergy);
                 double cooling = getCoolingEnergy(hostsEnergy);
                 double penalty = computePenalty(dc);
@@ -245,16 +240,8 @@ public class Bee {
             ram = 0;
             List<Vm> assignedVms = foodSource.getVmListForHost(host);
             if (assignedVms != null) {
-//                for (Vm vm : assignedVms) {
-//                    ram += vm.getRam();
-//                }
-                for (int i = 0; i < assignedVms.size(); i++) {
-                    Vm vm = assignedVms.get(i);
-                    if (vm != null) {
-                        ram += vm.getRam();
-                    } else {
-                        System.out.println();
-                    }
+                for (Vm vm : assignedVms) {
+                    ram += vm.getRam();
                 }
             }
             penalty += ram / host.getAvailableBandwidth();

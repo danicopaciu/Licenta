@@ -24,7 +24,7 @@ public class FederationOfDataCenter extends SimEntity {
     public static final int DC_NUMBER = 67568;
     public static final int POWER_DATACENTER = 67569;
     public static final int DELAY = 300;
-    public static final int TIME_STOP = 86100;
+    public static final int TIME_STOP = 86100 / 2;
     private static final int V_IN = 3; //starting speed of energy production m/s
     private static final int V_OUT = 25; // finishing speed of energy production m/s
     private static final int PR = 225000; //windmill power w
@@ -131,7 +131,7 @@ public class FederationOfDataCenter extends SimEntity {
             fileWriter.print(dc.getId() + " ");
             fileWriter.print(dc.getGreenEnergyQuantity() + " ");
 
-            if(dc.getName().equals("DataCenter_1") || dc.getName().equals("DataCenter_3")){
+            if (dc.getName().equals("DataCenter_0") || dc.getName().equals("DataCenter_1")) {
                 dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy);
             }else{
                 dc.setGreenEnergyQuantity(0);
