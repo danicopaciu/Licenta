@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class ArtificialBeeColony {
 
-    public static final int TRIALS_LIMIT = 20;
+    public static final int TRIALS_LIMIT = 500;
     private final int FOOD_SOURCES_NUMBER = 20;
     private final int DIMENSION;
 
@@ -24,6 +24,7 @@ public class ArtificialBeeColony {
     private List<GreenVm> vmList;
     private List<FoodSource> foodSourceList;
     private List<GreenHost> hostList;
+    private FoodSource bestSolution;
 
 
     public ArtificialBeeColony(List<GreenDataCenter> dataCenterList, List<GreenVm> vmList) {
@@ -38,37 +39,34 @@ public class ArtificialBeeColony {
         int epoch = 0;
         int counter = 0;
         double prevFitness = 0;
-        FoodSource bestFoodSource = null;
-        System.out.println("Dimension: " + DIMENSION);
-        if (clock == 6000.5) {
-            System.out.println();
-        }
+//        System.out.println("Dimension: " + DIMENSION);
         initialize();
+        computeFitnessFunction();
         System.out.println(clock);
         do {
-            if (bestFoodSource != null) {
-                prevFitness = bestFoodSource.getFitness();
-            }
-//            System.out.println(clock + ": Previous fitness function was: " + prevFitness);
+//            System.out.println(epoch);
+            System.out.println(clock + ": P: " + prevFitness);
             sendEmployedBees();
             applyFitness();
             computeProbability();
             sendOnlookerBees();
-            bestFoodSource = getBestSolution();
+            bestSolution = getBestSolution();
 
-//            System.out.println(clock + ": Actual fitness function is: " + bestFoodSource.getFitness());
-            if (prevFitness == bestFoodSource.getFitness()) {
+            System.out.println(clock + ": A: " + bestSolution.getFitness());
+            double diff = bestSolution.getFitness() - prevFitness;
+            if (Math.abs(1 - bestSolution.getFitness()) == Math.abs(1 - prevFitness)) {
                 counter++;
             } else {
                 counter = 0;
+                prevFitness = bestSolution.getFitness();
             }
             sendScoutBees();
             epoch++;
-        } while (bestFoodSource.getConflictsNumber() != 0 || counter <= 40);
+        } while (counter <= 100);
 
-        bestFoodSource = getBestSolution();
+        bestSolution = getBestSolution();
         System.out.println("Number of epochs: " + epoch);
-        return bestFoodSource;
+        return bestSolution;
     }
 
     private FoodSource getBestSolution() {
@@ -81,6 +79,11 @@ public class ArtificialBeeColony {
             }
 
         }
+//        for (FoodSource fs : foodSourceList) {
+//            if(fs.getFitness() - maxFoodSource.getFitness() > 0){
+//                maxFoodSource = fs;
+//            }
+//        }
         return maxFoodSource;
     }
 
@@ -118,13 +121,18 @@ public class ArtificialBeeColony {
         GreenHost host;
         double greenEnergy;
         List<Vm> assignedBeforeVms;
+        int trials = 0;
         do {
+            trials++;
             int selectedHostIndex = random.nextInt(hostList.size());
             host = hostList.get(selectedHostIndex);
             assignedBeforeVms = foodSource.getVmListForHost(host);
             GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
             greenEnergy = dataCenter.getGreenEnergyQuantity();
-        } while (greenEnergy == 0 ||
+            if (trials == hostList.size()) {
+                break;
+            }
+        } while (greenEnergy <= 0.5 ||
                 !host.isMigrationPossible(vm, assignedBeforeVms) ||
                 host.getDatacenter() == vm.getHost().getDatacenter());
 
@@ -132,10 +140,6 @@ public class ArtificialBeeColony {
     }
 
     private void sendEmployedBees() {
-        for (FoodSource fs : foodSourceList) {
-            Bee bee = fs.getEmployedBee();
-            bee.applyFitnessFunction(dataCenterList);
-        }
         int index = 0;
         for (FoodSource fs : foodSourceList) {
             int neighbourBeeIndex =
@@ -145,6 +149,13 @@ public class ArtificialBeeColony {
             Bee neighbourBee = neighbourFoodSource.getEmployedBee();
             currentBee.searchInNeighborhood(neighbourBee.getFoodSource(), DIMENSION, dataCenterList);
             index++;
+        }
+    }
+
+    private void computeFitnessFunction() {
+        for (FoodSource fs : foodSourceList) {
+            Bee bee = fs.getEmployedBee();
+            bee.applyFitnessFunction(dataCenterList);
         }
     }
 
@@ -175,9 +186,13 @@ public class ArtificialBeeColony {
     private void sendScoutBees() {
         for (FoodSource foodSource : foodSourceList) {
             if (foodSource.getTrialsNumber() >= TRIALS_LIMIT) {
-                FoodSource newFoodSource = getFoodSource();
-                foodSource.setNectarList(newFoodSource.getNectarList());
-                foodSource.setMigrationMap(newFoodSource.getMigrationMap());
+                if (foodSource.getProbability() > 0.9) {
+                    foodSource.setTrialsNumber(0);
+                } else {
+                    FoodSource newFoodSource = getFoodSource();
+                    foodSource.setNectarList(newFoodSource.getNectarList());
+                    foodSource.setMigrationMap(newFoodSource.getMigrationMap());
+                }
             }
         }
     }
@@ -209,29 +224,30 @@ public class ArtificialBeeColony {
     }
 
     private void applyFitness() {
-        double minFitness = foodSourceList.get(0).getFitness();
+
+        List<Double> foodSourceQuality = new ArrayList<Double>();
+        int index = 0;
         for (FoodSource fs : foodSourceList) {
-            double currentFitness = fs.getFitness();
-            if (currentFitness < minFitness) {
-                minFitness = currentFitness;
-            }
-        }
-        double maxFitness = foodSourceList.get(0).getFitness();
-        for (FoodSource fs : foodSourceList) {
-            double currentFitness = fs.getFitness();
-            if (currentFitness > maxFitness) {
-                maxFitness = currentFitness;
-            }
+            double diff = Math.abs(1 - fs.getFitness());
+            foodSourceQuality.add(diff);
+            index++;
         }
 
+        double minDiff = Collections.min(foodSourceQuality);
+        double maxDiff = Collections.max(foodSourceQuality);
+
+        index = 0;
         for (FoodSource fs : foodSourceList) {
             double newFitness;
-            if (maxFitness == minFitness) {
+            if (minDiff == maxDiff) {
                 newFitness = 100;
             } else {
-                newFitness = ((fs.getFitness() - minFitness) / (maxFitness - minFitness)) * 100;
+                double diff = foodSourceQuality.get(index);
+                double a = ((diff - minDiff) / (maxDiff - minDiff)) * 100;
+                newFitness = 100 - a;
             }
             fs.setFitnessFactor(newFitness);
+            index++;
         }
 
     }

@@ -49,52 +49,39 @@ public class Statistics {
             while (time < FederationOfDataCenter.TIME_STOP) {
                 double greenEnergy, brownEnergy, serverEnergy, coolingEnergy, heatRecovered, totalEnergy, vmsIn, vmsOut, totalVms;
                 List<Double> values;
-
-                    values = statistics.get(time);
-                    if ((values == null) || (values.size() == 0)){
-                        greenEnergy = 0;
-                        brownEnergy = 0;
-                        serverEnergy = 0;
-                        coolingEnergy = 0;
-                        heatRecovered = 0;
-                        totalEnergy = 0;
-                        vmsIn = 0;
-                        vmsOut = 0;
-                        totalVms = 0;
-                    }else{
-                        greenEnergy = values.get(GreenDataCenter.GREEN_ENERGY);
-                        brownEnergy = values.get(GreenDataCenter.BROWN_ENERGY);
-                        serverEnergy = values.get(GreenDataCenter.SERVERS_ENERGY);
-                        coolingEnergy = values.get(GreenDataCenter.COOLING);
-                        heatRecovered = values.get(GreenDataCenter.HEAT);
-                        totalEnergy = values.get(GreenDataCenter.DATACENTER_ENERGY);
-                        vmsIn = values.get(GreenDataCenter.VMS_IN);
-                        vmsOut = values.get(GreenDataCenter.VMS_OUT);
-                        totalVms = values.get(GreenDataCenter.TOTAL_VMS);
-                    }
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(time);
-                    sb.append(",");
-                    sb.append(greenEnergy);
-                    sb.append(",");
-                    sb.append(brownEnergy);
-                    sb.append(",");
-                    sb.append(serverEnergy);
-                    sb.append(",");
-                    sb.append(coolingEnergy);
-                    sb.append(",");
-                    sb.append(heatRecovered);
-                    sb.append(",");
-                    sb.append(totalEnergy);
-                    sb.append(",");
-                    sb.append(vmsIn);
-                    sb.append(",");
-                    sb.append(vmsOut);
-                    sb.append(",");
-                    sb.append(totalVms);
-                    sb.append(",");
-                    writer.println(sb.toString());
-                    time += 300;
+                values = statistics.get(time);
+                greenEnergy = values.get(GreenDataCenter.GREEN_ENERGY);
+                brownEnergy = values.get(GreenDataCenter.BROWN_ENERGY);
+                serverEnergy = values.get(GreenDataCenter.SERVERS_ENERGY);
+                coolingEnergy = values.get(GreenDataCenter.COOLING);
+                heatRecovered = values.get(GreenDataCenter.HEAT);
+                totalEnergy = values.get(GreenDataCenter.DATACENTER_ENERGY);
+                vmsIn = values.get(GreenDataCenter.VMS_IN);
+                vmsOut = values.get(GreenDataCenter.VMS_OUT);
+                totalVms = values.get(GreenDataCenter.TOTAL_VMS);
+                StringBuilder sb = new StringBuilder();
+                sb.append(time);
+                sb.append(",");
+                sb.append(greenEnergy);
+                sb.append(",");
+                sb.append(brownEnergy);
+                sb.append(",");
+                sb.append(serverEnergy);
+                sb.append(",");
+                sb.append(coolingEnergy);
+                sb.append(",");
+                sb.append(heatRecovered);
+                sb.append(",");
+                sb.append(totalEnergy);
+                sb.append(",");
+                sb.append(vmsIn);
+                sb.append(",");
+                sb.append(vmsOut);
+                sb.append(",");
+                sb.append(totalVms);
+                sb.append(",");
+                writer.println(sb.toString());
+                time += 300;
 
             }
 

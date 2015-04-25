@@ -91,6 +91,7 @@ public class FederationOfDataCenter extends SimEntity {
         if (clock <= TIME_STOP + allocatedDC) {
             computeGreenPower(clock);
             if (clock >= 600 + allocatedDC) {
+                initStatistics(clock);
                 sendNow(getId(), PERIODIC_EVENT, new Object());
             } else {
                 send(getId(), DELAY, POWER_DATACENTER, new Object());
@@ -141,10 +142,24 @@ public class FederationOfDataCenter extends SimEntity {
         }
     }
 
+    private void initStatistics(Double currentTime) {
+        for (GreenDataCenter dc : dataCenterList) {
+            List<Double> values = new ArrayList<Double>(Collections.nCopies(9, 0.0));
+            dc.getStatistics().put(currentTime, values);
+            dc.setBrownEnergyQuantity(0);
+            dc.setPower(0);
+            dc.setCoolingEnergy(0);
+            dc.setHeatGained(0);
+            dc.setTotalEnergy(0);
+            dc.setMigratingInVms(0);
+            dc.setMigratingOutVms(0);
+        }
+    }
+
     private double getWindEnergy(double windSpeed) {
         double energy;
         if (windSpeed < V_IN || windSpeed > V_OUT) {
-            energy = 0.5;
+            energy = 0.1;
         } else if (windSpeed > VR && windSpeed < V_OUT) {
             energy = PR;
         } else {
@@ -180,8 +195,7 @@ public class FederationOfDataCenter extends SimEntity {
         Set<GreenVm> migratingSet = new HashSet<GreenVm>();
 
         while (migratingSet.size() < vmNr) {
-
-            int index = rand.nextInt(greenVmList.size() - 1);
+            int index = rand.nextInt(greenVmList.size());
             GreenVm vm = (GreenVm) greenVmList.get(index);
             if (vm.getHost() != null) {
                 migratingSet.add(vm);

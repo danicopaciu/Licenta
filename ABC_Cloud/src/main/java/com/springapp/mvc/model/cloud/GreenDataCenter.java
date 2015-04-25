@@ -9,7 +9,6 @@ import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerHost;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,10 +132,13 @@ public class GreenDataCenter extends PowerDatacenter {
             }
 
             // schedules an event to the next time
-            if (minTime != Double.MAX_VALUE) {
-                CloudSim.cancelAll(getId(), new PredicateType(CloudSimTags.VM_DATACENTER_EVENT));
-                send(getId(), getSchedulingInterval(), CloudSimTags.VM_DATACENTER_EVENT);
-            }
+//            if (minTime != Double.MAX_VALUE) {
+//                CloudSim.cancelAll(getId(), new PredicateType(CloudSimTags.VM_DATACENTER_EVENT));
+//                send(getId(), getSchedulingInterval(), CloudSimTags.VM_DATACENTER_EVENT);
+//            }
+
+            CloudSim.cancelAll(getId(), new PredicateType(CloudSimTags.VM_DATACENTER_EVENT));
+            send(getId(), getSchedulingInterval(), CloudSimTags.VM_DATACENTER_EVENT);
 
             setLastProcessTime(currentTime);
         }
@@ -218,15 +220,10 @@ public class GreenDataCenter extends PowerDatacenter {
             } else {
                 setBrownEnergyQuantity(0);
             }
-            if (currentTime >= 600) {
                 setCoolingEnergy(getPower() / computeCOP());
                 setHeatGained(getPower() * 3.5);
                 setTotalEnergy(getPower() + getCoolingEnergy());
 
-                if (!statistics.containsKey(currentTime)) {
-                    statistics.put(currentTime, new ArrayList<Double>());
-                }
-            }
         }
         checkCloudletCompletion();
 
@@ -235,6 +232,7 @@ public class GreenDataCenter extends PowerDatacenter {
             for (Vm vm : host.getCompletedVms()) {
                 getVmAllocationPolicy().deallocateHostForVm(vm);
                 getVmList().remove(vm);
+                totalVms--;
                 Log.printLine("VM #" + vm.getId() + " has been deallocated from host #" + host.getId());
             }
         }
@@ -343,6 +341,10 @@ public class GreenDataCenter extends PowerDatacenter {
         return statistics;
     }
 
+    public void setStatistics(Map<Double, List<Double>> statistics) {
+        this.statistics = statistics;
+    }
+
     protected void processVmCreate(SimEvent ev, boolean ack) {
         Vm vm = (Vm) ev.getData();
 
@@ -411,5 +413,9 @@ public class GreenDataCenter extends PowerDatacenter {
 
     public void setMigratingOutVms(double migratingOutVms) {
         this.migratingOutVms = migratingOutVms;
+    }
+
+    public void setPower(double power) {
+        super.setPower(power);
     }
 }

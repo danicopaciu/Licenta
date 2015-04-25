@@ -19,7 +19,6 @@ public class Bee {
 
     private FoodSource foodSource;
 
-
     public Bee(FoodSource foodSource) {
         this.foodSource = foodSource;
     }
@@ -32,32 +31,39 @@ public class Bee {
 
         int changedParameterIndex = determineChangedParameterIndex(dimension);
 
-        double phi = determinePhi();
 
         Nectar changedParameter = getChangedParameter(changedParameterIndex);
 
         GreenHost prevHost = (GreenHost) changedParameter.getHost();
         foodSource.removeFromMigrationMap(prevHost, changedParameter.getVm());
-
-        int prevHostId = prevHost.getId();
         int nextHostId = getNextHostId(neighbourFoodSource, changedParameterIndex);
-        int newHostId = determineNewHostId(phi, prevHostId, nextHostId);
+        GreenHost newHost = null;
+        do {
+            double phi = determinePhi();
+            newHost = determineNewHostId(phi, prevHost, nextHostId, dataCenterList);
+        } while (newHost.getDatacenter() == prevHost.getDatacenter());
 
-        GreenHost newHost = getNewHost(dataCenterList, newHostId);
         changedParameter.setHost(newHost);
 
         int actualConflict = computeConflicts();
         applyFitnessFunction(dataCenterList);
         double actualFitnessFunction = foodSource.getFitness();
 
+        if (actualFitnessFunction < prevFitnessFunction) {
+            System.out.print("");
+        }
+
         if (prevConflicts < actualConflict ||
-                (prevConflicts == actualConflict &&
-                        prevFitnessFunction > actualFitnessFunction)) {
-            foodSource.removeFromMigrationMap(newHost, changedParameter.getVm());
-            changedParameter.setHost(prevHost);
-            computeConflicts();
-            applyFitnessFunction(dataCenterList);
-            foodSource.incrementTrialsNumber();
+                prevConflicts == actualConflict) {
+            double prevDiff = Math.abs(1 - prevFitnessFunction);
+            double currDiff = Math.abs(1 - actualFitnessFunction);
+            if (prevDiff < currDiff) {
+                foodSource.removeFromMigrationMap(newHost, changedParameter.getVm());
+                changedParameter.setHost(prevHost);
+                computeConflicts();
+                applyFitnessFunction(dataCenterList);
+                foodSource.incrementTrialsNumber();
+            }
         } else {
             foodSource.setTrialsNumber(0);
         }
@@ -81,8 +87,10 @@ public class Bee {
         return nextHost.getId();
     }
 
-    private int determineNewHostId(double phi, int prevHostId, int nextHostId) {
+    private GreenHost determineNewHostId(double phi, Host prevHost,
+                                         int nextHostId, List<GreenDataCenter> dataCenterList) {
         int newHostId;
+        int prevHostId = prevHost.getId();
         newHostId = (int) (prevHostId + phi * (prevHostId - nextHostId));
         if (newHostId < 0) {
             newHostId = 0;
@@ -90,7 +98,34 @@ public class Bee {
         if (newHostId >= Resources.HOST_NUMBER) {
             newHostId = Resources.HOST_NUMBER - 1;
         }
-        return newHostId;
+        List<GreenHost> hostList = getHostList(dataCenterList);
+        Host newHost = hostList.get(newHostId);
+
+        boolean isChanged = false;
+        if (newHost.getDatacenter() == prevHost.getDatacenter()) {
+            if (newHost.getDatacenter() == dataCenterList.get(0)) {
+                newHostId += Resources.HOST_NUMBER_PER_DATACENTER;
+                isChanged = true;
+            } else if (newHost.getDatacenter() == dataCenterList.get(dataCenterList.size() - 1)) {
+                newHostId -= Resources.HOST_NUMBER_PER_DATACENTER;
+                isChanged = true;
+            } else {
+                Random random = new Random();
+                if (random.nextInt() % 2 == 0) {
+                    newHostId += Resources.HOST_NUMBER_PER_DATACENTER;
+                } else {
+                    newHostId -= Resources.HOST_NUMBER_PER_DATACENTER;
+                }
+                isChanged = true;
+            }
+
+        }
+
+
+        if (isChanged) {
+            newHost = hostList.get(newHostId);
+        }
+        return (GreenHost) newHost;
     }
 
     private int determineChangedParameterIndex(int dimension) {
@@ -133,10 +168,10 @@ public class Bee {
     private double getDataCenterFitness(List<GreenDataCenter> dataCenterList,
                                         Map<GreenHost, Double> consumedEnergyMap) {
         for (GreenDataCenter dc : dataCenterList) {
-            double hostsEnergy = getHostsEnergy(consumedEnergyMap, dc);
             double greenEnergy = dc.getGreenEnergyQuantity();
-            if (greenEnergy != 0) {
-                double coolingFactor = 0;
+            if (greenEnergy >= 0.5) {
+                double hostsEnergy = getHostsEnergy(consumedEnergyMap, dc);
+                double coolingFactor = 1;
                 double heatFactor = 0;
                 double heat = getGainedHeat(hostsEnergy);
                 double cooling = getCoolingEnergy(hostsEnergy);
