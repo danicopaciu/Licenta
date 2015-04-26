@@ -37,21 +37,16 @@ public class Bee {
         GreenHost prevHost = (GreenHost) changedParameter.getHost();
         foodSource.removeFromMigrationMap(prevHost, changedParameter.getVm());
         int nextHostId = getNextHostId(neighbourFoodSource, changedParameterIndex);
-        GreenHost newHost = null;
+        GreenHost newHost;
         do {
-            double phi = determinePhi();
-            newHost = determineNewHostId(phi, prevHost, nextHostId, dataCenterList);
-        } while (newHost.getDatacenter() == prevHost.getDatacenter());
+            newHost = determineNewHost(changedParameter, nextHostId, dataCenterList);
+        } while (newHost.getDatacenter() == changedParameter.getVm().getHost().getDatacenter());
 
         changedParameter.setHost(newHost);
 
         int actualConflict = computeConflicts();
         applyFitnessFunction(dataCenterList);
         double actualFitnessFunction = foodSource.getFitness();
-
-        if (actualFitnessFunction < prevFitnessFunction) {
-            System.out.print("");
-        }
 
         if (prevConflicts < actualConflict ||
                 prevConflicts == actualConflict) {
@@ -87,10 +82,12 @@ public class Bee {
         return nextHost.getId();
     }
 
-    private GreenHost determineNewHostId(double phi, Host prevHost,
-                                         int nextHostId, List<GreenDataCenter> dataCenterList) {
+    private GreenHost determineNewHost(Nectar nectar,
+                                       int nextHostId, List<GreenDataCenter> dataCenterList) {
         int newHostId;
+        Host prevHost = nectar.getHost();
         int prevHostId = prevHost.getId();
+        double phi = determinePhi();
         newHostId = (int) (prevHostId + phi * (prevHostId - nextHostId));
         if (newHostId < 0) {
             newHostId = 0;
@@ -102,7 +99,8 @@ public class Bee {
         Host newHost = hostList.get(newHostId);
 
         boolean isChanged = false;
-        if (newHost.getDatacenter() == prevHost.getDatacenter()) {
+        Vm vm = nectar.getVm();
+        if (newHost.getDatacenter() == vm.getHost().getDatacenter()) {
             if (newHost.getDatacenter() == dataCenterList.get(0)) {
                 newHostId += Resources.HOST_NUMBER_PER_DATACENTER;
                 isChanged = true;
@@ -120,8 +118,6 @@ public class Bee {
             }
 
         }
-
-
         if (isChanged) {
             newHost = hostList.get(newHostId);
         }
@@ -160,18 +156,18 @@ public class Bee {
         Map<GreenHost, Double> consumedEnergyMap =
                 getGreenHostConsumedEnergyMap(dataCenterList);
         getDataCenterFitness(dataCenterList, consumedEnergyMap);
-        int dataCenterNumber = dataCenterList.size();
-        foodSource.setFitness(foodSource.getFitness() / dataCenterNumber);
         return foodSource.getFitness();
     }
 
     private double getDataCenterFitness(List<GreenDataCenter> dataCenterList,
                                         Map<GreenHost, Double> consumedEnergyMap) {
+        int greenDataCenters = 0;
         for (GreenDataCenter dc : dataCenterList) {
             double greenEnergy = dc.getGreenEnergyQuantity();
             if (greenEnergy >= 0.5) {
+                greenDataCenters++;
                 double hostsEnergy = getHostsEnergy(consumedEnergyMap, dc);
-                double coolingFactor = 1;
+                double coolingFactor = 0;
                 double heatFactor = 0;
                 double heat = getGainedHeat(hostsEnergy);
                 double cooling = getCoolingEnergy(hostsEnergy);
@@ -181,38 +177,9 @@ public class Bee {
                 foodSource.setFitness(foodSource.getFitness() + result);
             }
         }
-//        int dataCenterNumbers = dataCenterList.size();
-//        foodSource.setFitness(0);
-//        ExecutorService executor = Executors.newFixedThreadPool(dataCenterNumbers);
-//        List<Callable<Object>> todo = new ArrayList<Callable<Object>>(dataCenterNumbers);
-//        for(int i = 0; i < dataCenterNumbers; i++){
-//            final int dcIndex = i;
-//            todo.add(Executors.callable(new Runnable() {
-//                @Override
-//                public void run() {
-//                    GreenDataCenter dc = dataCenterList.get(dcIndex);
-//                    double hostsEnergy = getHostsEnergy(consumedEnergyMap, dc);
-//                    double greenEnergy = dc.getGreenEnergyQuantity();
-//                    if (greenEnergy != 0) {
-//                        double coolingFactor = 1;
-//                        double heatFactor = 0;
-//                        double heat = getGainedHeat(hostsEnergy);
-//                        double cooling = getCoolingEnergy(hostsEnergy);
-//                        double penalty = computePenalty(dc);
-//                        double result = ((hostsEnergy + coolingFactor * cooling) /
-//                                (greenEnergy + heatFactor * heat)) - penalty;
-//                        foodSource.setFitness(foodSource.getFitness() + result);
-//                }
-//            }}));
-//        }
-//        try {
-//            executor.invokeAll(todo);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//
-//        executor.shutdown();
-
+        if (foodSource.getFitness() != 0) {
+            foodSource.setFitness(foodSource.getFitness() / greenDataCenters);
+        }
         return foodSource.getFitness();
     }
 

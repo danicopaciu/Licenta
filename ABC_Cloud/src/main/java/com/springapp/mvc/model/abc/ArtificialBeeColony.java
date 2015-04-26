@@ -53,12 +53,14 @@ public class ArtificialBeeColony {
             bestSolution = getBestSolution();
 
             System.out.println(clock + ": A: " + bestSolution.getFitness());
-            double diff = bestSolution.getFitness() - prevFitness;
-            if (Math.abs(1 - bestSolution.getFitness()) == Math.abs(1 - prevFitness)) {
+            if (evaluateFitness(bestSolution.getFitness()) == evaluateFitness(prevFitness)) {
                 counter++;
             } else {
                 counter = 0;
                 prevFitness = bestSolution.getFitness();
+            }
+            if (epoch >= 500) {
+                break;
             }
             sendScoutBees();
             epoch++;
@@ -67,6 +69,10 @@ public class ArtificialBeeColony {
         bestSolution = getBestSolution();
         System.out.println("Number of epochs: " + epoch);
         return bestSolution;
+    }
+
+    private double evaluateFitness(double fitness) {
+        return 1 - fitness;
     }
 
     private FoodSource getBestSolution() {
@@ -132,8 +138,7 @@ public class ArtificialBeeColony {
             if (trials == hostList.size()) {
                 break;
             }
-        } while (greenEnergy <= 0.5 ||
-                !host.isMigrationPossible(vm, assignedBeforeVms) ||
+        } while (!host.isMigrationPossible(vm, assignedBeforeVms) ||
                 host.getDatacenter() == vm.getHost().getDatacenter());
 
         return host;
