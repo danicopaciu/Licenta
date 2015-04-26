@@ -47,18 +47,16 @@ public class Bee {
         int actualConflict = computeConflicts();
         applyFitnessFunction(dataCenterList);
         double actualFitnessFunction = foodSource.getFitness();
+        double prevDiff = Math.abs(1 - prevFitnessFunction);
+        double currDiff = Math.abs(1 - actualFitnessFunction);
 
         if (prevConflicts < actualConflict ||
-                prevConflicts == actualConflict) {
-            double prevDiff = Math.abs(1 - prevFitnessFunction);
-            double currDiff = Math.abs(1 - actualFitnessFunction);
-            if (prevDiff < currDiff) {
+                prevConflicts == actualConflict && prevDiff < currDiff) {
                 foodSource.removeFromMigrationMap(newHost, changedParameter.getVm());
                 changedParameter.setHost(prevHost);
                 computeConflicts();
                 applyFitnessFunction(dataCenterList);
                 foodSource.incrementTrialsNumber();
-            }
         } else {
             foodSource.setTrialsNumber(0);
         }

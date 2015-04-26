@@ -45,14 +45,14 @@ public class ArtificialBeeColony {
         System.out.println(clock);
         do {
 //            System.out.println(epoch);
-            System.out.println(clock + ": P: " + prevFitness);
+//            System.out.println(clock + ": P: " + prevFitness);
             sendEmployedBees();
             applyFitness();
             computeProbability();
             sendOnlookerBees();
             bestSolution = getBestSolution();
 
-            System.out.println(clock + ": A: " + bestSolution.getFitness());
+//            System.out.println(clock + ": A: " + bestSolution.getFitness());
             if (evaluateFitness(bestSolution.getFitness()) == evaluateFitness(prevFitness)) {
                 counter++;
             } else {
@@ -67,7 +67,7 @@ public class ArtificialBeeColony {
         } while (counter <= 100);
 
         bestSolution = getBestSolution();
-        System.out.println("Number of epochs: " + epoch);
+//        System.out.println("Number of epochs: " + epoch);
         return bestSolution;
     }
 
@@ -125,19 +125,11 @@ public class ArtificialBeeColony {
     private GreenHost getRandomHost(Vm vm, FoodSource foodSource) {
         Random random = new Random();
         GreenHost host;
-        double greenEnergy;
         List<Vm> assignedBeforeVms;
-        int trials = 0;
         do {
-            trials++;
             int selectedHostIndex = random.nextInt(hostList.size());
             host = hostList.get(selectedHostIndex);
             assignedBeforeVms = foodSource.getVmListForHost(host);
-            GreenDataCenter dataCenter = (GreenDataCenter) host.getDatacenter();
-            greenEnergy = dataCenter.getGreenEnergyQuantity();
-            if (trials == hostList.size()) {
-                break;
-            }
         } while (!host.isMigrationPossible(vm, assignedBeforeVms) ||
                 host.getDatacenter() == vm.getHost().getDatacenter());
 
