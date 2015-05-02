@@ -48,7 +48,8 @@ public class ArtificialBeeColony {
         initialize();
         computeFitnessFunction();
         System.out.println(clock);
-        while (counter < ITERATION_LIMIT) {
+        double diff;
+        do {
 //            System.out.println(epoch);
 //            System.out.println(clock + ": P: " + prevFitness);
             sendEmployedBees();
@@ -64,12 +65,13 @@ public class ArtificialBeeColony {
                 counter = 0;
                 prevFitness = bestSolution.getFitness();
             }
-            if (epoch >= 500) {
+            if (counter >= ITERATION_LIMIT) {
                 break;
             }
             sendScoutBees();
             epoch++;
-        }
+            diff = Math.abs(1 - bestSolution.getFitness());
+        } while (diff >= 0.5);
 
         bestSolution = getBestSolution();
 //        System.out.println("Number of epochs: " + epoch);
