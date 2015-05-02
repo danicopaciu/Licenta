@@ -197,17 +197,39 @@ public class FederationOfDataCenter extends SimEntity {
                     migratingVms.add((GreenVm) vm);
                 }
             }
-            int low = (int) (migratingVms.size() * 0.25);
-            int high = (int) (migratingVms.size() * 0.5);
-            vmNr = rand.nextInt(high - low) + low;
+//            int low = (int) (migratingVms.size() * 0.25);
+//            int high = (int) (migratingVms.size() * 0.5);
+//            vmNr = rand.nextInt(high - low) + low;
+
+            double energyRatio = greenDataCenter.getTotalEnergy() / greenDataCenter.getGreenEnergyQuantity();
+
+            double dc1_vm_nr = greenVmList.size() - migratingVms.size();
+            double ratio_diff =  (1 - energyRatio);
+
+//            vmNr = (int) ((1 - energyRatio) * (greenVmList.size() - migratingVms.size()));
+
+            vmNr = (int) (ratio_diff * dc1_vm_nr / energyRatio);
+
         } else {
             for (Host h : greenDataCenter.getHostList()) {
                 migratingVms.addAll(h.<GreenVm>getVmList());
             }
             double energyRatio = greenDataCenter.getGreenEnergyQuantity() / greenDataCenter.getTotalEnergy();
-            vmNr = (int) ((1 - energyRatio) * migratingVms.size()) + 1;
+            vmNr = (int) ((1 - energyRatio) * migratingVms.size());
         }
+
+        if (vmNr <=0){
+            vmNr=1;
+        }
+
         Set<GreenVm> migratingSet = new HashSet<GreenVm>();
+
+        if (vmNr > migratingVms.size()){
+            migratingSet.addAll(migratingVms);
+
+            return migratingSet;
+        }
+
         while (migratingSet.size() < vmNr) {
             int index = rand.nextInt(migratingVms.size());
             GreenVm vm = migratingVms.get(index);

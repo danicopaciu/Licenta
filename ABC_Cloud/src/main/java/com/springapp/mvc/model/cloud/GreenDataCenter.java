@@ -216,18 +216,20 @@ public class GreenDataCenter extends PowerDatacenter {
 
         setPower(timeFrameDatacenterEnergy);
         if (currentTime != getLastProcessTime()) {
-            double energy = greenEnergyQuantity - timeFrameDatacenterEnergy;
-            if (energy < 0) {
-                setBrownEnergyQuantity(timeFrameDatacenterEnergy - getGreenEnergyQuantity());
-            } else {
-                setBrownEnergyQuantity(0);
-            }
-                setCoolingEnergy(getPower() / computeCOP());
-                setHeatGained(getPower() * 3.5);
-                setTotalEnergy(getPower() + getCoolingEnergy());
+            setCoolingEnergy(getPower() / computeCOP());
+            setHeatGained(getPower() * 3.5);
+            setTotalEnergy(getPower() + getCoolingEnergy());
             if (getPredictedEnergy() != 0) {
                 setError(getPower() / getPredictedEnergy());
             }
+
+            if (getTotalEnergy() - getGreenEnergyQuantity() > 0) {
+                setBrownEnergyQuantity(getTotalEnergy() - getGreenEnergyQuantity());
+            } else {
+                setBrownEnergyQuantity(0);
+            }
+
+
         }
         checkCloudletCompletion();
 
