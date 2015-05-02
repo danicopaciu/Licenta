@@ -1,5 +1,6 @@
 package com.springapp.mvc.model.abc;
 
+import com.springapp.mvc.model.cloud.GreenDataCenter;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 
@@ -25,6 +26,13 @@ public class FoodSource implements Comparable<FoodSource> {
 
     private Map<Host, List<Vm>> migrationMap;
 
+    private Map<Host, List<Vm>> migrationOutVms;
+
+    private Map<GreenDataCenter, Double> predictedEnergy;
+
+    private double energyDc1;
+    private double energyDc2;
+
 
     private Bee employedBee;
 
@@ -37,6 +45,9 @@ public class FoodSource implements Comparable<FoodSource> {
         this.conflictsNumber = 0;
         this.nectarList = new LinkedList<Nectar>();
         this.migrationMap = new HashMap<Host, List<Vm>>();
+        this.migrationOutVms = new HashMap<Host, List<Vm>>();
+        this.predictedEnergy = new HashMap<GreenDataCenter, Double>();
+
     }
 
     public boolean addNectar(Nectar n) {
@@ -177,5 +188,43 @@ public class FoodSource implements Comparable<FoodSource> {
 
     public void setMigrationMap(Map<Host, List<Vm>> migrationMap) {
         this.migrationMap = migrationMap;
+    }
+
+    public double getEnergyDc1() {
+        return energyDc1;
+    }
+
+    public void setEnergyDc1(double energyDc1) {
+        this.energyDc1 = energyDc1;
+    }
+
+    public double getEnergyDc2() {
+        return energyDc2;
+    }
+
+    public void setEnergyDc2(double energyDc2) {
+        this.energyDc2 = energyDc2;
+    }
+
+    public void addMigrationOutVm(Host host, Vm vm) {
+        if (!migrationOutVms.containsKey(host)) {
+            migrationOutVms.put(host, new ArrayList<Vm>());
+        }
+        List<Vm> vmList = migrationOutVms.get(host);
+        if (!vmList.contains(vm)) {
+            vmList.add(vm);
+        }
+    }
+
+    public List<Vm> getMigratingOutVmsForHost(Host host) {
+        return migrationOutVms.get(host);
+    }
+
+    public Map<GreenDataCenter, Double> getPredictedEnergy() {
+        return predictedEnergy;
+    }
+
+    public void setPredictedEnergy(Map<GreenDataCenter, Double> predictedEnergy) {
+        this.predictedEnergy = predictedEnergy;
     }
 }

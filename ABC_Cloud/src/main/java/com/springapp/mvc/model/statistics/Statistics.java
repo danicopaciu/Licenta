@@ -24,9 +24,10 @@ import java.util.Map;
  */
 public class Statistics {
 
-    private static final String FILE_PATH = "results.csv";
+    private static final String FILE_PATH = "results";
     private static final String FILE_EXTENSION = ".csv";
     private static final String ENCODING = "utf-8";
+    private static String FILE_NAME;
     private static FoodSource solution;
     private static Map<Datacenter, List<Double>> datacenterResults;
     private static double clock;
@@ -94,7 +95,7 @@ public class Statistics {
     private static void openFile() {
         try {
             Desktop dt = Desktop.getDesktop();
-            dt.open(new File(FILE_PATH));
+            dt.open(new File(FILE_NAME));
             Runtime.getRuntime()
                     .exec("rundll32 url.dll,FileProtocolHandler " + FILE_PATH);
         } catch (IOException e) {
@@ -105,10 +106,10 @@ public class Statistics {
     private static void initWriter() {
         if (writer == null) {
             try {
-                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd HH_mm_ss");
                 Date date = new Date();
-                String fileName = FILE_PATH;
-                writer = new PrintWriter(fileName, ENCODING);
+                FILE_NAME = FILE_PATH + dateFormat.format(date) + FILE_EXTENSION;
+                writer = new PrintWriter(FILE_NAME, ENCODING);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (UnsupportedEncodingException e) {
@@ -152,6 +153,10 @@ public class Statistics {
                 gdc.putVmsIn(currentTime, gdc.getMigratingInVms());
                 gdc.putVmsOut(currentTime, gdc.getMigratingOutVms());
                 gdc.putTotalVms(currentTime, (double) gdc.getTotalVms());
+                Double predictedEnergy = solution.getPredictedEnergy().get(dc);
+                if (predictedEnergy != null) {
+                    gdc.setPredictedEnergy(solution.getPredictedEnergy().get(dc));
+                }
             }
         }
     }

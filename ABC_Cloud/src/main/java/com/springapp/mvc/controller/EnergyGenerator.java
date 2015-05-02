@@ -26,7 +26,7 @@ public class EnergyGenerator {
     public void init() throws IOException {
 
         HttpService httpService = new HttpServiceImpl();
-        long startTime = 1429920000;
+        long startTime = 1429056000;
         PrintWriter writer = new PrintWriter("wind_speed_Datacenter_1.txt", "UTF-8");
         for (int i = 0; i < 289; i++) {
             long time = startTime + i * 300;

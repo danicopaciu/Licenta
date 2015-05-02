@@ -24,7 +24,8 @@ public class FederationOfDataCenter extends SimEntity {
     public static final int DC_NUMBER = 67568;
     public static final int POWER_DATACENTER = 67569;
     public static final int DELAY = 300;
-    public static final int TIME_STOP = 43200;
+    //    public static final int TIME_STOP = 43200;
+    public static final int TIME_STOP = 9900;
     private static final int V_IN = 3; //starting speed of energy production m/s
     private static final int V_OUT = 25; // finishing speed of energy production m/s
     private static final int PR = 225000; //windmill power w
@@ -132,7 +133,7 @@ public class FederationOfDataCenter extends SimEntity {
             fileWriter.print(dc.getId() + " ");
             fileWriter.print(dc.getGreenEnergyQuantity() + " ");
 
-            if (dc.getName().equals("DataCenter_0") || dc.getName().equals("DataCenter_1")) {
+            if (dc.getName().equals("DataCenter_0")) {
                 dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy);
             }else{
                 dc.setGreenEnergyQuantity(0.1);
@@ -184,20 +185,34 @@ public class FederationOfDataCenter extends SimEntity {
     }
 
     private Set<GreenVm> getMigrationVms(List<Vm> greenVmList) {
+
+        GreenDataCenter greenDataCenter = dataCenterList.get(0);
+        List<GreenVm> migratingVms = new ArrayList<GreenVm>();
+        int vmNr;
         Random rand = new Random();
-//        int vmNr = ((rand.nextInt(greenVmList.size() - 2) + 1) / 2) + 1;
-
-        int Low = (int) (greenVmList.size()*0.5);
-        int High = (int) (greenVmList.size()*0.8);
-        int vmNr = rand.nextInt(High-Low) + Low;
-
-
+        if (greenDataCenter.getTotalEnergy() <= greenDataCenter.getGreenEnergyQuantity()) {
+            for (Vm vm : greenVmList) {
+                GreenDataCenter dc = (GreenDataCenter) vm.getHost().getDatacenter();
+                if (dc.getGreenEnergyQuantity() < 0.5) {
+                    migratingVms.add((GreenVm) vm);
+                }
+            }
+            int low = (int) (migratingVms.size() * 0.25);
+            int high = (int) (migratingVms.size() * 0.5);
+            vmNr = rand.nextInt(high - low) + low;
+        } else {
+            for (Host h : greenDataCenter.getHostList()) {
+                migratingVms.addAll(h.<GreenVm>getVmList());
+            }
+            double energyRatio = greenDataCenter.getGreenEnergyQuantity() / greenDataCenter.getTotalEnergy();
+            vmNr = (int) ((1 - energyRatio) * migratingVms.size()) + 1;
+        }
         Set<GreenVm> migratingSet = new HashSet<GreenVm>();
-
         while (migratingSet.size() < vmNr) {
-            int index = rand.nextInt(greenVmList.size());
-            GreenVm vm = (GreenVm) greenVmList.get(index);
-            if (vm.getHost() != null) {
+            int index = rand.nextInt(migratingVms.size());
+            GreenVm vm = migratingVms.get(index);
+            Host host = vm.getHost();
+            if (host != null) {
                 migratingSet.add(vm);
             }
 

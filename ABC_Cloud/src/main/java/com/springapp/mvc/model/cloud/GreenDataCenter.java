@@ -41,6 +41,8 @@ public class GreenDataCenter extends PowerDatacenter {
     private double migratingInVms;
     private double migratingOutVms;
     private int totalVms;
+    private double predictedEnergy;
+    private double error;
 
     private Map<Double, List<Double>> statistics;
 
@@ -223,7 +225,9 @@ public class GreenDataCenter extends PowerDatacenter {
                 setCoolingEnergy(getPower() / computeCOP());
                 setHeatGained(getPower() * 3.5);
                 setTotalEnergy(getPower() + getCoolingEnergy());
-
+            if (getPredictedEnergy() != 0) {
+                setError(getPower() / getPredictedEnergy());
+            }
         }
         checkCloudletCompletion();
 
@@ -417,5 +421,21 @@ public class GreenDataCenter extends PowerDatacenter {
 
     public void setPower(double power) {
         super.setPower(power);
+    }
+
+    public double getPredictedEnergy() {
+        return predictedEnergy;
+    }
+
+    public void setPredictedEnergy(double predictedEnergy) {
+        this.predictedEnergy = predictedEnergy;
+    }
+
+    public double getError() {
+        return error;
+    }
+
+    public void setError(double error) {
+        this.error = error;
     }
 }
