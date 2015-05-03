@@ -42,25 +42,27 @@ public class Bee {
             newHost = determineNewHost(changedParameter, nextHost, dataCenterList);
         } while (newHost.getDatacenter() == changedParameter.getVm().getHost().getDatacenter());
 
-        changedParameter.setHost(newHost);
+        if (newHost.isMigrationPossible(changedParameter.getVm(), foodSource.getVmListForHost(newHost))){
+            changedParameter.setHost(newHost);
+            foodSource.addToMigrationMap(newHost,changedParameter.getVm());
 
-        int actualConflict = computeConflicts();
-        applyFitnessFunction(dataCenterList);
-        double actualFitnessFunction = foodSource.getFitness();
-        double prevDiff = Math.abs(1 - prevFitnessFunction);
-        double currDiff = Math.abs(1 - actualFitnessFunction);
-
-        if (prevConflicts < actualConflict ||
-                (prevConflicts == actualConflict && prevDiff <= currDiff)) {
-            foodSource.removeFromMigrationMap(newHost, changedParameter.getVm());
-            changedParameter.setHost(prevHost);
-            computeConflicts();
+//            int actualConflict = computeConflicts();
             applyFitnessFunction(dataCenterList);
-            foodSource.incrementTrialsNumber();
-        } else {
-            foodSource.setTrialsNumber(0);
-        }
+            double actualFitnessFunction = foodSource.getFitness();
+            double prevDiff = Math.abs(1 - prevFitnessFunction);
+            double currDiff = Math.abs(1 - actualFitnessFunction);
 
+            if (prevDiff < currDiff ) {
+                foodSource.removeFromMigrationMap(newHost, changedParameter.getVm());
+                foodSource.addToMigrationMap(prevHost,changedParameter.getVm());
+                changedParameter.setHost(prevHost);
+    //            computeConflicts();
+                foodSource.setFitness(prevFitnessFunction);
+                foodSource.incrementTrialsNumber();
+            } else {
+                foodSource.setTrialsNumber(0);
+            }
+        }
     }
 
     private Nectar getChangedParameter(int changedParameterIndex) {
@@ -78,48 +80,6 @@ public class Bee {
         Nectar nectar = nextNectarList.get(changedParameterIndex);
         return (GreenHost) nectar.getHost();
     }
-
-//    private GreenHost determineNewHost(Nectar nectar,
-//                                       int nextHostId, List<GreenDataCenter> dataCenterList) {
-//        Host prevHost = nectar.getHost();
-//        int prevHostId = prevHost.getId();
-//        double phi = determinePhi();
-//        int newHostId = (int) (prevHostId + phi * (prevHostId - nextHostId));
-////        int newHostId = ((prevHostId + nextHostId) / 2);
-//        if (newHostId < 0) {
-//            newHostId = 0;
-//        }
-//        if (newHostId >= Resources.HOST_NUMBER) {
-//            newHostId = Resources.HOST_NUMBER - 1;
-//        }
-//        List<GreenHost> hostList = getHostList(dataCenterList);
-//        Host newHost = hostList.get(newHostId);
-//
-//        boolean isChanged = false;
-//        Vm vm = nectar.getVm();
-//        if (newHost.getDatacenter() == vm.getHost().getDatacenter()) {
-//            if (newHost.getDatacenter() == dataCenterList.get(0)) {
-//                newHostId += Resources.HOST_NUMBER_PER_DATACENTER;
-//                isChanged = true;
-//            } else if (newHost.getDatacenter() == dataCenterList.get(dataCenterList.size() - 1)) {
-//                newHostId -= Resources.HOST_NUMBER_PER_DATACENTER;
-//                isChanged = true;
-//            } else {
-//                Random random = new Random();
-//                if (random.nextInt() % 2 == 0) {
-//                    newHostId += Resources.HOST_NUMBER_PER_DATACENTER;
-//                } else {
-//                    newHostId -= Resources.HOST_NUMBER_PER_DATACENTER;
-//                }
-//                isChanged = true;
-//            }
-//
-//        }
-//        if (isChanged) {
-//            newHost = hostList.get(newHostId);
-//        }
-//        return (GreenHost) newHost;
-//    }
 
     private GreenHost determineNewHost(Nectar nectar,
                                        Host neighborHost, List<GreenDataCenter> dataCenterList) {
@@ -240,13 +200,13 @@ public class Bee {
     }
 
     private double getHostsEnergy(Map<GreenHost,
-            Double> consumedEnergyMap, Datacenter dc) {
+            Double> consumedEnergyMap, GreenDataCenter dc) {
         double hostsEnergy = 0;
         List<GreenHost> dcHostList = dc.getHostList();
         for (GreenHost host : dcHostList) {
             hostsEnergy += consumedEnergyMap.get(host);
         }
-        return hostsEnergy;
+        return hostsEnergy + dc.getPower();
     }
 
     private double computeCOP() {
@@ -261,7 +221,7 @@ public class Bee {
         for (GreenHost host : hostList) {
             double hostConsumedEnergy = 0;
             if (!consumedEnergyMap.containsKey(host)) {
-                hostConsumedEnergy = host.getMeanPower();
+//                hostConsumedEnergy = host.getMeanPower();
                 double vmEnergy = 0;
                 List<Vm> assignedVms = foodSource.getVmListForHost(host);
                 if (assignedVms != null) {
