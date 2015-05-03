@@ -30,6 +30,7 @@ public class GreenDataCenter extends PowerDatacenter {
     public static final int VMS_IN = 6;
     public static final int VMS_OUT = 7;
     public static final int TOTAL_VMS = 8;
+    public static final int OVERALL_VMS = 9;
     public static final int MAX_NUMBER_OF_VMS = Resources.VM_NUMBER / Resources.DATACENTER_NUMBER;
 
 
@@ -439,5 +440,13 @@ public class GreenDataCenter extends PowerDatacenter {
 
     public void setError(double error) {
         this.error = error;
+    }
+
+    public void putOverAllVms(Double time, double overAllVMs) {
+        if (statistics.containsKey(time)) {
+            List<Double> dataList = statistics.get(time);
+            dataList.add(OVERALL_VMS, overAllVMs);
+        }
+
     }
 }

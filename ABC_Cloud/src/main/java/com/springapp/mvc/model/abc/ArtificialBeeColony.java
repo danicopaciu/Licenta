@@ -105,9 +105,9 @@ public class ArtificialBeeColony {
         while (index < FOOD_SOURCES_NUMBER) {
             FoodSource foodSource = getFoodSource();
             foodSourceSet.add(foodSource);
-            if (foodSource.getEmployedBee() == null) {
-                System.out.println();
-            }
+//            if (foodSource.getEmployedBee() == null) {
+//                System.out.println();
+//            }
             index++;
         }
         if (foodSourceSet.size() != 0) {
@@ -165,7 +165,9 @@ public class ArtificialBeeColony {
             try {
                 bee.applyFitnessFunction(dataCenterList);
             } catch (Exception e) {
+                System.out.println(bee);
                 e.printStackTrace();
+                System.exit(0);
             }
         }
     }

@@ -4,6 +4,7 @@ import com.springapp.mvc.model.abc.FoodSource;
 import com.springapp.mvc.model.abc.Nectar;
 import com.springapp.mvc.model.cloud.FederationOfDataCenter;
 import com.springapp.mvc.model.cloud.GreenDataCenter;
+import com.springapp.mvc.model.cloud.GreenHost;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
@@ -48,7 +49,7 @@ public class Statistics {
             writer.println("Time,Green Energy,Brown Energy,Server Energy,Cooling Energy, HeatRecovered, DC Energy, VMs In, VMs Out, Total VMs");
             Map<Double, List<Double>> statistics = dc.getStatistics();
             while (time < FederationOfDataCenter.TIME_STOP) {
-                double greenEnergy, brownEnergy, serverEnergy, coolingEnergy, heatRecovered, totalEnergy, vmsIn, vmsOut, totalVms;
+                double greenEnergy, brownEnergy, serverEnergy, coolingEnergy, heatRecovered, totalEnergy, vmsIn, vmsOut, totalVms, overallVms;
                 List<Double> values;
                 values = statistics.get(time);
                 greenEnergy = values.get(GreenDataCenter.GREEN_ENERGY);
@@ -60,6 +61,7 @@ public class Statistics {
                 vmsIn = values.get(GreenDataCenter.VMS_IN);
                 vmsOut = values.get(GreenDataCenter.VMS_OUT);
                 totalVms = values.get(GreenDataCenter.TOTAL_VMS);
+                overallVms = values.get(GreenDataCenter.OVERALL_VMS);
                 StringBuilder sb = new StringBuilder();
                 sb.append(time);
                 sb.append(",");
@@ -80,6 +82,8 @@ public class Statistics {
                 sb.append(vmsOut);
                 sb.append(",");
                 sb.append(totalVms);
+                sb.append(",");
+                sb.append(overallVms);
                 sb.append(",");
                 writer.println(sb.toString());
                 time += 300;
@@ -118,12 +122,54 @@ public class Statistics {
         }
     }
 
-    public static void analizeSolution(List<GreenDataCenter> dataCenters, FoodSource solution) {
+    public static void analizeSolutionIfEmpty(List<GreenDataCenter> dataCenters) {
         Map<Datacenter, int[]> result = new HashMap<Datacenter, int[]>();
+
+        int overAllVMs = 0;
+
         for (Datacenter dc : dataCenters) {
             int[] vms = new int[2];
             vms[0] = vms[1] = 0;
             result.put(dc, vms);
+
+            for (Host h : dc.getHostList()){
+                overAllVMs = overAllVMs + h.getVmList().size();
+            }
+        }
+
+        for (Datacenter dc : dataCenters) {
+            if (dc instanceof GreenDataCenter) {
+                int[] vms = result.get(dc);
+                Double currentTime = CloudSim.clock();
+                GreenDataCenter gdc = (GreenDataCenter) dc;
+                gdc.setMigratingInVms(vms[0]);
+                gdc.setMigratingOutVms(vms[1]);
+                gdc.setTotalVms(gdc.getTotalVms() - vms[1] + vms[0]);
+                gdc.putGreenEnergy(currentTime, gdc.getGreenEnergyQuantity());
+                gdc.putBrownEnergy(currentTime, gdc.getBrownEnergyQuantity());
+                gdc.putServerEnergy(currentTime, gdc.getPower());
+                gdc.putCooling(currentTime, gdc.getCoolingEnergy());
+                gdc.putHeat(currentTime, gdc.getHeatGained());
+                gdc.putTotalEnergy(currentTime, gdc.getTotalEnergy());
+                gdc.putVmsIn(currentTime, gdc.getMigratingInVms());
+                gdc.putVmsOut(currentTime, gdc.getMigratingOutVms());
+                gdc.putTotalVms(currentTime, (double) gdc.getTotalVms());
+                gdc.putOverAllVms(currentTime, overAllVMs);
+            }
+        }
+    }
+
+    public static void analizeSolution(List<GreenDataCenter> dataCenters, FoodSource solution) {
+        Map<Datacenter, int[]> result = new HashMap<Datacenter, int[]>();
+        int overAllVMs = 0;
+        for (Datacenter dc : dataCenters) {
+            int[] vms = new int[2];
+            vms[0] = vms[1] = 0;
+            result.put(dc, vms);
+
+            for (Host h : dc.getHostList()){
+                overAllVMs = overAllVMs + h.getVmList().size();
+            }
         }
         for (Nectar n : solution.getNectarList()) {
             Vm vm = n.getVm();
@@ -153,6 +199,8 @@ public class Statistics {
                 gdc.putVmsIn(currentTime, gdc.getMigratingInVms());
                 gdc.putVmsOut(currentTime, gdc.getMigratingOutVms());
                 gdc.putTotalVms(currentTime, (double) gdc.getTotalVms());
+                gdc.putOverAllVms(currentTime, overAllVMs);
+
                 Double predictedEnergy = solution.getPredictedEnergy().get(dc);
                 if (predictedEnergy != null) {
                     gdc.setPredictedEnergy(solution.getPredictedEnergy().get(dc));
@@ -160,6 +208,5 @@ public class Statistics {
             }
         }
     }
-
 
 }

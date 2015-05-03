@@ -24,8 +24,9 @@ public class FederationOfDataCenter extends SimEntity {
     public static final int DC_NUMBER = 67568;
     public static final int POWER_DATACENTER = 67569;
     public static final int DELAY = 300;
-    //    public static final int TIME_STOP = 43200;
-    public static final int TIME_STOP = 9900;
+//    public static final int TIME_STOP = 86100;
+    public static final int TIME_STOP = 45900;
+//    public static final int TIME_STOP = 9900;
     private static final int V_IN = 3; //starting speed of energy production m/s
     private static final int V_OUT = 25; // finishing speed of energy production m/s
     private static final int PR = 225000; //windmill power w
@@ -179,9 +180,16 @@ public class FederationOfDataCenter extends SimEntity {
         }
         List<GreenDataCenter> DCList = getDataCenterList();
         ArtificialBeeColony abc = new ArtificialBeeColony(DCList, migratingList);
-        FoodSource result = abc.runAlgorithm();
-        scheduleMigrations(result);
-        Statistics.analizeSolution(dataCenterList, result);
+
+        if (!migratingList.isEmpty()){
+
+            FoodSource result = abc.runAlgorithm();
+            scheduleMigrations(result);
+            Statistics.analizeSolution(dataCenterList, result);
+        }else{
+            Statistics.analizeSolutionIfEmpty(dataCenterList);
+        }
+
     }
 
     private Set<GreenVm> getMigrationVms(List<Vm> greenVmList) {
@@ -202,12 +210,8 @@ public class FederationOfDataCenter extends SimEntity {
 //            vmNr = rand.nextInt(high - low) + low;
 
             double energyRatio = greenDataCenter.getTotalEnergy() / greenDataCenter.getGreenEnergyQuantity();
-
             double dc1_vm_nr = greenVmList.size() - migratingVms.size();
             double ratio_diff =  (1 - energyRatio);
-
-//            vmNr = (int) ((1 - energyRatio) * (greenVmList.size() - migratingVms.size()));
-
             vmNr = (int) (ratio_diff * dc1_vm_nr / energyRatio);
 
         } else {
