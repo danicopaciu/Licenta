@@ -19,6 +19,9 @@ public class Resources {
     public final static int VM_NUMBER = 1200;
     public final static int HOST_NUMBER_PER_DATACENTER = 200;
     public static final int HOST_NUMBER = DATACENTER_NUMBER * HOST_NUMBER_PER_DATACENTER;
+    public static final double energyPrice = 0.0662 / 1000;      // 6.62 /cents/kwH
+    public static final double heatPrice = 2.28 / 1000000;       // 2.28 /milionBTU
+
     public Map<Integer, Integer> DC_to_server = new HashMap<Integer, Integer>();
 
            public Resources(){

@@ -176,12 +176,21 @@ public class Bee {
             hostsEnergy *= prevError;
         }
         double coolingFactor = 1;
-        double heatFactor = 0;
+        double heatFactor = 1;
         double heat = getGainedHeat(hostsEnergy);
         double cooling = getCoolingEnergy(hostsEnergy);
         double penalty = computePenalty(dc);
-        double result = ((hostsEnergy + coolingFactor * cooling) /
-                (greenEnergy + heatFactor * heat)) - penalty;
+        double restult = 0;
+//        double result = ((hostsEnergy + coolingFactor * cooling) /
+//                (greenEnergy + heatFactor * heat)) - penalty;
+//        double energyPrice = 0.0662 / 1000;      // 6.62 /cents/kwH
+//        double heatPrice = 2.28 / 1000000;       // 2.28 /milionBTU
+
+
+        double result = (((hostsEnergy  + coolingFactor * cooling) * Resources.energyPrice) /
+            (greenEnergy * Resources.energyPrice + heatFactor * heat * Resources.heatPrice)) - penalty;
+
+
         foodSource.setFitness(foodSource.getFitness() + result);
         foodSource.getPredictedEnergy().put(dc, hostsEnergy);
         return foodSource.getFitness();

@@ -19,7 +19,6 @@ import java.util.Map;
  */
 public class GreenDataCenter extends PowerDatacenter {
 
-
     public static final int SUPPLIED_TEMPERATURE = 15; //degrees
     public static final int GREEN_ENERGY = 0;
     public static final int BROWN_ENERGY = 1;
@@ -403,7 +402,10 @@ public class GreenDataCenter extends PowerDatacenter {
     }
 
     public void setHeatGained(double heatGained) {
-        this.heatGained = heatGained;
+
+        double energyFromHeat = (heatGained * Resources.heatPrice) / Resources.energyPrice;
+        this.heatGained = energyFromHeat;
+//        this.heatGained = heatGained;
     }
 
     public double getMigratingInVms() {

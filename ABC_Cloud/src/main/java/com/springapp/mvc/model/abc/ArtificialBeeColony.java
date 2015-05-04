@@ -71,7 +71,7 @@ public class ArtificialBeeColony {
             sendScoutBees();
             epoch++;
             diff = Math.abs(1 - bestSolution.getFitness());
-        } while (diff >= 0.5);
+        } while (diff >= 0.2);
 
         bestSolution = getBestSolution();
 //        System.out.println("Number of epochs: " + epoch);

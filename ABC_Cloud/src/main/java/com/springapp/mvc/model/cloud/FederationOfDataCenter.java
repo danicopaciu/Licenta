@@ -198,7 +198,8 @@ public class FederationOfDataCenter extends SimEntity {
         List<GreenVm> migratingVms = new ArrayList<GreenVm>();
         int vmNr;
         Random rand = new Random();
-        if (greenDataCenter.getTotalEnergy() <= greenDataCenter.getGreenEnergyQuantity()) {
+        double totalEnergy =  greenDataCenter.getGreenEnergyQuantity() + greenDataCenter.getHeatGained();
+        if (greenDataCenter.getTotalEnergy() <= totalEnergy) {
             for (Vm vm : greenVmList) {
                 GreenDataCenter dc = (GreenDataCenter) vm.getHost().getDatacenter();
                 if (dc.getGreenEnergyQuantity() < 0.5) {
@@ -209,7 +210,7 @@ public class FederationOfDataCenter extends SimEntity {
 //            int high = (int) (migratingVms.size() * 0.5);
 //            vmNr = rand.nextInt(high - low) + low;
 
-            double energyRatio = greenDataCenter.getTotalEnergy() / greenDataCenter.getGreenEnergyQuantity();
+            double energyRatio = greenDataCenter.getTotalEnergy() / totalEnergy;
             double dc1_vm_nr = greenVmList.size() - migratingVms.size();
             double ratio_diff =  (1 - energyRatio);
             vmNr = (int) (ratio_diff * dc1_vm_nr / energyRatio);
@@ -218,7 +219,7 @@ public class FederationOfDataCenter extends SimEntity {
             for (Host h : greenDataCenter.getHostList()) {
                 migratingVms.addAll(h.<GreenVm>getVmList());
             }
-            double energyRatio = greenDataCenter.getGreenEnergyQuantity() / greenDataCenter.getTotalEnergy();
+            double energyRatio = totalEnergy / greenDataCenter.getTotalEnergy();
             vmNr = (int) ((1 - energyRatio) * migratingVms.size());
         }
 
