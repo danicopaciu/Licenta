@@ -1,4 +1,4 @@
-package com.springapp.mvc;
+package com.springapp.mvc.web.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -12,7 +12,6 @@ public class HelloController {
 	public String printWelcome(ModelMap model) {
 		model.addAttribute("message", "Hello world!");
 
-        System.out.println("asdfas");
 
 
         return "hello";
