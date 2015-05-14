@@ -8,7 +8,7 @@
 <%@ include file="/WEB-INF/pages/includes.jsp" %>
 <html>
 <head>
-    <title></title>
+    <title>About licenta</title>
 </head>
 <body>
 
