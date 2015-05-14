@@ -5,25 +5,14 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+    <title>Licenta</title>
 
-    <title>Carousel Template for Bootstrap</title>
-
-    <!-- Bootstrap core CSS -->
-    <link href="../../resources/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="../../resources/docs/examples/carousel/carousel.css" rel="stylesheet">
 </head>
-<!-- NAVBAR
-================================================== -->
 <body>
 <div class="navbar-wrapper">
     <div class="container">
-
         <nav class="navbar navbar-inverse navbar-static-top">
             <div class="container">
                 <div class="navbar-header">
@@ -61,36 +50,33 @@
     </ol>
     <div class="carousel-inner" role="listbox">
         <div class="item active">
-            <img class="first-slide" src="../../resources/datacenterfacebook.jpg" alt="First slide">
+            <img class="first-slide" src="resources/datacenterfacebook.jpg" alt="First slide">
 
             <div class="container">
                 <div class="carousel-caption">
                     <h1>Facebook:</h1>
-
                     <p>The best way to reduce CO2 and improve the environment is to cut energy consumption and that is
                         what we are doing</p>
                 </div>
             </div>
         </div>
         <div class="item">
-            <img class="second-slide" src="../../resources/datacentergoogle.jpg" alt="Second slide">
+            <img class="second-slide" src="resources/datacentergoogle.jpg" alt="Second slide">
 
             <div class="container">
                 <div class="carousel-caption">
                     <h1>Google:</h1>
-
                     <p>A sustainable data center starts with making our computers use as little electricity as
                         possible.</p>
                 </div>
             </div>
         </div>
         <div class="item">
-            <img class="third-slide" src="../../resources/googlerenewableenergy.jpg" alt="Third slide">
+            <img class="third-slide" src="resources/googlerenewableenergy.jpg" alt="Third slide">
 
             <div class="container">
                 <div class="carousel-caption">
                     <h1>Greenpeace:</h1>
-
                     <p>Given the massive amounts of electricity that even energy-efficient data centers consume to run
                         computers, backup
                         power units, and power related cooling equipment, the last thing we need to be doing is building
@@ -111,38 +97,23 @@
 </div>
 <!-- /.carousel -->
 
-
-<!-- Marketing messaging and featurettes
-================================================== -->
-<!-- Wrap the rest of the page in another container to center all the content. -->
-
 <div class="container marketing">
 
-    <!-- Three columns of text below the carousel -->
     <div class="row">
         <div class="col-lg-6">
-            <img class="img-circle" src="../../resources/simulation.png" alt="Generic placeholder image" width="140"
+            <img class="img-circle" src="resources/simulation.png" alt="Generic placeholder image" width="140"
                  height="140">
-
             <h2>Simulation</h2>
-
-            <p><c:url value="/simulation" var="simulation"/><a class="btn btn-default" href="${simulation}"> View
-                details</a></p>
+            <p><c:url value="/simulation" var="simulation"/><a class="btn btn-default" href="${simulation}"> View details</a></p>
         </div>
-        <!-- /.col-lg-4 -->
         <div class="col-lg-6">
-            <img class="img-circle" src="../../resources/about.png" alt="Generic placeholder image" width="140"
+            <img class="img-circle" src="resources/about.png" alt="Generic placeholder image" width="140"
                  height="140">
-
             <h2>About</h2>
-
             <p><c:url value="/about" var="about"/><a class="btn btn-default" href="${about}">View details &raquo;</a>
             </p>
         </div>
-        <!-- /.col-lg-4 -->
     </div>
-    <!-- /.row -->
-
 
     <!-- FOOTER -->
     <footer>
@@ -150,17 +121,7 @@
 
         <p>&copy; 2014 Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
     </footer>
+    </div>
 
-</div>
-<!-- /.container -->
-
-
-<!-- Bootstrap core JavaScript
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="../../resources/dist/js/bootstrap.min.js"></script>
-<!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-<script src="../../resources/assets/js/vendor/holder.js"></script>
 </body>
 </html>
