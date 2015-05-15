@@ -5,12 +5,14 @@
   Time: 2:47 PM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ include file="/WEB-INF/pages/includes.jsp" %>
+<%@ include file="/WEB-INF/pages/includes_CSS.jsp" %>
 <html>
 <head>
-    <title></title>
+    <title>About licenta</title>
 </head>
 <body>
 
 </body>
+<%@ include file="/WEB-INF/pages/includes_JS.jsp" %>
+
 </html>
