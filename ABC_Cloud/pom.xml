@@ -11,6 +11,7 @@
         <spring.version>4.1.1.RELEASE</spring.version>
     </properties>
 
+
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -69,7 +70,21 @@
             <version>1.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>cloudsim</groupId>
+            <artifactId>cloudsim-sdk</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>in-project</id>
+            <name>In Project</name>
+            <url>file://${project.basedir}/src/lib</url>
+        </repository>
+    </repositories>
 
     <build>
         <finalName>ABC_Cloud</finalName>
