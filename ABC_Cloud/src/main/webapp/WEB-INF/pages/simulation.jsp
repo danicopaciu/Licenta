@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/pages/includes.jsp" %>
+<%@ include file="/WEB-INF/pages/includes_CSS.jsp" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,18 +8,10 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
 
     <title>Carousel Template for Bootstrap</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="../../resources/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="../../resources/docs/examples/carousel/carousel.css" rel="stylesheet">
 </head>
-<!-- NAVBAR
-================================================== -->
 <body>
 <div class="row-margin">
     <div class="navbar-wrapper">
@@ -50,7 +42,7 @@
         </div>
     </div>
 
-    <div class="container">
+    <div id="main_container" class="container">
         <div class="col-lg-4">
             <form class="form-signin" action="startSimulation">
                 <h2 class="form-signin-heading">Simulation features</h2>
@@ -79,18 +71,20 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-8"></div>
+        <div id="graph_container" class="col-lg-8">
+            <svg id="imgSVG" width="0" height="0">
+                <defs id="mdef">
+                    <pattern id="image" x="0" y="0" height="1" width="1">
+                        <image x="-10" y="-10" width="100" height="100" xlink:href="resources/server.jpg"></image>
+                    </pattern>
+                </defs>
+            </svg>
+                <%--<filter id = "i1" x = "0%" y = "0%" width = "100%" height = "100%">--%>
+                    <%--<feImage xlink:href = "server.png"/>--%>
+                <%--</filter>--%>
+        </div>
     </div>
-    <!-- /container -->
 </div>
-
-
-<!-- Bootstrap core JavaScript
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="../../resources/dist/js/bootstrap.min.js"></script>
-<!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-<script src="../../resources/assets/js/vendor/holder.js"></script>
 </body>
+<%@ include file="/WEB-INF/pages/includes_JS.jsp" %>
 </html>

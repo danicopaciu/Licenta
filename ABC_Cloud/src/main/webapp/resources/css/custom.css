@@ -1,0 +1,13 @@
+.navbar-wrapper{
+    position: relative;
+}
+
+#dc_graph{
+    border: 1px solid #999999;
+    border-radius: 10px;
+    background-color: #dedede;
+}
+
+#main_container{
+    padding-top: 20px;
+}
