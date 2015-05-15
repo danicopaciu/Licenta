@@ -75,7 +75,7 @@
             <svg id="imgSVG" width="0" height="0">
                 <defs id="mdef">
                     <pattern id="image" x="0" y="0" height="1" width="1">
-                        <image x="-10" y="-10" width="100" height="100" xlink:href="resources/server.jpg"></image>
+                        <image x="-10" y="-10" width="100" height="103" xlink:href="resources/server.jpg"></image>
                     </pattern>
                 </defs>
             </svg>
