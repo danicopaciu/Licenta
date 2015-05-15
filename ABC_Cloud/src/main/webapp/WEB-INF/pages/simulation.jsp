@@ -44,24 +44,25 @@
 
     <div id="main_container" class="container">
         <div class="col-lg-4">
-            <form class="form-signin" action="startSimulation">
+            <form class="form-signin" action="startSimulation" method="post">
                 <h2 class="form-signin-heading">Simulation features</h2>
 
                 <div class="col-lg-8">
                     <label for="vmNumber" class="sr-only">VM Number</label>
-                    <input type="number" id="vmNumber" class="form-control" placeholder="VM Number" required
-                           autofocus><br>
+                    <input type="number" id="vmNumber" name="vmNumber" class="form-control" placeholder="VM Number"
+                           required autofocus><br>
                     <label for="hostNumber" class="sr-only">Host Number</label>
-                    <input type="number" id="hostNumber" class="form-control" placeholder="Host Number" required><br>
+                    <input type="number" id="hostNumber" name="hostNumber" class="form-control"
+                           placeholder="Host Number" required><br>
                     <label for="simulationPeriod" class="sr-only"></label>
-                    <select class="form-control" id="simulationPeriod">
+                    <select class="form-control" id="simulationPeriod" name="simulationPeriod">
                         <option disabled selected>Simulation Period</option>
                         <option value="6">6 hours</option>
                         <option value="12">12 hours</option>
                         <option value="18">18 hours</option>
                         <option value="24">24 hours</option>
                     </select><br>
-                    <select class="form-control" id="simulationType">
+                    <select class="form-control" id="simulationType" name="simulationType">
                         <option disabled selected>Simulation Type</option>
                         <option value="Green Energy">Green Energy</option>
                         <option value="Brown Energy">Brown Energy</option>
