@@ -8,10 +8,10 @@ vis.text("Our Graph")
     .select("#graph")
 
 var nodes = [
-    {x: 350, y: 250, id: "dc_0"},
+    {x: 400, y: 250, id: "dc_0"},
     {x: 100, y: 100, id: "dc_1"},
-    {x: 600, y: 100, id: "dc_2"},
-    {x: 600, y: 400, id: "dc_3"},
+    {x: 700, y: 100, id: "dc_2"},
+    {x: 700, y: 400, id: "dc_3"},
     {x: 100, y: 400, id: "dc_4"}]
 
 var links = [

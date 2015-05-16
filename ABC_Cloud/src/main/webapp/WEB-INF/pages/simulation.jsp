@@ -43,35 +43,40 @@
     </div>
 
     <div id="main_container" class="container">
-        <div class="col-lg-4">
-            <form class="form-signin" action="startSimulation">
-                <h2 class="form-signin-heading">Simulation features</h2>
+        <div id="form_container" class="col-lg-3">
+            <h2 class="form-signin-heading">Simulation features</h2>
 
-                <div class="col-lg-8">
-                    <label for="vmNumber" class="sr-only">VM Number</label>
-                    <input type="number" id="vmNumber" class="form-control" placeholder="VM Number" required
-                           autofocus><br>
-                    <label for="hostNumber" class="sr-only">Host Number</label>
-                    <input type="number" id="hostNumber" class="form-control" placeholder="Host Number" required><br>
-                    <label for="simulationPeriod" class="sr-only"></label>
+            <form class="form-signin" action="startSimulation">
+
+                <div class="form-group">
+                    <label for="vmNumber">VM Number</label>
+                    <input type="number" minimum='1' id="vmNumber" class="form-control" placeholder="VM Number" required >
+                </div>
+                <div class="form-group">
+                    <label for="hostNumber">Host Number</label>
+                    <input type="number" minimum='1' id="hostNumber" class="form-control" placeholder="Host Number" required>
+                </div>
+                <div class="form-group">
+                    <label for="simulationPeriod">Simulation period</label>
                     <select class="form-control" id="simulationPeriod">
-                        <option disabled selected>Simulation Period</option>
-                        <option value="6">6 hours</option>
+                        <option value="6" selected="selected">6 hours</option>
                         <option value="12">12 hours</option>
                         <option value="18">18 hours</option>
                         <option value="24">24 hours</option>
-                    </select><br>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="simulationType">Simulation type</label>
                     <select class="form-control" id="simulationType">
-                        <option disabled selected>Simulation Type</option>
-                        <option value="Green Energy">Green Energy</option>
+                        <option value="Green Energy" selected="selected">Green Energy</option>
                         <option value="Brown Energy">Brown Energy</option>
                         <option value="Latency">Latency</option>
-                    </select><br>
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">Start Simulation!</button>
+                    </select>
                 </div>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Start Simulation!</button>
             </form>
         </div>
-        <div id="graph_container" class="col-lg-8">
+        <div id="graph_container" class="col-lg-9">
             <svg id="imgSVG" width="0" height="0">
                 <defs id="mdef">
                     <pattern id="image" x="0" y="0" height="1" width="1">
