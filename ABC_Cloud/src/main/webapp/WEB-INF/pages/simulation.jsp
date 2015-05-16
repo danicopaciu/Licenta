@@ -16,7 +16,6 @@
 <div class="row-margin">
     <div class="navbar-wrapper">
         <div class="container">
-
             <nav class="navbar navbar-inverse navbar-static-top">
                 <div class="container">
                     <div class="navbar-header">
@@ -47,18 +46,17 @@
             <h2 class="form-signin-heading">Simulation features</h2>
 
             <form class="form-signin" action="startSimulation">
-
                 <div class="form-group">
                     <label for="vmNumber">VM Number</label>
-                    <input type="number" minimum='1' id="vmNumber" class="form-control" placeholder="VM Number" required >
+                    <input type="number" min='1' id="vmNumber" class="form-control" placeholder="VM Number" required name="vmNumber">
                 </div>
                 <div class="form-group">
                     <label for="hostNumber">Host Number</label>
-                    <input type="number" minimum='1' id="hostNumber" class="form-control" placeholder="Host Number" required>
+                    <input type="number" min='1' id="hostNumber" class="form-control" placeholder="Host Number" required name="hostNumber">
                 </div>
                 <div class="form-group">
                     <label for="simulationPeriod">Simulation period</label>
-                    <select class="form-control" id="simulationPeriod">
+                    <select class="form-control" id="simulationPeriod" name="simulationPeriod">
                         <option value="6" selected="selected">6 hours</option>
                         <option value="12">12 hours</option>
                         <option value="18">18 hours</option>
@@ -67,26 +65,40 @@
                 </div>
                 <div class="form-group">
                     <label for="simulationType">Simulation type</label>
-                    <select class="form-control" id="simulationType">
+                    <select class="form-control" id="simulationType" name="simulationType">
                         <option value="Green Energy" selected="selected">Green Energy</option>
                         <option value="Brown Energy">Brown Energy</option>
                         <option value="Latency">Latency</option>
                     </select>
                 </div>
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Start Simulation!</button>
+                <button formmethod="post" class="btn btn-lg btn-primary btn-block" type="submit">Start Simulation!</button>
             </form>
         </div>
-        <div id="graph_container" class="col-lg-9">
-            <svg id="imgSVG" width="0" height="0">
-                <defs id="mdef">
-                    <pattern id="image" x="0" y="0" height="1" width="1">
-                        <image x="-10" y="-10" width="100" height="103" xlink:href="resources/server.jpg"></image>
-                    </pattern>
-                </defs>
-            </svg>
-                <%--<filter id = "i1" x = "0%" y = "0%" width = "100%" height = "100%">--%>
-                    <%--<feImage xlink:href = "server.png"/>--%>
-                <%--</filter>--%>
+        <div id="simulation_container" class="col-lg-9">
+            <div id="graph_container" class="col-lg-12">
+                <svg id="imgSVG" width="0" height="0">
+                    <defs id="mdef">
+                        <pattern id="image" x="0" y="0" height="1" width="1">
+                            <image x="-10" y="-10" width="100" height="103" xlink:href="resources/server.jpg"></image>
+                        </pattern>
+                    </defs>
+                </svg>
+                    <%--<filter id = "i1" x = "0%" y = "0%" width = "100%" height = "100%">--%>
+                        <%--<feImage xlink:href = "server.png"/>--%>
+                    <%--</filter>--%>
+            </div>
+            <div id="gouge_container" class="col-lg-12">
+                <div id="pw1" class="col-lg-4">
+
+                </div>
+                <div id="pw2" class="col-lg-4">
+
+                </div>
+                <div id="pw3" class="col-lg-4">
+
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
