@@ -2,9 +2,7 @@ package com.springapp.mvc.model.statistics;
 
 import com.springapp.mvc.model.abc.FoodSource;
 import com.springapp.mvc.model.abc.Nectar;
-import com.springapp.mvc.model.cloud.FederationOfDataCenter;
 import com.springapp.mvc.model.cloud.GreenDataCenter;
-import com.springapp.mvc.model.cloud.GreenHost;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
@@ -42,57 +40,57 @@ public class Statistics {
     }
 
     public static void printResults(List<GreenDataCenter> dataCenterList) {
-        initWriter();
-        for (GreenDataCenter dc : dataCenterList) {
-            double time = 600 + FederationOfDataCenter.allocatedDC;
-            writer.println(dc.getName());
-            writer.println("Time,Green Energy,Brown Energy,Server Energy,Cooling Energy, HeatRecovered, DC Energy, VMs In, VMs Out, Total VMs");
-            Map<Double, List<Double>> statistics = dc.getStatistics();
-            while (time < FederationOfDataCenter.TIME_STOP) {
-                double greenEnergy, brownEnergy, serverEnergy, coolingEnergy, heatRecovered, totalEnergy, vmsIn, vmsOut, totalVms, overallVms;
-                List<Double> values;
-                values = statistics.get(time);
-                greenEnergy = values.get(GreenDataCenter.GREEN_ENERGY);
-                brownEnergy = values.get(GreenDataCenter.BROWN_ENERGY);
-                serverEnergy = values.get(GreenDataCenter.SERVERS_ENERGY);
-                coolingEnergy = values.get(GreenDataCenter.COOLING);
-                heatRecovered = values.get(GreenDataCenter.HEAT);
-                totalEnergy = values.get(GreenDataCenter.DATACENTER_ENERGY);
-                vmsIn = values.get(GreenDataCenter.VMS_IN);
-                vmsOut = values.get(GreenDataCenter.VMS_OUT);
-                totalVms = values.get(GreenDataCenter.TOTAL_VMS);
-                overallVms = values.get(GreenDataCenter.OVERALL_VMS);
-                StringBuilder sb = new StringBuilder();
-                sb.append(time);
-                sb.append(",");
-                sb.append(greenEnergy);
-                sb.append(",");
-                sb.append(brownEnergy);
-                sb.append(",");
-                sb.append(serverEnergy);
-                sb.append(",");
-                sb.append(coolingEnergy);
-                sb.append(",");
-                sb.append(heatRecovered);
-                sb.append(",");
-                sb.append(totalEnergy);
-                sb.append(",");
-                sb.append(vmsIn);
-                sb.append(",");
-                sb.append(vmsOut);
-                sb.append(",");
-                sb.append(totalVms);
-                sb.append(",");
-                sb.append(overallVms);
-                sb.append(",");
-                writer.println(sb.toString());
-                time += 300;
-
-            }
-
-        }
-        writer.close();
-        openFile();
+//        initWriter();
+//        for (GreenDataCenter dc : dataCenterList) {
+//            double time = 600 + FederationOfDataCenter.dataCenterAllocationDelay;
+//            writer.println(dc.getName());
+//            writer.println("Time,Green Energy,Brown Energy,Server Energy,Cooling Energy, HeatRecovered, DC Energy, VMs In, VMs Out, Total VMs");
+//            Map<Double, List<Double>> statistics = dc.getStatistics();
+//            while (time < FederationOfDataCenter.TIME_STOP) {
+//                double greenEnergy, brownEnergy, serverEnergy, coolingEnergy, heatRecovered, totalEnergy, vmsIn, vmsOut, totalVms, overallVms;
+//                List<Double> values;
+//                values = statistics.get(time);
+//                greenEnergy = values.get(GreenDataCenter.GREEN_ENERGY);
+//                brownEnergy = values.get(GreenDataCenter.BROWN_ENERGY);
+//                serverEnergy = values.get(GreenDataCenter.SERVERS_ENERGY);
+//                coolingEnergy = values.get(GreenDataCenter.COOLING);
+//                heatRecovered = values.get(GreenDataCenter.HEAT);
+//                totalEnergy = values.get(GreenDataCenter.DATACENTER_ENERGY);
+//                vmsIn = values.get(GreenDataCenter.VMS_IN);
+//                vmsOut = values.get(GreenDataCenter.VMS_OUT);
+//                totalVms = values.get(GreenDataCenter.TOTAL_VMS);
+//                overallVms = values.get(GreenDataCenter.OVERALL_VMS);
+//                StringBuilder sb = new StringBuilder();
+//                sb.append(time);
+//                sb.append(",");
+//                sb.append(greenEnergy);
+//                sb.append(",");
+//                sb.append(brownEnergy);
+//                sb.append(",");
+//                sb.append(serverEnergy);
+//                sb.append(",");
+//                sb.append(coolingEnergy);
+//                sb.append(",");
+//                sb.append(heatRecovered);
+//                sb.append(",");
+//                sb.append(totalEnergy);
+//                sb.append(",");
+//                sb.append(vmsIn);
+//                sb.append(",");
+//                sb.append(vmsOut);
+//                sb.append(",");
+//                sb.append(totalVms);
+//                sb.append(",");
+//                sb.append(overallVms);
+//                sb.append(",");
+//                writer.println(sb.toString());
+//                time += 300;
+//
+//            }
+//
+//        }
+//        writer.close();
+//        openFile();
 
     }
 

@@ -120,4 +120,7 @@ public class GreenHost extends PowerHostUtilizationHistory {
         return false;
     }
 
+    public void setBwProvisioner(BwProvisioner bwProvisioner) {
+        super.setBwProvisioner(bwProvisioner);
+    }
 }

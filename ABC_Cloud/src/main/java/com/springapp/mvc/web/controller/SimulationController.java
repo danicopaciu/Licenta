@@ -30,8 +30,8 @@ public class SimulationController {
 
         int hours = getHours(simPeriod);
         int period = getPeriod(hours);
-        CloudController cloudController = new CloudController(period);
-        cloudController.start(vmNumber, hostNumber);
+        CloudController cloudController = new CloudController();
+        cloudController.start(vmNumber, hostNumber, period);
         return "simulation";
     }
 

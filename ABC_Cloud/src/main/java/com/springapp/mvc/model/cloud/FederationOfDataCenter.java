@@ -25,13 +25,15 @@ public class FederationOfDataCenter extends SimEntity {
     public static final int POWER_DATACENTER = 67569;
     public static final int DELAY = 300;
 //    public static final int TIME_STOP = 86100;
-    public static final int TIME_STOP = 45900;
-//    public static final int TIME_STOP = 9900;
+//    public static final int TIME_STOP = 45900;
+//    public static final int TIME_STOP = 12000;
     private static final int V_IN = 3; //starting speed of energy production m/s
     private static final int V_OUT = 25; // finishing speed of energy production m/s
     private static final int PR = 225000; //windmill power w
     private static final int VR = 13; // speed for optimal production m/s
-    public static double allocatedDC;
+    public static double dataCenterAllocationDelay;
+
+
     private List<GreenDataCenter> dataCenterList;
     private List<GreenHost> hostList;
     private List<GreenVm> vmList;
@@ -39,6 +41,9 @@ public class FederationOfDataCenter extends SimEntity {
     private Map<String, List<Double>> windSpeedMap;
     private DatacenterBroker broker;
     private PrintWriter fileWriter;
+
+    private int simulationPeriod;
+
 
     public FederationOfDataCenter(String name) {
         super(name);
@@ -65,7 +70,7 @@ public class FederationOfDataCenter extends SimEntity {
                     processPeriodicEvent();
                     break;
                 case DC_NUMBER:
-                    computeDCNumber();
+                    processDataCenterAllocationDelay();
                     break;
                 case POWER_DATACENTER:
                     computeDataCenterPower();
@@ -79,20 +84,20 @@ public class FederationOfDataCenter extends SimEntity {
 
     @Override
     public void shutdownEntity() {
-        System.out.println();
+
     }
 
-    private void computeDCNumber() {
-        allocatedDC = getAllocatedDCFactor();
-        double nextTimeStamp = allocatedDC + 200;
+    private void processDataCenterAllocationDelay() {
+        dataCenterAllocationDelay = computeDataCenterAllocationDelay();
+        double nextTimeStamp = dataCenterAllocationDelay + 200;
         send(getId(), nextTimeStamp, POWER_DATACENTER, new Object());
     }
 
     private void computeDataCenterPower() {
         double clock = CloudSim.clock();
-        if (clock <= TIME_STOP + allocatedDC) {
+        if (clock <= simulationPeriod + dataCenterAllocationDelay) {
             computeGreenPower(clock);
-            if (clock >= 600 + allocatedDC) {
+            if (clock >= 600 + dataCenterAllocationDelay) {
                 initStatistics(clock);
                 sendNow(getId(), PERIODIC_EVENT, new Object());
             } else {
@@ -105,7 +110,7 @@ public class FederationOfDataCenter extends SimEntity {
         double clock = CloudSim.clock();
         runMigrationAlgorithm();
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
-        if (clock >= TIME_STOP + allocatedDC) {
+        if (clock >= simulationPeriod + dataCenterAllocationDelay) {
             generatePeriodicEvent = false;
             fileWriter.close();
             Statistics.printResults(dataCenterList);
@@ -113,7 +118,7 @@ public class FederationOfDataCenter extends SimEntity {
         if (generatePeriodicEvent) send(getId(), DELAY, POWER_DATACENTER, new Object());
     }
 
-    public double getAllocatedDCFactor() {
+    public double computeDataCenterAllocationDelay() {
         double counter = 0;
         for (GreenDataCenter dc : getDataCenterList()) {
             if (!dc.getVmList().isEmpty()) {
@@ -129,13 +134,13 @@ public class FederationOfDataCenter extends SimEntity {
         fileWriter.println(CloudSim.clock());
         for (GreenDataCenter dc : dataCenterList) {
             List<Double> windSpeedList = windSpeedMap.get(dc.getName());
-            double windSpeed = windSpeedList.get((int) (clock - getAllocatedDCFactor()) / 300);
+            double windSpeed = windSpeedList.get((int) (clock - dataCenterAllocationDelay) / 300);
             energy = getWindEnergy(windSpeed);
             fileWriter.print(dc.getId() + " ");
             fileWriter.print(dc.getGreenEnergyQuantity() + " ");
 
             if (dc.getName().equals("DataCenter_0")) {
-                dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy);
+                dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy + 0.1);
             }else{
                 dc.setGreenEnergyQuantity(0.1);
             }
@@ -198,7 +203,9 @@ public class FederationOfDataCenter extends SimEntity {
         List<GreenVm> migratingVms = new ArrayList<GreenVm>();
         int vmNr;
         Random rand = new Random();
-        double totalEnergy =  greenDataCenter.getGreenEnergyQuantity() + greenDataCenter.getHeatGained();
+//        double totalEnergy =  greenDataCenter.getGreenEnergyQuantity() + greenDataCenter.getHeatGained();
+        double totalEnergy = greenDataCenter.getGreenEnergyQuantity();
+//        double totalEnergy =  2565000;
         if (greenDataCenter.getTotalEnergy() <= totalEnergy) {
             for (Vm vm : greenVmList) {
                 GreenDataCenter dc = (GreenDataCenter) vm.getHost().getDatacenter();
@@ -210,7 +217,7 @@ public class FederationOfDataCenter extends SimEntity {
 //            int high = (int) (migratingVms.size() * 0.5);
 //            vmNr = rand.nextInt(high - low) + low;
 
-            double energyRatio = greenDataCenter.getTotalEnergy() / totalEnergy;
+            double energyRatio = (greenDataCenter.getTotalEnergy()) / totalEnergy;
             double dc1_vm_nr = greenVmList.size() - migratingVms.size();
             double ratio_diff =  (1 - energyRatio);
             vmNr = (int) (ratio_diff * dc1_vm_nr / energyRatio);
@@ -313,5 +320,9 @@ public class FederationOfDataCenter extends SimEntity {
 
     public void setWindSpeedMap(Map<String, List<Double>> windSpeedMap) {
         this.windSpeedMap = windSpeedMap;
+    }
+
+    public void setSimulationPeriod(int simulationPeriod) {
+        this.simulationPeriod = simulationPeriod;
     }
 }

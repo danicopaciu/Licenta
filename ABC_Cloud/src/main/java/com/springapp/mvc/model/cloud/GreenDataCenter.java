@@ -30,7 +30,7 @@ public class GreenDataCenter extends PowerDatacenter {
     public static final int VMS_OUT = 7;
     public static final int TOTAL_VMS = 8;
     public static final int OVERALL_VMS = 9;
-    public static final int MAX_NUMBER_OF_VMS = Resources.VM_NUMBER / Resources.DATACENTER_NUMBER;
+    public final int MAX_NUMBER_OF_VMS;
 
 
     private double greenEnergyQuantity;
@@ -48,7 +48,7 @@ public class GreenDataCenter extends PowerDatacenter {
 
     public GreenDataCenter(String name, DatacenterCharacteristics characteristics,
                            VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList,
-                           double schedulingInterval) throws Exception {
+                           double schedulingInterval, int maxNumberVms) throws Exception {
         super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
 
         this.greenEnergyQuantity = 0;
@@ -59,6 +59,7 @@ public class GreenDataCenter extends PowerDatacenter {
         this.migratingInVms = 0;
         this.migratingOutVms = 0;
         this.totalVms = 0;
+        MAX_NUMBER_OF_VMS = maxNumberVms;
 
         statistics = new HashMap<Double, List<Double>>();
     }
@@ -403,8 +404,7 @@ public class GreenDataCenter extends PowerDatacenter {
 
     public void setHeatGained(double heatGained) {
 
-        double energyFromHeat = (heatGained * Resources.heatPrice) / Resources.energyPrice;
-        this.heatGained = energyFromHeat;
+        this.heatGained = (heatGained * Resources.HEAT_PRICE) / Resources.ENERGY_PRICE;
 //        this.heatGained = heatGained;
     }
 

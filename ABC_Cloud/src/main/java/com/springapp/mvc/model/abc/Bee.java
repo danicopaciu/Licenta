@@ -100,26 +100,25 @@ public class Bee {
         int minHostId = hosts.get(0).getId();
         int maxHostId = hosts.get(hosts.size() - 1).getId();
         int newHostId = new Random().nextInt(maxHostId - minHostId + 1) + minHostId;
-//        int newHostId = ((prevHostId + nextHostId) / 2);
 
         List<GreenHost> hostList = getHostList(dataCenterList);
         Host newHost = hostList.get(newHostId);
-
+        int hostPerDataCenter = hostList.size() / Resources.DATACENTER_NUMBER;
         boolean isChanged = false;
         Vm vm = nectar.getVm();
         if (newHost.getDatacenter() == vm.getHost().getDatacenter()) {
             if (newHost.getDatacenter() == dataCenterList.get(0)) {
-                newHostId += Resources.HOST_NUMBER_PER_DATACENTER;
+                newHostId += hostPerDataCenter;
                 isChanged = true;
             } else if (newHost.getDatacenter() == dataCenterList.get(dataCenterList.size() - 1)) {
-                newHostId -= Resources.HOST_NUMBER_PER_DATACENTER;
+                newHostId -= hostPerDataCenter;
                 isChanged = true;
             } else {
                 Random random = new Random();
                 if (random.nextInt() % 2 == 0) {
-                    newHostId += Resources.HOST_NUMBER_PER_DATACENTER;
+                    newHostId += hostPerDataCenter;
                 } else {
-                    newHostId -= Resources.HOST_NUMBER_PER_DATACENTER;
+                    newHostId -= hostPerDataCenter;
                 }
                 isChanged = true;
             }
@@ -176,19 +175,23 @@ public class Bee {
             hostsEnergy *= prevError;
         }
         double coolingFactor = 1;
-        double heatFactor = 1;
+        double heatFactor = 0;
         double heat = getGainedHeat(hostsEnergy);
         double cooling = getCoolingEnergy(hostsEnergy);
         double penalty = computePenalty(dc);
-        double restult = 0;
-//        double result = ((hostsEnergy + coolingFactor * cooling) /
-//                (greenEnergy + heatFactor * heat)) - penalty;
-//        double energyPrice = 0.0662 / 1000;      // 6.62 /cents/kwH
-//        double heatPrice = 2.28 / 1000000;       // 2.28 /milionBTU
+
+        double result = ((hostsEnergy + coolingFactor * cooling) /
+                (greenEnergy + heatFactor * heat)) - penalty;
 
 
-        double result = (((hostsEnergy  + coolingFactor * cooling) * Resources.energyPrice) /
-            (greenEnergy * Resources.energyPrice + heatFactor * heat * Resources.heatPrice)) - penalty;
+//        double result = (((hostsEnergy  + coolingFactor * cooling) * Resources.ENERGY_PRICE) /
+//            (greenEnergy * Resources.ENERGY_PRICE + heatFactor * heat * Resources.HEAT_PRICE)) - penalty;
+
+//        double result = (((hostsEnergy  + coolingFactor * cooling) * Resources.ENERGY_PRICE) /
+//                (2565000 + heatFactor * heat * Resources.HEAT_PRICE)) - penalty;
+
+//        double result = (((hostsEnergy  + coolingFactor * cooling)) /
+//                (greenEnergy + heatFactor * heat * Resources.HEAT_PRICE)) + penalty;
 
 
         foodSource.setFitness(foodSource.getFitness() + result);
@@ -258,7 +261,8 @@ public class Bee {
     }
 
     private double computePenalty(Datacenter dataCenter) {
-        double penalty = 0;
+        double penalty;
+        double maxPenalty = 0;
         double ram;
         List<GreenHost> hostList = dataCenter.getHostList();
         for (GreenHost host : hostList) {
@@ -269,9 +273,13 @@ public class Bee {
                     ram += vm.getRam();
                 }
             }
-            penalty += ram / host.getAvailableBandwidth();
+            penalty = ram / host.getAvailableBandwidth();
+//            penalty = ram / 2000;
+            if (penalty > maxPenalty) {
+                maxPenalty = penalty;
+            }
         }
-        return penalty / Resources.SCHEDULING_INTERVAL;
+        return maxPenalty;
     }
 
     public int computeConflicts() {

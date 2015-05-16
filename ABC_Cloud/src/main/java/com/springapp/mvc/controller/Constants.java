@@ -54,7 +54,7 @@ public class Constants {
 	public final static int[] HOST_MIPS	 = { 1860, 2660 };
 	public final static int[] HOST_PES	 = { 2, 2 };
 	public final static int[] HOST_RAM	 = { 4096, 4096 };
-	public final static int HOST_BW		 = 1000000; // 1 Gbit/s
+	public final static int[] HOST_BW = {1000000, 100000}; // 1 Gbit/s
 	public final static int HOST_STORAGE = 1000000; // 1 GB
 
 	public final static PowerModel[] HOST_POWER = {

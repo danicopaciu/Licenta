@@ -25,6 +25,8 @@ public abstract class CloudBuilder {
     protected List<GreenVm> vmList;
     protected List<Cloudlet> cloudletList;
     protected DatacenterBroker broker;
+    protected int vmNumber;
+    protected int hostNumer;
 
     public abstract FederationOfDataCenter createFederationOfDataCenters();
     public abstract List<GreenDataCenter> createDataCenter();

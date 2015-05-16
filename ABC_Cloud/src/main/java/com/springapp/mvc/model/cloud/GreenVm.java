@@ -44,7 +44,7 @@ public class GreenVm extends PowerVm {
     @Override
     public double updateVmProcessing(final double currentTime, final List<Double> mipsShare) {
         double time = super.updateVmProcessing(currentTime, mipsShare);
-        if (currentTime > getPreviousTime() && (currentTime - FederationOfDataCenter.allocatedDC) % getSchedulingInterval() == 0) {
+        if (currentTime > getPreviousTime() && (currentTime - FederationOfDataCenter.dataCenterAllocationDelay) % getSchedulingInterval() == 0) {
             double utilization = getTotalUtilizationOfCpu(getCloudletScheduler().getPreviousTime());
             if (CloudSim.clock() != 0 || utilization != 0) {
                 addUtilizationHistoryValue(utilization);

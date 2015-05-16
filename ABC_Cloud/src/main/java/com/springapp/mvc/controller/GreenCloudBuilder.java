@@ -32,6 +32,11 @@ public class GreenCloudBuilder extends CloudBuilder {
 
     public static final String PLANETLAB_20110303 = "planetlab/20110303";
 
+    public GreenCloudBuilder(int vmNumber, int hostNumber) {
+        this.vmNumber = vmNumber;
+        this.hostNumer = hostNumber;
+    }
+
     @Override
     public FederationOfDataCenter createFederationOfDataCenters() {
         federationOfDataCenters = new FederationOfDataCenter("FederationOfDataCenters");
@@ -45,8 +50,8 @@ public class GreenCloudBuilder extends CloudBuilder {
         for(int id = 0; id < Resources.DATACENTER_NUMBER; id++) {
 
             List<GreenHost> thisHostList = new ArrayList<GreenHost>();
-            int index = id * Resources.HOST_NUMBER_PER_DATACENTER;
-            for (int i = index; i < index + Resources.HOST_NUMBER_PER_DATACENTER; i++) {
+            int index = id * hostNumer;
+            for (int i = index; i < index + hostNumer; i++) {
                 thisHostList.add(hostList.get(i));
             }
 
@@ -61,14 +66,14 @@ public class GreenCloudBuilder extends CloudBuilder {
             double costPerBw = 0.0;            // the cost of using bw in this resource
             LinkedList<Storage> storageList = new LinkedList<Storage>();    //we are not adding SAN devices by now
             GreenDataCenter dataCenter = getGreenDataCenter(id,
-                    hostList, thisHostList, arch, os, vmm, timeZone, cost, costPerMem,
+                    thisHostList, arch, os, vmm, timeZone, cost, costPerMem,
                     costPerStorage, costPerBw, storageList);
             dataCenterList.add(dataCenter);
         }
         return dataCenterList;
     }
 
-    private GreenDataCenter getGreenDataCenter(int id, List<GreenHost> hostList,
+    private GreenDataCenter getGreenDataCenter(int id,
                                                List<GreenHost> thisHostList, String arch, String os,
                                                String vmm, double timeZone, double cost, double costPerMem,
                                                double costPerStorage, double costPerBw,
@@ -81,7 +86,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         GreenDataCenter dataCenter = null;
         try {
             dataCenter = new GreenDataCenter("DataCenter_" + id, characteristics,
-                    new MultipleDataCenterPowerVmAllocationPolicy(thisHostList), storageList, 300);
+                    new MultipleDataCenterPowerVmAllocationPolicy(thisHostList), storageList, 300, vmNumber / Resources.DATACENTER_NUMBER);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -104,7 +109,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         int vmType = getVmType();
 
         int mips = Constants.VM_MIPS[vmType];
-        long size = Constants.VM_SIZE;
+        long size = vmNumber;
         int ram = Constants.VM_RAM[vmType];
         long bw = Constants.VM_BW;
         int pesNumber = Constants.VM_PES[vmType];
@@ -113,7 +118,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         double scheduleInterval = 300;
 
         vmList = new ArrayList<GreenVm>();
-        for (int i = 0; i < Resources.VM_NUMBER; i++) {
+        for (int i = 0; i < vmNumber; i++) {
             GreenVm vm = new GreenVm(i, broker.getId(), mips, pesNumber, ram, bw, size, priority,
                     vmm, new CloudletSchedulerDynamicWorkload(mips, pesNumber), scheduleInterval);
             vmList.add(vm);
@@ -130,7 +135,7 @@ public class GreenCloudBuilder extends CloudBuilder {
     @Override
     public List<GreenHost> createHosts() {
         hostList = new ArrayList<GreenHost>();
-        for (int i = 0; i < Resources.HOST_NUMBER; i++) {
+        for (int i = 0; i < Resources.DATACENTER_NUMBER * hostNumer; i++) {
             int hostType = i % Constants.HOST_TYPES;
             List<Pe> peList = getPes(hostType);
             GreenHost host = getHost(i, hostType, peList);
@@ -143,7 +148,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         return new GreenHost(
                         i,
                         new RamProvisionerSimple(Constants.HOST_RAM[hostType]),
-                        new BwProvisionerSimple(Constants.HOST_BW),
+                new BwProvisionerSimple(Constants.HOST_BW[0]),
                         Constants.HOST_STORAGE,
                         peList,
                         new VmSchedulerTimeSharedOverSubscription(peList),
@@ -176,7 +181,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         long outputSize = 300;
         UtilizationModel utilizationModel = new UtilizationModelStochastic();
         if(files!= null) {
-            for (int i = 0; i < Resources.VM_NUMBER; i++) {
+            for (int i = 0; i < vmNumber; i++) {
                 Cloudlet cloudlet = null;
                 try {
                     Random random = new Random();
