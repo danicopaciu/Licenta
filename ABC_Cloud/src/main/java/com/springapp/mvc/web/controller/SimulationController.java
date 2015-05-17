@@ -1,11 +1,15 @@
 package com.springapp.mvc.web.controller;
 
 import com.springapp.mvc.controller.CloudController;
+import com.springapp.mvc.model.json.impl.JsonParserImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Map;
 
 
 /**
@@ -15,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/")
 public class SimulationController {
+
+    private CloudController cloudController;
 
     @RequestMapping(value = "simulation", method = RequestMethod.GET)
     public String renderSimulationPage(ModelMap map) {
@@ -30,7 +36,7 @@ public class SimulationController {
 
         int hours = getHours(simPeriod);
         int period = getPeriod(hours);
-        CloudController cloudController = new CloudController();
+        cloudController = new CloudController();
         cloudController.start(vmNumber, hostNumber, period);
         return "simulation";
     }
@@ -48,4 +54,16 @@ public class SimulationController {
         String[] data = period.split(" ");
         return Integer.parseInt(data[0]);
     }
+
+    @RequestMapping(value = "ajaxCall", method = RequestMethod.GET)
+    public @ResponseBody String getTime() {
+
+        Map<Integer, Map<String, Double>> migrationResults = cloudController.getResults();
+
+        String json = new JsonParserImpl().toJson(migrationResults);
+
+
+        return json;
+    }
+
 }

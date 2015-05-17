@@ -12,6 +12,8 @@ import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -245,6 +247,14 @@ public class GreenCloudBuilder extends CloudBuilder {
 
         java.io.File file = new java.io.File(outputFolder + "/log/"
                 + "licenta" + ".txt");
+
+
+        String relPath = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+        File targetDir = new File(relPath+"../../target");
+
+
+//        String str = System.getProperty("user.dir");
+//        File catalinaBase = new File( System.getProperty( "catalina.base" ) ).getAbsoluteFile();
         file.createNewFile();
         Log.setOutput(new FileOutputStream(file));
     }

@@ -26,3 +26,29 @@
 #form_container .form-group label{
     font-size: 16px;
 }
+
+#simulation_container{
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+#pw1,#pw2,#pw3{
+    height: 200px;
+}
+
+svg.radial-svg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 120px;
+    height: 150px;
+    margin: auto;
+}
+
+#gouge_container{
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-top: 20px;
+}

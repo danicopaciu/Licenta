@@ -140,4 +140,8 @@ public class CloudController {
         return windSpeedMap;
     }
 
+    public Map<Integer, Map<String, Double>>  getResults() {
+        return fed.getMigrationResults();
+    }
+
 }

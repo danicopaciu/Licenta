@@ -33,6 +33,7 @@ public class FederationOfDataCenter extends SimEntity {
     private static final int VR = 13; // speed for optimal production m/s
     public static double dataCenterAllocationDelay;
 
+    private Map<Integer, Map<String, Double>> migrationResults;
 
     private List<GreenDataCenter> dataCenterList;
     private List<GreenHost> hostList;
@@ -40,18 +41,14 @@ public class FederationOfDataCenter extends SimEntity {
     private List<Cloudlet> cloudletList;
     private Map<String, List<Double>> windSpeedMap;
     private DatacenterBroker broker;
-    private PrintWriter fileWriter;
-
     private int simulationPeriod;
 
 
     public FederationOfDataCenter(String name) {
         super(name);
-        try {
-            fileWriter = new PrintWriter("energies.txt", "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        migrationResults = new HashMap<Integer, Map<String, Double>>();
+
     }
 
     @Override
@@ -112,7 +109,6 @@ public class FederationOfDataCenter extends SimEntity {
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
         if (clock >= simulationPeriod + dataCenterAllocationDelay) {
             generatePeriodicEvent = false;
-            fileWriter.close();
             Statistics.printResults(dataCenterList);
         }
         if (generatePeriodicEvent) send(getId(), DELAY, POWER_DATACENTER, new Object());
@@ -131,21 +127,17 @@ public class FederationOfDataCenter extends SimEntity {
 
     public void computeGreenPower(double clock) {
         double energy;
-        fileWriter.println(CloudSim.clock());
         for (GreenDataCenter dc : dataCenterList) {
             List<Double> windSpeedList = windSpeedMap.get(dc.getName());
             double windSpeed = windSpeedList.get((int) (clock - dataCenterAllocationDelay) / 300);
             energy = getWindEnergy(windSpeed);
-            fileWriter.print(dc.getId() + " ");
-            fileWriter.print(dc.getGreenEnergyQuantity() + " ");
+
 
             if (dc.getName().equals("DataCenter_0")) {
                 dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy + 0.1);
             }else{
                 dc.setGreenEnergyQuantity(0.1);
             }
-
-            fileWriter.println(dc.getGreenEnergyQuantity() + " ");
         }
     }
 
@@ -193,6 +185,29 @@ public class FederationOfDataCenter extends SimEntity {
             Statistics.analizeSolution(dataCenterList, result);
         }else{
             Statistics.analizeSolutionIfEmpty(dataCenterList);
+        }
+
+        createSolutionMap();
+
+    }
+
+    private void createSolutionMap() {
+
+        for (GreenDataCenter dc :dataCenterList){
+
+            List<Double> stat = dc.getStatistics().get(CloudSim.clock());
+
+            Map<String, Double> data = new HashMap<String, Double>();
+            data.put("greenEnergy", stat.get(0));
+            data.put("serverEnergy", stat.get(2));
+            data.put("dcVms", stat.get(8));
+            data.put("overallVms", stat.get(9));
+            data.put("VmsIn", stat.get(6));
+            data.put("VmsOut", stat.get(7));
+            data.put("clock",CloudSim.clock() );
+
+
+            migrationResults.put(dc.getId()-3, data);
         }
 
     }
@@ -324,5 +339,13 @@ public class FederationOfDataCenter extends SimEntity {
 
     public void setSimulationPeriod(int simulationPeriod) {
         this.simulationPeriod = simulationPeriod;
+    }
+
+    public Map<Integer, Map<String, Double>> getMigrationResults() {
+        return migrationResults;
+    }
+
+    public void setMigrationResults(Map<Integer, Map<String, Double>> migrationResults) {
+        this.migrationResults = migrationResults;
     }
 }

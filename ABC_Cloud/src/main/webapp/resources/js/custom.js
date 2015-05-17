@@ -8,10 +8,10 @@ vis.text("Our Graph")
     .select("#graph")
 
 var nodes = [
-    {x: 400, y: 250, id: "dc_0"},
+    {x: 420, y: 250, id: "dc_0"},
     {x: 100, y: 100, id: "dc_1"},
-    {x: 700, y: 100, id: "dc_2"},
-    {x: 700, y: 400, id: "dc_3"},
+    {x: 740, y: 100, id: "dc_2"},
+    {x: 740, y: 400, id: "dc_3"},
     {x: 100, y: 400, id: "dc_4"}]
 
 var links = [
@@ -84,13 +84,73 @@ vis.selectAll("circle.nodes")
 //      return true;
 //});
 $( document ).ready(function() {
-    $( "#i_12" ).click(function() {
-        var rp3 = radialProgress(document.getElementById('div3'))
-            .label("RADIAL 3")
+    var rp1 = radialProgress(document.getElementById('pw1'))
+            .label("Server eng/ Green energy")
             .diameter(150)
-            .minValue(100)
-            .maxValue(200)
-            .value(150)
+            .minValue(0)
+            .maxValue(100)
+            .value(0)
             .render();
+    var rp2 = radialProgress(document.getElementById('pw2'))
+            .label("Dc VMs / Overall VMs")
+            .diameter(150)
+            .minValue(0)
+            .maxValue(100)
+            .value(0)
+            .render();
+    var rp3 = radialProgress(document.getElementById('pw3'))
+            .label("VMs IN / VMs migrated")
+            .diameter(150)
+            .minValue(0)
+            .maxValue(100)
+            .value(0)
+            .render();
+
+
+    $( "#dc_0" ).click(function() {
+        $.ajax({
+            url : 'ajaxCall',
+            success : function(data) {
+
+                console.log(data);
+
+                var results = jQuery.parseJSON(data);
+                var dc_0 = results[0];
+
+                $(".simulation_time span").text(dc_0.clock);
+
+                console.log(dc_0);
+
+                 rp1.minValue(0)
+                    .maxValue(dc_0.greenEnergy)
+                    .value(dc_0.serverEnergy)
+                    .render();
+                rp2.minValue(0)
+                    .maxValue(dc_0.overallVms)
+                    .value(dc_0.dcVms)
+                    .render();
+                rp3.minValue(0)
+                    .maxValue(dc_0.VmsIn)
+                    .value(dc_0.VmsIn)
+                    .render();
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+        });
     });
+
+
+
+
+
 });

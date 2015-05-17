@@ -75,6 +75,10 @@
             </form>
         </div>
         <div id="simulation_container" class="col-lg-9">
+            <div class="col-lg-9 simulation_time">
+                <label>Time: </label><span>0</span>
+            </div>
+
             <div id="graph_container" class="col-lg-12">
                 <svg id="imgSVG" width="0" height="0">
                     <defs id="mdef">
