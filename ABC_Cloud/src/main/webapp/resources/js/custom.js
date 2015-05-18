@@ -94,7 +94,7 @@ $( document ).ready(function() {
 
     $( "#dc_0" ).click(function() {
         $.ajax({
-            url : 'getStatistics',
+            url : 'getStatistics/0',
             success : function(data) {
 
                 console.log(data);
@@ -118,24 +118,8 @@ $( document ).ready(function() {
                     .maxValue(dc_0.VmsIn)
                     .value(dc_0.VmsIn)
                     .render();
-
-
-
-
-
-
-
-
-
-
-
-
             }
         });
     });
-
-
-
-
 
 });
