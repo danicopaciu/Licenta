@@ -63,6 +63,7 @@ svg.radial-svg .component .label{
     text-align: right;
     margin-bottom: 10px;
     font-size: 22px;
+    padding-right: 0px;
 }
 
 #simulation_time label{

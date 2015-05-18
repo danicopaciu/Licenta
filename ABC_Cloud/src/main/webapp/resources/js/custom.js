@@ -91,6 +91,10 @@ $( document ).ready(function() {
             .value(0)
             .render();
 
+    $( "#startButton" ).click(function() {
+        setTimeout(getTime, 5000);
+    });
+
 
     $( "#dc_0" ).click(function() {
         $.ajax({
@@ -120,3 +124,21 @@ $( document ).ready(function() {
     });
 
 });
+
+ // 1000 = 1 second, 3000 = 3 seconds
+function getTime() {
+    $.ajax({
+        url: 'simulationProgress',
+        success: function (data) {
+            $('.progress-bar').attr("aria-valuenow",data);
+            $('.progress-bar').text(data+" %");
+            $('.progress-bar').width(data+"%");
+
+            console.log(data);
+        },
+        complete: function (data) {
+            // Schedule the next
+            setTimeout(getTime, 500);
+        }
+    });
+}
