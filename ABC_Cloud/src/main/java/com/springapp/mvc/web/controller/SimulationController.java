@@ -64,8 +64,8 @@ public class SimulationController {
     @RequestMapping(value = "simulationProgress", method = RequestMethod.GET)
     public
     @ResponseBody
-    double getCurrentProgress() {
-        return cloudController.getSimulationProgress();
+    int getCurrentProgress() {
+        return (int) cloudController.getSimulationProgress();
     }
 
 }
