@@ -366,6 +366,10 @@ public class FederationOfDataCenter extends SimEntity {
     }
 
     public double getSimulationProgress() {
-        return (CloudSim.clock() / simulationPeriod) * 100;
+        double progress = (CloudSim.clock() / simulationPeriod) * 100;
+        if (progress > 100) {
+            progress = 100;
+        }
+        return progress;
     }
 }
