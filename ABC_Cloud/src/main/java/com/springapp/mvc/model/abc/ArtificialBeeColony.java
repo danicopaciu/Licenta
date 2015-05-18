@@ -45,10 +45,12 @@ public class ArtificialBeeColony {
         int counter = 0;
         double prevFitness = 0;
 //        System.out.println("Dimension: " + DIMENSION);
+        long startTime = System.currentTimeMillis();
         initialize();
         computeFitnessFunction();
         System.out.println(clock);
         double diff;
+
         do {
 //            System.out.println(epoch);
 //            System.out.println(clock + ": P: " + prevFitness);
@@ -75,6 +77,14 @@ public class ArtificialBeeColony {
 
         bestSolution = getBestSolution();
 //        System.out.println("Number of epochs: " + epoch);
+        long finishTime = System.currentTimeMillis();
+        if ((finishTime - startTime) < 1000) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         return bestSolution;
     }
 

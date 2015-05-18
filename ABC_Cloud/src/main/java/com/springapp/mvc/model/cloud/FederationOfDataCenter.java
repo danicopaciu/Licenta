@@ -11,7 +11,6 @@ import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
 
-import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -34,6 +33,7 @@ public class FederationOfDataCenter extends SimEntity {
     public static double dataCenterAllocationDelay;
 
     private Map<Integer, Map<String, Double>> migrationResults;
+    private CloudStatistics cloudStatistics;
 
     private List<GreenDataCenter> dataCenterList;
     private List<GreenHost> hostList;
@@ -48,6 +48,7 @@ public class FederationOfDataCenter extends SimEntity {
         super(name);
 
         migrationResults = new HashMap<Integer, Map<String, Double>>();
+        cloudStatistics = new CloudStatistics();
 
     }
 
@@ -183,10 +184,11 @@ public class FederationOfDataCenter extends SimEntity {
             FoodSource result = abc.runAlgorithm();
             scheduleMigrations(result);
             Statistics.analizeSolution(dataCenterList, result);
+            cloudStatistics.setMigratedVms(migratingList.size());
+            cloudStatistics.addSolutionResult(CloudSim.clock(), dataCenterList, result);
         }else{
             Statistics.analizeSolutionIfEmpty(dataCenterList);
         }
-
         createSolutionMap();
 
     }
@@ -347,5 +349,19 @@ public class FederationOfDataCenter extends SimEntity {
 
     public void setMigrationResults(Map<Integer, Map<String, Double>> migrationResults) {
         this.migrationResults = migrationResults;
+    }
+
+    public CloudStatistics getCloudStatistics() {
+        return cloudStatistics;
+    }
+
+    public Map<String, Double> getResultForDataCenter(Double time, int dataCenterId) {
+        GreenDataCenter dataCenter = null;
+        for (Datacenter dc : dataCenterList) {
+            if ((dc.getId() - 3) == dataCenterId) {
+                dataCenter = (GreenDataCenter) dc;
+            }
+        }
+        return cloudStatistics.getStepResultsForDataCenter(time, dataCenter);
     }
 }

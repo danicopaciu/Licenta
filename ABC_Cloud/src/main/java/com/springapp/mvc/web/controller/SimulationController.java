@@ -4,10 +4,7 @@ import com.springapp.mvc.controller.CloudController;
 import com.springapp.mvc.model.json.impl.JsonParserImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -55,15 +52,13 @@ public class SimulationController {
         return Integer.parseInt(data[0]);
     }
 
-    @RequestMapping(value = "getStatistics", method = RequestMethod.GET)
-    public @ResponseBody String getStatistics() {
+    @RequestMapping(value = "getStatistics/{dataCenterId}", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String getStatistics(@PathVariable int dataCenterId) {
 
-        Map<Integer, Map<String, Double>> migrationResults = cloudController.getResults();
-
-        String json = new JsonParserImpl().toJson(migrationResults);
-
-
-        return json;
+        Map<String, Double> migrationResults = cloudController.getResults(dataCenterId);
+        return new JsonParserImpl().toJson(migrationResults);
     }
 
 }

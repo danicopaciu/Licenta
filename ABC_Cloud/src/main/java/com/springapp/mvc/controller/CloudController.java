@@ -50,6 +50,11 @@ public class CloudController {
 
     }
 
+    public static void main(String[] args) {
+        CloudController cloudController = new CloudController();
+        cloudController.start(500, 100, 12000);
+    }
+
     public void start(int vmNumber, int hostNumber, int simulationPeriod) {
 
         Log.printLine("Starting");
@@ -110,12 +115,11 @@ public class CloudController {
         abc.runAlgorithm();
     }
 
-
     private Map<String, List<Double>> initWindPower() throws FileNotFoundException {
         Map<String, List<Double>> windSpeedMap = new HashMap<String, List<Double>>();
         for (GreenDataCenter dc : fed.getDataCenterList()) {
             List<Double> windValues = new ArrayList<Double>();
-            String fileName = "/wind_speed_DataCenter_0.txt";
+            String fileName = "wind_speed_DataCenter_0.txt";
             InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader br = new BufferedReader(inputStreamReader);
@@ -140,8 +144,8 @@ public class CloudController {
         return windSpeedMap;
     }
 
-    public Map<Integer, Map<String, Double>>  getResults() {
-        return fed.getMigrationResults();
+    public Map<String, Double> getResults(int dataCenterId) {
+        return fed.getResultForDataCenter(CloudSim.clock(), dataCenterId);
     }
 
 }
