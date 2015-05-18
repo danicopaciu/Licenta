@@ -99,8 +99,14 @@ public class CloudStatistics {
     }
 
     public Map<String, Double> getStepResultsForDataCenter(Double time, GreenDataCenter dc) {
-        List<Double> dataCenterResults = results.get(time).get(dc);
-        Map<String, Double> data = new HashMap<String, Double>();
+        Map<String, Double> data = null;
+        Map<Datacenter, List<Double>> datacenterListMap;
+        datacenterListMap = results.get(time);
+        if (datacenterListMap == null) {
+            datacenterListMap = results.get(time - 300);
+        }
+        List<Double> dataCenterResults = datacenterListMap.get(dc);
+        data = new HashMap<String, Double>();
         data.put("clock", CloudSim.clock());
         data.put("greenEnergy", dataCenterResults.get(GreenDataCenter.GREEN_ENERGY));
         data.put("serverEnergy", dataCenterResults.get(GreenDataCenter.SERVERS_ENERGY));
@@ -108,6 +114,7 @@ public class CloudStatistics {
         data.put("overallVms", (double) getTotalCloudVms());
         data.put("VmsIn", dataCenterResults.get(GreenDataCenter.VMS_IN));
         data.put("migratedVms", (double) getMigratedVms());
+
         return data;
     }
 }

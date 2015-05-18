@@ -55,7 +55,7 @@ public class SimulationController {
     @RequestMapping(value = "getStatistics/{dataCenterId}", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getStatistics(@PathVariable int dataCenterId) {
+    String getStatistics(@PathVariable("dataCenterId") int dataCenterId) {
 
         Map<String, Double> migrationResults = cloudController.getResults(dataCenterId);
         return new JsonParserImpl().toJson(migrationResults);

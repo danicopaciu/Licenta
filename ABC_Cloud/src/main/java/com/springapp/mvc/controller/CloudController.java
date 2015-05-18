@@ -119,7 +119,7 @@ public class CloudController {
         Map<String, List<Double>> windSpeedMap = new HashMap<String, List<Double>>();
         for (GreenDataCenter dc : fed.getDataCenterList()) {
             List<Double> windValues = new ArrayList<Double>();
-            String fileName = "wind_speed_DataCenter_0.txt";
+            String fileName = "/wind_speed_DataCenter_0.txt";
             InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader br = new BufferedReader(inputStreamReader);

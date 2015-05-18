@@ -80,7 +80,9 @@ public class ArtificialBeeColony {
         long finishTime = System.currentTimeMillis();
         if ((finishTime - startTime) < 1000) {
             try {
+                CloudSim.pauseSimulation();
                 Thread.sleep(1000);
+                CloudSim.resumeSimulation();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

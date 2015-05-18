@@ -179,8 +179,8 @@ public class FederationOfDataCenter extends SimEntity {
         List<GreenDataCenter> DCList = getDataCenterList();
         ArtificialBeeColony abc = new ArtificialBeeColony(DCList, migratingList);
 
+        System.out.println(CloudSim.clock());
         if (!migratingList.isEmpty()){
-
             FoodSource result = abc.runAlgorithm();
             scheduleMigrations(result);
             Statistics.analizeSolution(dataCenterList, result);
