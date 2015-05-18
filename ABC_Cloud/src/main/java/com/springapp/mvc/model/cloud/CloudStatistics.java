@@ -75,7 +75,7 @@ public class CloudStatistics {
             stepResults.put(dc, new ArrayList<Double>(Collections.nCopies(8, 0.0)));
         }
         List<Double> values = stepResults.get(dc);
-        values.add(type, value);
+        values.set(type, value);
     }
 
     public Map<Double, Map<Datacenter, List<Double>>> getResults() {

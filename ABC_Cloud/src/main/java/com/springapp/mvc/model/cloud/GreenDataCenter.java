@@ -25,10 +25,10 @@ public class GreenDataCenter extends PowerDatacenter {
     public static final int SERVERS_ENERGY = 2;
     public static final int COOLING = 3;
     public static final int HEAT = 4;
-    public static final int DATACENTER_ENERGY = 5;
+    public static final int TOTAL_VMS = 5;
     public static final int VMS_IN = 6;
     public static final int VMS_OUT = 7;
-    public static final int TOTAL_VMS = 8;
+    public static final int DATACENTER_ENERGY = 8;
     public static final int OVERALL_VMS = 9;
     public final int MAX_NUMBER_OF_VMS;
 

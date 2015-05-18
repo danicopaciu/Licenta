@@ -100,23 +100,20 @@ $( document ).ready(function() {
                 console.log(data);
 
                 var results = jQuery.parseJSON(data);
-                var dc_0 = results[0];
 
-                $(".simulation_time span").text(dc_0.clock);
-
-                console.log(dc_0);
+                $(".simulation_time span").text(results.clock);
 
                  rp1.minValue(0)
-                    .maxValue(dc_0.greenEnergy)
-                    .value(dc_0.serverEnergy)
+                    .maxValue(results.greenEnergy)
+                    .value(results.serverEnergy)
                     .render();
                 rp2.minValue(0)
-                    .maxValue(dc_0.overallVms)
-                    .value(dc_0.dcVms)
+                    .maxValue(results.overallVms)
+                    .value(results.dcVms)
                     .render();
                 rp3.minValue(0)
-                    .maxValue(dc_0.VmsIn)
-                    .value(dc_0.VmsIn)
+                    .maxValue(results.migratedVms)
+                    .value(results.VmsIn)
                     .render();
             }
         });
