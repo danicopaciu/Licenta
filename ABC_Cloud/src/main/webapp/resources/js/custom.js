@@ -8,11 +8,11 @@ vis.text("Our Graph")
     .select("#graph")
 
 var nodes = [
-    {x: 420, y: 250, id: "dc_0"},
-    {x: 100, y: 100, id: "dc_1"},
-    {x: 740, y: 100, id: "dc_2"},
-    {x: 740, y: 400, id: "dc_3"},
-    {x: 100, y: 400, id: "dc_4"}]
+    {x: 420, y: 250, id: 0},
+    {x: 100, y: 100, id: 1},
+    {x: 740, y: 100, id: 2},
+    {x: 740, y: 400, id: 3},
+    {x: 100, y: 400, id: 4}]
 
 var links = [
     {source: nodes[0], target: nodes[1]},
@@ -25,16 +25,35 @@ var links = [
     {source: nodes[4], target: nodes[1]}]
 
 
-vis.selectAll(".line")
+//vis.selectAll(".line")
+//    .data(links)
+//    .enter()
+//    .append("path")
+//    .attr("id", function(d) { return "line_"+d.source.id+d.target.id; })
+//    .attr("x1", function(d) { return d.source.x })
+//    .attr("y1", function(d) { return d.source.y })
+//    .attr("x2", function(d) { return d.target.x })
+//    .attr("y2", function(d) { return d.target.y })
+//    .style("stroke", "rgb(6,120,155)")
+//    .style("stroke-width", 4)
+
+
+var path = vis.selectAll("path")
     .data(links)
-    .enter()
-    .append("line")
-    .attr("x1", function(d) { return d.source.x })
-    .attr("y1", function(d) { return d.source.y })
-    .attr("x2", function(d) { return d.target.x })
-    .attr("y2", function(d) { return d.target.y })
-    .style("stroke", "rgb(6,120,155)")
-    .style("stroke-width", 4)
+    .enter().append("svg:path")
+    .attr("class", function(d) { return "link"})
+    .attr("id",function(d,i) { return "linkid_" + i; })
+    //.attr("marker-end", function(d) { return "url(#" + d.source.x + ")"; });
+
+path.attr("d", function(d) {
+    var dx = d.target.x - d.source.x,
+        dy = d.target.y - d.source.y,
+        dr = Math.sqrt(dx * dx + dy * dy);  //linknum is defined above
+    return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+    //return "M" + 20 + "," + 20 + "A" + dr + "," + dr + " 0 0,1 " + ((d.source.x+ d.target.x)/2) + "," + ((d.source.y+ d.target.y)/2);
+    //return "M" + d.source.x + " " + d.source.y + "Q" + ((d.source.x+ d.target.x)/2 +40) + " " + ((d.source.y+ d.target.y)/2 +40)+ " "  + d.target.x + " " + d.target.y;
+});
+
 
 vis.selectAll("circle.nodes")
     .data(nodes)
@@ -42,50 +61,16 @@ vis.selectAll("circle.nodes")
     .append("svg:circle")
     .attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; })
-    .attr("r", 40)
-    .attr("id", function(d) { return d.id; })
+    .attr("r", 75)
+    .attr("id", function(d) { return "dc_"+d.id; })
 //    .attr("fill", "black")
     .attr("fill", "url(#image)")
-//    .attr("filter","url(#i1)")
-    .style("stroke", "black")     // displays small black dot
-    .style("stroke-width", 0.25)
-
-//
-//vis.append("circle")
-//    .attr("class", "logo")
-//    .attr("cx", 225)
-//    .attr("cy", 225)
-//    .attr("r", 20)
-//    .style("fill", "url(#image)")       // this code works OK
-//    .style("stroke", "black")     // displays small black dot
-//    .style("stroke-width", 0.25)
-//         .on("mouseover", function(){ // when I use .style("fill", "red") here, it works 
-//               d3.select(this)
-//                   .style("fill", "url(#image)");
-//         })
-//          .on("mouseout", function(){ 
-//               d3.select(this)
-//                   .style("fill", "transparent");
-//         });
+    //.style("stroke", "black")     // displays small black dot
 
 
-//var rp3 = radialProgress(document.getElementById('div3'))
-
-
-
-//
-//var elems =vis.selectAll("circle");
-//res = elems.every(function(element, index, elems) {
-//  console.log('element:', element);
-//  element.attr("class","test"+index);
-////  if (element >= THRESHOLD) {
-////    return false;
-////  }
-//      return true;
-//});
 $( document ).ready(function() {
     var rp1 = radialProgress(document.getElementById('pw1'))
-            .label("Server eng/ Green energy")
+            .label("Server Eng/ Green Eng")
             .diameter(150)
             .minValue(0)
             .maxValue(100)
@@ -109,7 +94,7 @@ $( document ).ready(function() {
 
     $( "#dc_0" ).click(function() {
         $.ajax({
-            url : 'ajaxCall',
+            url : 'getStatistics',
             success : function(data) {
 
                 console.log(data);

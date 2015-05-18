@@ -43,7 +43,7 @@
 
     <div id="main_container" class="container">
         <div id="form_container" class="col-lg-3">
-            <h2 class="form-signin-heading">Simulation features</h2>
+            <h2 class="form-header">Simulation features</h2>
 
             <form class="form-signin" action="startSimulation">
                 <div class="form-group">
@@ -75,7 +75,7 @@
             </form>
         </div>
         <div id="simulation_container" class="col-lg-9">
-            <div class="col-lg-9 simulation_time">
+            <div class="col-lg-12 simulation_time">
                 <label>Time: </label><span>0</span>
             </div>
 
@@ -83,13 +83,14 @@
                 <svg id="imgSVG" width="0" height="0">
                     <defs id="mdef">
                         <pattern id="image" x="0" y="0" height="1" width="1">
-                            <image x="-10" y="-10" width="100" height="103" xlink:href="resources/server.jpg"></image>
+                            <image x="-10" y="-10" width="160" height="150" xlink:href="resources/datacenter1.png"></image>
                         </pattern>
                     </defs>
                 </svg>
                     <%--<filter id = "i1" x = "0%" y = "0%" width = "100%" height = "100%">--%>
                         <%--<feImage xlink:href = "server.png"/>--%>
                     <%--</filter>--%>
+
             </div>
             <div id="gouge_container" class="col-lg-12">
                 <div id="pw1" class="col-lg-4">

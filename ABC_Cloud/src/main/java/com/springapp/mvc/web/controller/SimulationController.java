@@ -55,8 +55,8 @@ public class SimulationController {
         return Integer.parseInt(data[0]);
     }
 
-    @RequestMapping(value = "ajaxCall", method = RequestMethod.GET)
-    public @ResponseBody String getTime() {
+    @RequestMapping(value = "getStatistics", method = RequestMethod.GET)
+    public @ResponseBody String getStatistics() {
 
         Map<Integer, Map<String, Double>> migrationResults = cloudController.getResults();
 

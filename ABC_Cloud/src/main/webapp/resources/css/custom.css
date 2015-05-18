@@ -45,10 +45,66 @@ svg.radial-svg {
     width: 120px;
     height: 150px;
     margin: auto;
+    overflow: inherit;
+}
+
+svg.radial-svg .component .label{
+    font-size: 100%;
+    fill: #5A5A5A;
 }
 
 #gouge_container{
     padding-left: 0px;
     padding-right: 0px;
     margin-top: 20px;
+}
+
+.simulation_time{
+    text-align: right;
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+#simulation_time label{
+    padding-right: 5px;
+}
+
+.form-header{
+    margin-top: 0px;
+}
+
+
+path.link {
+    fill: none;
+    stroke: #666;
+    stroke-width: 1.5px;
+}
+
+marker#licensing {
+    fill: green;
+}
+
+path.link.licensing {
+    stroke: green;
+}
+
+path.link.resolved {
+    stroke-dasharray: 0,2 1;
+}
+
+/*circle {*/
+    /*/!*fill: #ccc;*!/*/
+    /*stroke: #333;*/
+    /*stroke-width: 0px;*/
+/*}*/
+
+text {
+    font: 10px sans-serif;
+    pointer-events: none;
+}
+
+text.shadow {
+    stroke: #fff;
+    stroke-width: 3px;
+    stroke-opacity: .8;
 }
