@@ -364,4 +364,8 @@ public class FederationOfDataCenter extends SimEntity {
         }
         return cloudStatistics.getStepResultsForDataCenter(time, dataCenter);
     }
+
+    public double getSimulationProgress() {
+        return (CloudSim.clock() / simulationPeriod) * 100;
+    }
 }

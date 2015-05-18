@@ -61,4 +61,11 @@ public class SimulationController {
         return new JsonParserImpl().toJson(migrationResults);
     }
 
+    @RequestMapping(value = "simulationProgress", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    double getCurrentProgress() {
+        return cloudController.getSimulationProgress();
+    }
+
 }

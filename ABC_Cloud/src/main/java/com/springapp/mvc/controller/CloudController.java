@@ -148,4 +148,8 @@ public class CloudController {
         return fed.getResultForDataCenter(CloudSim.clock(), dataCenterId);
     }
 
+
+    public double getSimulationProgress() {
+        return fed.getSimulationProgress();
+    }
 }
