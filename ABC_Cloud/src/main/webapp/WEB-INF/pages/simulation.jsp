@@ -48,11 +48,11 @@
             <form class="form-signin" action="startSimulation">
                 <div class="form-group">
                     <label for="vmNumber">VM Number</label>
-                    <input type="number" min='1' id="vmNumber" class="form-control" placeholder="VM Number" required name="vmNumber">
+                    <input type="number" min='1' id="vmNumber" class="form-control" placeholder="VM Number" required name="vmNumber" value="800">
                 </div>
                 <div class="form-group">
                     <label for="hostNumber">Host Number</label>
-                    <input type="number" min='1' id="hostNumber" class="form-control" placeholder="Host Number" required name="hostNumber">
+                    <input type="number" min='1' id="hostNumber" class="form-control" placeholder="Host Number" required name="hostNumber" value="200">
                 </div>
                 <div class="form-group">
                     <label for="simulationPeriod">Simulation period</label>
@@ -71,12 +71,17 @@
                         <option value="Latency">Latency</option>
                     </select>
                 </div>
-                <button formmethod="post" class="btn btn-lg btn-primary btn-block" type="submit">Start Simulation!</button>
+                <button id="startButton" formmethod="post" class="btn btn-lg btn-primary btn-block" type="submit">Start Simulation!</button>
             </form>
         </div>
         <div id="simulation_container" class="col-lg-9">
             <div class="col-lg-12 simulation_time">
                 <label>Time: </label><span>0</span>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                        60%
+                    </div>
+                </div>
             </div>
 
             <div id="graph_container" class="col-lg-12">
