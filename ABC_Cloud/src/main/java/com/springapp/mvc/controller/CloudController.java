@@ -152,6 +152,10 @@ public class CloudController {
         return fed.getOverallResultsForDataCenter(datacenterId);
     }
 
+    public List<List<Double>> getGraphResults(int datacenterId) {
+        return fed.getGraphResultsForDataCenter(datacenterId);
+    }
+
 
     public double getSimulationProgress() {
         return fed.getSimulationProgress();

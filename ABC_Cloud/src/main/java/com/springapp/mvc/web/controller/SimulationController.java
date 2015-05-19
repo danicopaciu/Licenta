@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -38,7 +39,8 @@ public class SimulationController {
         cloudController.start(vmNumber, hostNumber, period);
         Map<Double, Map<String, Double>> simulationResult = cloudController.getOverallResults(0);
         JsonParser parser = new JsonParserImpl();
-        String json = parser.toJson(simulationResult);
+        List<List<Double>> graphList = cloudController.getGraphResults(0);
+        String json = parser.toJson(graphList);
         map.put("result", simulationResult);
         map.put("json", json);
         return "simulation";

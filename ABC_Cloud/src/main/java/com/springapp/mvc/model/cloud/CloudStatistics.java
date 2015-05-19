@@ -146,6 +146,23 @@ public class CloudStatistics {
         return dataCenterResult;
     }
 
+    public List<List<Double>> getGraphResultsForDatacenter(Datacenter dc) {
+        List<List<Double>> dataCenterResult = new ArrayList<List<Double>>();
+        for (Map.Entry<Double, Map<Datacenter, List<Double>>> entry : results.entrySet()) {
+            double key = entry.getKey();
+            Map<Datacenter, List<Double>> values = entry.getValue();
+            List<Double> valueList = values.get(dc);
+            List<Double> data = new LinkedList<Double>();
+            if (valueList != null) {
+                data.add(key);
+                data.add(truncateTwoDecimals(valueList.get(GreenDataCenter.GREEN_ENERGY)));
+                data.add(truncateTwoDecimals(valueList.get(GreenDataCenter.SERVERS_ENERGY)));
+            }
+            dataCenterResult.add(data);
+        }
+        return dataCenterResult;
+    }
+
     private double truncateTwoDecimals(double number) {
         DecimalFormat df = new DecimalFormat("#.##");
         return Double.valueOf(df.format(number));

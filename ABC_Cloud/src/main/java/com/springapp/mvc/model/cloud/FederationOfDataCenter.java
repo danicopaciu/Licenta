@@ -377,6 +377,11 @@ public class FederationOfDataCenter extends SimEntity {
         return cloudStatistics.getOverallResultsForDatacenter(dataCenter);
     }
 
+    public List<List<Double>> getGraphResultsForDataCenter(int dataCenterId) {
+        GreenDataCenter dataCenter = getGreenDataCenter(dataCenterId);
+        return cloudStatistics.getGraphResultsForDatacenter(dataCenter);
+    }
+
     public double getSimulationProgress() {
         double progress = (CloudSim.clock() / simulationPeriod) * 100;
         if (progress > 100) {
