@@ -110,6 +110,34 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-0">
+            <!-- Table -->
+            <c:if test="${!empty result}">
+                <table class="table">
+                    <tr>
+                        <th>Time</th>
+                        <th>Green Energy</th>
+                        <th>Brown Energy</th>
+                        <th>Energy consumed by servers</th>
+                        <th>Energy consumed by CRAC</th>
+                        <th>Heat Gained</th>
+                        <th>VMs Migrated In</th>
+                        <th>VMs Migrated Out</th>
+                        <th>Total VMs in Data Center</th>
+                    </tr>
+                    <c:forEach var="timeList" items="${result}">
+                        <tr>
+                            <td>${timeList.key}</td>
+                            <c:forEach var="data" items="${timeList.value}">
+                                <td>${data.value}</td>
+                            </c:forEach>
+                        </tr>
+                        <c:forEach var="data" items="${timeList.value}">
+                        </c:forEach>
+                    </c:forEach>
+                </table>
+            </c:if>
+        </div>
     </div>
 </div>
 </body>

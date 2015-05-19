@@ -1,6 +1,7 @@
 package com.springapp.mvc.web.controller;
 
 import com.springapp.mvc.controller.CloudController;
+import com.springapp.mvc.model.json.JsonParser;
 import com.springapp.mvc.model.json.impl.JsonParserImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -29,12 +30,15 @@ public class SimulationController {
                                   @RequestParam("hostNumber") int hostNumber,
                                   @RequestParam("simulationPeriod") String simPeriod,
                                   @RequestParam("simulationType") String simType,
-                                  ModelMap map) {
+                                  Map<String, Object> map) {
 
         int hours = getHours(simPeriod);
         int period = getPeriod(hours);
         cloudController = new CloudController();
         cloudController.start(vmNumber, hostNumber, period);
+        Map<Double, Map<String, Double>> simulationResult = cloudController.getOverallResults(0);
+        JsonParser parser = new JsonParserImpl();
+        map.put("result", simulationResult);
         return "simulation";
     }
 
@@ -57,7 +61,7 @@ public class SimulationController {
     @ResponseBody
     String getStatistics(@PathVariable("dataCenterId") int dataCenterId) {
 
-        Map<String, Double> migrationResults = cloudController.getResults(dataCenterId);
+        Map<String, Double> migrationResults = cloudController.getPartialResults(dataCenterId);
         return new JsonParserImpl().toJson(migrationResults);
     }
 

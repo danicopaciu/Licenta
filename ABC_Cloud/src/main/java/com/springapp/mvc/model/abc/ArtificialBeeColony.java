@@ -48,7 +48,7 @@ public class ArtificialBeeColony {
         long startTime = System.currentTimeMillis();
         initialize();
         computeFitnessFunction();
-        System.out.println(clock);
+//        System.out.println(clock);
         double diff;
 
         do {

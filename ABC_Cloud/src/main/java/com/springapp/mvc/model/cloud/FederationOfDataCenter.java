@@ -178,16 +178,17 @@ public class FederationOfDataCenter extends SimEntity {
         }
         List<GreenDataCenter> DCList = getDataCenterList();
         ArtificialBeeColony abc = new ArtificialBeeColony(DCList, migratingList);
-
+        FoodSource result = null;
+        System.out.println(CloudSim.clock());
         if (!migratingList.isEmpty()){
-            FoodSource result = abc.runAlgorithm();
+            result = abc.runAlgorithm();
             scheduleMigrations(result);
             Statistics.analizeSolution(dataCenterList, result);
-            cloudStatistics.setMigratedVms(migratingList.size());
-            cloudStatistics.addSolutionResult(CloudSim.clock(), dataCenterList, result);
         }else{
             Statistics.analizeSolutionIfEmpty(dataCenterList);
         }
+        cloudStatistics.setMigratedVms(migratingList.size());
+        cloudStatistics.addSolutionResult(CloudSim.clock(), dataCenterList, result);
         createSolutionMap();
 
     }
@@ -355,13 +356,24 @@ public class FederationOfDataCenter extends SimEntity {
     }
 
     public Map<String, Double> getResultForDataCenter(Double time, int dataCenterId) {
+        GreenDataCenter dataCenter = getGreenDataCenter(dataCenterId);
+        return cloudStatistics.getStepResultsForDataCenter(time, dataCenter);
+    }
+
+    private GreenDataCenter getGreenDataCenter(int dataCenterId) {
         GreenDataCenter dataCenter = null;
         for (Datacenter dc : dataCenterList) {
             if ((dc.getId() - 3) == dataCenterId) {
                 dataCenter = (GreenDataCenter) dc;
+                break;
             }
         }
-        return cloudStatistics.getStepResultsForDataCenter(time, dataCenter);
+        return dataCenter;
+    }
+
+    public Map<Double, Map<String, Double>> getOverallResultsForDataCenter(int dataCenterId) {
+        GreenDataCenter dataCenter = getGreenDataCenter(dataCenterId);
+        return cloudStatistics.getOverallResultsForDatacenter(dataCenter);
     }
 
     public double getSimulationProgress() {

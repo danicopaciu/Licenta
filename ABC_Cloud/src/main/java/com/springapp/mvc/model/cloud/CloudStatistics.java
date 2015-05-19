@@ -7,6 +7,7 @@ import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -20,18 +21,13 @@ public class CloudStatistics {
     private int migratedVms;
 
     public CloudStatistics() {
-        this.results = new HashMap<Double, Map<Datacenter, List<Double>>>();
+        this.results = new TreeMap<Double, Map<Datacenter, List<Double>>>();
     }
 
     public void addSolutionResult(Double time, List<GreenDataCenter> datacenters, FoodSource solution) {
         Map<Datacenter, List<Double>> stepResults = new HashMap<Datacenter, List<Double>>();
-        Map<Datacenter, int[]> result = new HashMap<Datacenter, int[]>();
-        for (GreenDataCenter dc : datacenters) {
-            int[] vms = new int[2];
-            vms[0] = vms[1] = 0;
-            result.put(dc, vms);
-        }
-        analyzeSolution(solution, result);
+
+        Map<Datacenter, int[]> result = analyzeSolution(solution, datacenters);
         totalCloudVms = 0;
         for (GreenDataCenter dc : datacenters) {
             int[] vms = result.get(dc);
@@ -48,18 +44,27 @@ public class CloudStatistics {
         results.put(time, stepResults);
     }
 
-    private void analyzeSolution(FoodSource solution, Map<Datacenter, int[]> result) {
-        for (Nectar n : solution.getNectarList()) {
-            Vm vm = n.getVm();
-            Host prevHost = vm.getHost();
-            Host nextHost = n.getHost();
-            Datacenter prevDc = prevHost.getDatacenter();
-            Datacenter nextDc = nextHost.getDatacenter();
-            int[] out = result.get(prevDc);
-            out[1]++;
-            int[] in = result.get(nextDc);
-            in[0]++;
+    private Map<Datacenter, int[]> analyzeSolution(FoodSource solution, List<GreenDataCenter> datacenters) {
+        Map<Datacenter, int[]> result = new HashMap<Datacenter, int[]>();
+        for (GreenDataCenter dc : datacenters) {
+            int[] vms = new int[2];
+            vms[0] = vms[1] = 0;
+            result.put(dc, vms);
         }
+        if (solution != null) {
+            for (Nectar n : solution.getNectarList()) {
+                Vm vm = n.getVm();
+                Host prevHost = vm.getHost();
+                Host nextHost = n.getHost();
+                Datacenter prevDc = prevHost.getDatacenter();
+                Datacenter nextDc = nextHost.getDatacenter();
+                int[] out = result.get(prevDc);
+                out[1]++;
+                int[] in = result.get(nextDc);
+                in[0]++;
+            }
+        }
+        return result;
     }
 
     private int getOverallVms(Datacenter dc) {
@@ -114,7 +119,33 @@ public class CloudStatistics {
         data.put("overallVms", (double) getTotalCloudVms());
         data.put("VmsIn", dataCenterResults.get(GreenDataCenter.VMS_IN));
         data.put("migratedVms", (double) getMigratedVms());
-
         return data;
+    }
+
+    public Map<Double, Map<String, Double>> getOverallResultsForDatacenter(Datacenter dc) {
+        Map<Double, Map<String, Double>> dataCenterResult = new TreeMap<Double, Map<String, Double>>();
+        for (Map.Entry<Double, Map<Datacenter, List<Double>>> entry : results.entrySet()) {
+            double key = entry.getKey();
+            Map<Datacenter, List<Double>> values = entry.getValue();
+            List<Double> valueList = values.get(dc);
+            Map<String, Double> data = new LinkedHashMap<String, Double>();
+            if (valueList != null) {
+                data.put("greenEnergy", truncateTwoDecimals(valueList.get(GreenDataCenter.GREEN_ENERGY)));
+                data.put("brownEnergy", truncateTwoDecimals(valueList.get(GreenDataCenter.BROWN_ENERGY)));
+                data.put("serverEnergy", truncateTwoDecimals(valueList.get(GreenDataCenter.SERVERS_ENERGY)));
+                data.put("cooling", truncateTwoDecimals(valueList.get(GreenDataCenter.COOLING)));
+                data.put("heat", truncateTwoDecimals(valueList.get(GreenDataCenter.HEAT)));
+                data.put("VmsIn", valueList.get(GreenDataCenter.VMS_IN));
+                data.put("VmsOut", valueList.get(GreenDataCenter.VMS_OUT));
+                data.put("dcVms", valueList.get(GreenDataCenter.TOTAL_VMS));
+                dataCenterResult.put(key, data);
+            }
+        }
+        return dataCenterResult;
+    }
+
+    private double truncateTwoDecimals(double number) {
+        DecimalFormat df = new DecimalFormat("#.##");
+        return Double.valueOf(df.format(number));
     }
 }

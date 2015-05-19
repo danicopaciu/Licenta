@@ -144,8 +144,12 @@ public class CloudController {
         return windSpeedMap;
     }
 
-    public Map<String, Double> getResults(int dataCenterId) {
+    public Map<String, Double> getPartialResults(int dataCenterId) {
         return fed.getResultForDataCenter(CloudSim.clock(), dataCenterId);
+    }
+
+    public Map<Double, Map<String, Double>> getOverallResults(int datacenterId) {
+        return fed.getOverallResultsForDataCenter(datacenterId);
     }
 
 
