@@ -166,7 +166,7 @@ public class CloudStatistics {
         Map<String, Object> data = new LinkedHashMap<String, Object>();
         data.put("name", name);
         data.put("time", key);
-        data.put(name, truncateTwoDecimals(value));
+        data.put("energy", truncateTwoDecimals(value));
         return data;
     }
 
