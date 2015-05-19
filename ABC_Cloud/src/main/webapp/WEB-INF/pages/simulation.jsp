@@ -79,7 +79,6 @@
                 <label>Time: </label><span>0</span>
                 <div class="progress">
                     <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-                        60%
                     </div>
                 </div>
             </div>
@@ -142,14 +141,9 @@
 
 <script>
     var table_results = ${json_result} ;
-    //                    var results_obj = jQuery.parseJSON(table_results);
-    //                    console.log(table_results);
-    //                    console.log(results_obj);
-
     $( document ).ready(function() {
         InitChart(table_results);
     });
-
 </script>
 
 </html>
