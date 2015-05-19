@@ -109,3 +109,9 @@ text.shadow {
     stroke-width: 3px;
     stroke-opacity: .8;
 }
+
+.grafic_container{
+    margin-bottom: 30px;
+    padding-left: 0px;
+    padding-right: 0px;
+}

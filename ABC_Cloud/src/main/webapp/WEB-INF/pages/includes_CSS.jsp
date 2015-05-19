@@ -6,3 +6,4 @@
 <link rel="stylesheet" type="text/css" href="resources/css/carousel.css"/>
 <link rel="stylesheet" type="text/css" href="resources/css/radialProgress.css"/>
 <link rel="stylesheet" type="text/css" href="resources/css/custom.css"/>
+<script src="resources/js/jquery-1.11.3.min.js"></script>

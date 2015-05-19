@@ -48,11 +48,11 @@
             <form class="form-signin" action="startSimulation">
                 <div class="form-group">
                     <label for="vmNumber">VM Number</label>
-                    <input type="number" min='1' id="vmNumber" class="form-control" placeholder="VM Number" required name="vmNumber" value="800">
+                    <input type="number" min='1' id="vmNumber" class="form-control" placeholder="VM Number" required name="vmNumber" value="80">
                 </div>
                 <div class="form-group">
                     <label for="hostNumber">Host Number</label>
-                    <input type="number" min='1' id="hostNumber" class="form-control" placeholder="Host Number" required name="hostNumber" value="200">
+                    <input type="number" min='1' id="hostNumber" class="form-control" placeholder="Host Number" required name="hostNumber" value="20">
                 </div>
                 <div class="form-group">
                     <label for="simulationPeriod">Simulation period</label>
@@ -98,21 +98,17 @@
 
             </div>
             <div id="gouge_container" class="col-lg-12">
-                <div id="pw1" class="col-lg-4">
-
-                </div>
-                <div id="pw2" class="col-lg-4">
-
-                </div>
-                <div id="pw3" class="col-lg-4">
-
-
-                </div>
+                <div id="pw1" class="col-lg-4"></div>
+                <div id="pw2" class="col-lg-4"> </div>
+                <div id="pw3" class="col-lg-4"></div>
             </div>
         </div>
-        <div class="col-lg-0">
-            <!-- Table -->
-            <c:if test="${!empty result}">
+        <c:if test="${!empty result}">
+            <div class="grafic_container col-lg-12">
+                <h2>Graph Green Energy/Server Energy</h2>
+                <svg id="visualisation" width="100%" height="500"></svg>
+            </div>
+            <div class="col-lg-12">
                 <table class="table">
                     <tr>
                         <th>Time</th>
@@ -136,10 +132,24 @@
                         </c:forEach>
                     </c:forEach>
                 </table>
-            </c:if>
-        </div>
+            </div>
+        </c:if>
     </div>
 </div>
 </body>
 <%@ include file="/WEB-INF/pages/includes_JS.jsp" %>
+
+
+<script>
+    var table_results = ${json_result} ;
+    //                    var results_obj = jQuery.parseJSON(table_results);
+    //                    console.log(table_results);
+    //                    console.log(results_obj);
+
+    $( document ).ready(function() {
+        InitChart(table_results);
+    });
+
+</script>
+
 </html>
