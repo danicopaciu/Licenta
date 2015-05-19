@@ -41,8 +41,8 @@ public class SimulationController {
         JsonParser parser = new JsonParserImpl();
         List<Map<String, Object>> graphList = cloudController.getGraphResults(0);
         String json = parser.toJson(graphList);
-        map.put("json_result", simulationResult);
-        map.put("json", json);
+        map.put("result", simulationResult);
+        map.put("json_result", json);
         return "simulation";
     }
 
