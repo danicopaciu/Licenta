@@ -183,13 +183,14 @@ public class FederationOfDataCenter extends SimEntity {
         if (!migratingList.isEmpty()){
             result = abc.runAlgorithm();
             scheduleMigrations(result);
-            Statistics.analizeSolution(dataCenterList, result);
-        }else{
-            Statistics.analizeSolutionIfEmpty(dataCenterList);
+            //Statistics.analizeSolution(dataCenterList, result);
         }
+//        else{
+//            Statistics.analizeSolutionIfEmpty(dataCenterList);
+//        }
         cloudStatistics.setMigratedVms(migratingList.size());
         cloudStatistics.addSolutionResult(CloudSim.clock(), dataCenterList, result);
-        createSolutionMap();
+        //createSolutionMap();
 
     }
 

@@ -34,7 +34,9 @@ public class CloudStatistics {
             totalCloudVms += getOverallVms(dc);
             addPartialResult(stepResults, dc, GreenDataCenter.VMS_IN, vms[0]);
             addPartialResult(stepResults, dc, GreenDataCenter.VMS_OUT, vms[1]);
-            addPartialResult(stepResults, dc, GreenDataCenter.TOTAL_VMS, dc.getTotalVms() - vms[1] + vms[0]);
+            int totalVms = dc.getTotalVms() - vms[1] + vms[0];
+            dc.setTotalVms(totalVms);
+            addPartialResult(stepResults, dc, GreenDataCenter.TOTAL_VMS, dc.getTotalVms());
             addPartialResult(stepResults, dc, GreenDataCenter.GREEN_ENERGY, dc.getGreenEnergyQuantity());
             addPartialResult(stepResults, dc, GreenDataCenter.BROWN_ENERGY, dc.getBrownEnergyQuantity());
             addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, dc.getPower());
