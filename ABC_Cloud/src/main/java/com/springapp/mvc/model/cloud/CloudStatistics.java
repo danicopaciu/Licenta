@@ -146,21 +146,28 @@ public class CloudStatistics {
         return dataCenterResult;
     }
 
-    public List<List<Double>> getGraphResultsForDatacenter(Datacenter dc) {
-        List<List<Double>> dataCenterResult = new ArrayList<List<Double>>();
+    public List<Map<String, Object>> getGraphResultsForDatacenter(Datacenter dc) {
+        List<Map<String, Object>> dataCenterResult = new ArrayList<Map<String, Object>>();
         for (Map.Entry<Double, Map<Datacenter, List<Double>>> entry : results.entrySet()) {
             double key = entry.getKey();
             Map<Datacenter, List<Double>> values = entry.getValue();
             List<Double> valueList = values.get(dc);
-            List<Double> data = new LinkedList<Double>();
             if (valueList != null) {
-                data.add(key);
-                data.add(truncateTwoDecimals(valueList.get(GreenDataCenter.GREEN_ENERGY)));
-                data.add(truncateTwoDecimals(valueList.get(GreenDataCenter.SERVERS_ENERGY)));
+                double greenEnergy = valueList.get(GreenDataCenter.GREEN_ENERGY);
+                dataCenterResult.add(getMapResult(key, greenEnergy, "GreenEnergy"));
+                double serverEnergy = valueList.get(GreenDataCenter.SERVERS_ENERGY);
+                dataCenterResult.add(getMapResult(key, serverEnergy, "ServerEnergy"));
             }
-            dataCenterResult.add(data);
         }
         return dataCenterResult;
+    }
+
+    private Map<String, Object> getMapResult(double key, double value, String name) {
+        Map<String, Object> data = new LinkedHashMap<String, Object>();
+        data.put("name", name);
+        data.put("time", key);
+        data.put(name, truncateTwoDecimals(value));
+        return data;
     }
 
     private double truncateTwoDecimals(double number) {

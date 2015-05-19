@@ -39,9 +39,9 @@ public class SimulationController {
         cloudController.start(vmNumber, hostNumber, period);
         Map<Double, Map<String, Double>> simulationResult = cloudController.getOverallResults(0);
         JsonParser parser = new JsonParserImpl();
-        List<List<Double>> graphList = cloudController.getGraphResults(0);
+        List<Map<String, Object>> graphList = cloudController.getGraphResults(0);
         String json = parser.toJson(graphList);
-        map.put("result", simulationResult);
+        map.put("json_result", simulationResult);
         map.put("json", json);
         return "simulation";
     }

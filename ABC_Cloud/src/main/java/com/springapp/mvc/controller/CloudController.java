@@ -152,7 +152,7 @@ public class CloudController {
         return fed.getOverallResultsForDataCenter(datacenterId);
     }
 
-    public List<List<Double>> getGraphResults(int datacenterId) {
+    public List<Map<String, Object>> getGraphResults(int datacenterId) {
         return fed.getGraphResultsForDataCenter(datacenterId);
     }
 

@@ -377,7 +377,7 @@ public class FederationOfDataCenter extends SimEntity {
         return cloudStatistics.getOverallResultsForDatacenter(dataCenter);
     }
 
-    public List<List<Double>> getGraphResultsForDataCenter(int dataCenterId) {
+    public List<Map<String, Object>> getGraphResultsForDataCenter(int dataCenterId) {
         GreenDataCenter dataCenter = getGreenDataCenter(dataCenterId);
         return cloudStatistics.getGraphResultsForDatacenter(dataCenter);
     }
