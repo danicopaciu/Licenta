@@ -120,6 +120,7 @@ public class CloudStatistics {
         data.put("dcVms", dataCenterResults.get(GreenDataCenter.TOTAL_VMS));
         data.put("overallVms", (double) getTotalCloudVms());
         data.put("VmsIn", dataCenterResults.get(GreenDataCenter.VMS_IN));
+        data.put("VmsOut", dataCenterResults.get(GreenDataCenter.VMS_OUT));
         data.put("migratedVms", (double) getMigratedVms());
         return data;
     }
