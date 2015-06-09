@@ -113,8 +113,20 @@ $( document ).ready(function() {
                 var results = jQuery.parseJSON(data);
 
                 $(".simulation_time span").text(results.clock);
+                $('.vm_status').show();
+                $('.vm_status .vms_in span').text(results.VmsIn);
+                $('.vm_status .vms_out span').text(results.VmsOut);
+                $('path.arc2').hide();
 
-                 rp1.minValue(0)
+
+                var migrated_vms = results.migratedVms;
+                var vms_in = results.VmsIn;
+                if (migrated_vms == 0){
+                    vms_in = 0;
+                    migrated_vms = 1;
+                }
+
+                rp1.minValue(0)
                     .maxValue(results.greenEnergy)
                     .value(results.serverEnergy)
                     .render();
@@ -123,8 +135,8 @@ $( document ).ready(function() {
                     .value(results.dcVms)
                     .render();
                 rp3.minValue(0)
-                    .maxValue(results.migratedVms)
-                    .value(results.VmsIn)
+                    .maxValue(migrated_vms)
+                    .value(vms_in)
                     .render();
             }
         });

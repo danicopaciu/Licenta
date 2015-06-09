@@ -94,6 +94,21 @@
                     <%--<filter id = "i1" x = "0%" y = "0%" width = "100%" height = "100%">--%>
                         <%--<feImage xlink:href = "server.png"/>--%>
                     <%--</filter>--%>
+                <div class="vm_status">
+                    <div class="vm_status_area">
+                        <span class="glyphicon glyphicon-arrow-up " aria-hidden="true"></span>
+                    </div>
+                    <div class="vm_status_area vms_in">
+                        <span class="">0</span>
+                    </div>
+                    <div class="vm_status_area">
+                        <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+                    </div>
+                    <div class="vm_status_area vms_out">
+                        <span class="">0</span>
+                    </div>
+                </div>
+
 
             </div>
             <div id="gouge_container" class="col-lg-12">

@@ -1,7 +1,7 @@
 #dc_graph{
     border: 1px solid #999999;
     border-radius: 10px;
-    background-color: #dedede;
+    background-color: #E9E9E9;
 }
 
 #main_container{
@@ -124,4 +124,52 @@ text.shadow {
     margin-bottom: 30px;
     padding-left: 0px;
     padding-right: 0px;
+}
+
+.vm_status{
+    width: 75px;
+    height: 75px;
+    border: 1px solid black;
+    border-radius: 4px;
+    position: absolute;
+    left: 300px;
+    top: 150px;
+    background-color: #E1E0FF;
+    display: none;
+}
+
+.vm_status .vm_status_area{
+    height: 50%;
+    width: 50%;
+    float: left;
+    position: relative;
+}
+
+.vm_status .vm_status_area span{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.vm_status .vm_status_area span.glyphicon-arrow-up {
+    color: green;
+    font-size: 24px;
+}
+
+.vm_status .vm_status_area span.glyphicon-arrow-down {
+    color: red;
+    font-size: 24px;
+}
+
+tr,th{
+    text-align: center;
+}
+
+tr:nth-of-type(2n+1){
+    background-color: #E9E9E9;
+}
+
+tr:nth-of-type(2n){
+    background-color: white;
 }
