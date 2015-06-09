@@ -50,9 +50,10 @@ public class CloudStatistics {
             addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, dc.getPower());
             addPartialResult(stepResults, dc, GreenDataCenter.HEAT, dc.getHeatGained());
             addPartialResult(stepResults, dc, GreenDataCenter.COOLING, dc.getCoolingEnergy());
-            addPartialResult(stepResults, dc, 8, (double) totalCloudVms);
-            addPartialResult(stepResults, dc, 9, (double) migratedVms);
         }
+        List<Double> dc0List = stepResults.get(datacenters.get(0));
+        dc0List.add(8, (double) totalCloudVms);
+        dc0List.add(9, (double) migratedVms);
         results.put(time, stepResults);
     }
 
@@ -198,7 +199,7 @@ public class CloudStatistics {
             fileName = FILE_PATH + dateFormat.format(date) + FILE_EXTENSION;
             writer = new PrintWriter(fileName, ENCODING);
             String tableHeader = "Time," + "Green Energy," + "Brown Energy," + "Servers Energy,"
-                    + "Cooling," + "Heat," + "VmsIn," + "VmsOut," + "DCVms" + "totalCloudVms" + "migratedVms";
+                    + "Cooling," + "Heat," + "VmsIn," + "VmsOut," + "DCVms," + "totalCloudVms," + "migratedVms";
             writer.println(tableHeader);
             for (Map.Entry<Double, Map<String, Double>> entry : mapResult.entrySet()) {
                 double time = entry.getKey();
