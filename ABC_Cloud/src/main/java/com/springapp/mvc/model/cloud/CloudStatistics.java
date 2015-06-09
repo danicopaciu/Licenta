@@ -50,8 +50,8 @@ public class CloudStatistics {
             addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, dc.getPower());
             addPartialResult(stepResults, dc, GreenDataCenter.HEAT, dc.getHeatGained());
             addPartialResult(stepResults, dc, GreenDataCenter.COOLING, dc.getCoolingEnergy());
-            addPartialResult(stepResults, dc, 10, (double) totalCloudVms);
-            addPartialResult(stepResults, dc, 11, (double) migratedVms);
+            addPartialResult(stepResults, dc, 8, (double) totalCloudVms);
+            addPartialResult(stepResults, dc, 9, (double) migratedVms);
         }
         results.put(time, stepResults);
     }
@@ -89,7 +89,7 @@ public class CloudStatistics {
 
     public void addPartialResult(Map<Datacenter, List<Double>> stepResults, Datacenter dc, int type, double value) {
         if (!stepResults.containsKey(dc)) {
-            stepResults.put(dc, new ArrayList<Double>(Collections.nCopies(8, 0.0)));
+            stepResults.put(dc, new ArrayList<Double>(Collections.nCopies(10, 0.0)));
         }
         List<Double> values = stepResults.get(dc);
         values.set(type, value);
@@ -151,8 +151,8 @@ public class CloudStatistics {
                 data.put("VmsIn", valueList.get(GreenDataCenter.VMS_IN));
                 data.put("VmsOut", valueList.get(GreenDataCenter.VMS_OUT));
                 data.put("dcVms", valueList.get(GreenDataCenter.TOTAL_VMS));
-                data.put("totalCloudVms", valueList.get(10));
-                data.put("migratedVms", valueList.get(11));
+                data.put("totalCloudVms", valueList.get(8));
+                data.put("migratedVms", valueList.get(9));
                 dataCenterResult.put(key, data);
             }
         }
