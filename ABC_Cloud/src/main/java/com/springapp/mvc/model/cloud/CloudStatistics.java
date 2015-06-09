@@ -149,6 +149,8 @@ public class CloudStatistics {
                 data.put("VmsIn", valueList.get(GreenDataCenter.VMS_IN));
                 data.put("VmsOut", valueList.get(GreenDataCenter.VMS_OUT));
                 data.put("dcVms", valueList.get(GreenDataCenter.TOTAL_VMS));
+                data.put("totalCloudVms", (double) totalCloudVms);
+                data.put("migratedVms", (double) migratedVms);
                 dataCenterResult.put(key, data);
             }
         }
@@ -206,7 +208,9 @@ public class CloudStatistics {
                         + "," + dcResult.get("heat")
                         + "," + dcResult.get("VmsIn")
                         + "," + dcResult.get("VmsOut")
-                        + "," + dcResult.get("dcVms"));
+                        + "," + dcResult.get("dcVms")
+                        + "," + dcResult.get("totalCloudVms")
+                        + "," + dcResult.get("migratedVms"));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
