@@ -12,8 +12,6 @@ import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -56,7 +54,6 @@ public class GreenCloudBuilder extends CloudBuilder {
             for (int i = index; i < index + hostNumer; i++) {
                 thisHostList.add(hostList.get(i));
             }
-
 
             String arch = "x86";
             String os = "Linux";

@@ -53,6 +53,7 @@ public class CloudController {
     public static void main(String[] args) {
         CloudController cloudController = new CloudController();
         cloudController.start(500, 100, 12000);
+        cloudController.getOverallResults(0);
     }
 
     public void start(int vmNumber, int hostNumber, int simulationPeriod) {
@@ -119,7 +120,7 @@ public class CloudController {
         Map<String, List<Double>> windSpeedMap = new HashMap<String, List<Double>>();
         for (GreenDataCenter dc : fed.getDataCenterList()) {
             List<Double> windValues = new ArrayList<Double>();
-            String fileName = "/wind_speed_DataCenter_0.txt";
+            String fileName = "wind_speed_DataCenter_0.txt";
             InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader br = new BufferedReader(inputStreamReader);

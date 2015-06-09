@@ -12,8 +12,6 @@ import java.util.Map;
 
 public class HttpServiceImpl implements HttpService {
 
-    public static final String HTTP_GET = "GET";
-    public static final String HTTP_POST = "POST";
 
     @Override
     public String makeHttpCall(String host, List<String> attributeList,

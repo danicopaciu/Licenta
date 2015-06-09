@@ -7,7 +7,12 @@ import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -16,6 +21,9 @@ import java.util.*;
  */
 public class CloudStatistics {
 
+    private static final String FILE_PATH = "results";
+    private static final String FILE_EXTENSION = ".csv";
+    private static final String ENCODING = "utf-8";
     private Map<Double, Map<Datacenter, List<Double>>> results;
     private int totalCloudVms;
     private int migratedVms;
@@ -143,6 +151,7 @@ public class CloudStatistics {
                 dataCenterResult.put(key, data);
             }
         }
+        writeFile(dataCenterResult);
         return dataCenterResult;
     }
 
@@ -173,5 +182,38 @@ public class CloudStatistics {
     private double truncateTwoDecimals(double number) {
         DecimalFormat df = new DecimalFormat("#.##");
         return Double.valueOf(df.format(number));
+    }
+
+    public void writeFile(Map<Double, Map<String, Double>> mapResult) {
+        PrintWriter writer = null;
+        String fileName;
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd HH_mm_ss");
+            Date date = new Date();
+            fileName = FILE_PATH + dateFormat.format(date) + FILE_EXTENSION;
+            writer = new PrintWriter(fileName, ENCODING);
+            String tableHeader = "Time," + "Green Energy," + "Brown Energy," + "Servers Energy," + "Cooling," + "Heat," + "VmsIn," + "VmsOut," + "DCVms";
+            writer.println(tableHeader);
+            for (Map.Entry<Double, Map<String, Double>> entry : mapResult.entrySet()) {
+                double time = entry.getKey();
+                Map<String, Double> dcResult = entry.getValue();
+                writer.println(String.valueOf(time)
+                        + "," + dcResult.get("greenEnergy")
+                        + "," + dcResult.get("brownEnergy")
+                        + "," + dcResult.get("serverEnergy")
+                        + "," + dcResult.get("cooling")
+                        + "," + dcResult.get("heat")
+                        + "," + dcResult.get("VmsIn")
+                        + "," + dcResult.get("VmsOut")
+                        + "," + dcResult.get("dcVms"));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        if (writer != null) {
+            writer.close();
+        }
     }
 }
