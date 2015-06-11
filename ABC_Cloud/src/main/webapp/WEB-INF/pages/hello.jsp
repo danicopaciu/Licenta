@@ -101,25 +101,31 @@
 
     <div class="row">
         <div class="col-lg-6">
-            <img class="img-circle" src="resources/simulation.png" alt="Generic placeholder image" width="140"
-                 height="140">
-            <h2>Simulation</h2>
-            <p><c:url value="/simulation" var="simulation"/><a class="btn btn-default" href="${simulation}"> View details</a></p>
+            <div class="index_link">
+                <c:url value="/simulation" var="simulation"/>
+                <a class="" href="${simulation}">
+                    <img class="img-circle" src="resources/simulation.png" alt="Generic placeholder image" width="140" height="140">
+                </a>
+                <h2>Simulation</h2>
+            </div>
         </div>
         <div class="col-lg-6">
-            <img class="img-circle" src="resources/about.png" alt="Generic placeholder image" width="140"
-                 height="140">
-            <h2>About</h2>
-            <p><c:url value="/about" var="about"/><a class="btn btn-default" href="${about}">View details &raquo;</a>
-            </p>
+            <div class="index_link">
+                <c:url value="/about" var="about"/>
+                <a class="" href="${about}">
+                <img class="img-circle" src="resources/about.png" alt="Generic placeholder image" width="140"
+                     height="140">
+                </a>
+                <h2>About</h2>
+            </div>
         </div>
     </div>
 
     <!-- FOOTER -->
     <footer>
-        <p class="pull-right"><a href="#">Back to top</a></p>
+        <%--<p class="pull-right"><a href="#">Back to top</a></p>--%>
 
-        <p>&copy; 2014 Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+        <%--<p>&copy; 2014 Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>--%>
     </footer>
     </div>
 
