@@ -76,7 +76,7 @@
         </div>
         <div id="simulation_container" class="col-lg-9">
             <div class="col-lg-12 simulation_time">
-                <label>Time: </label><span>0</span>
+                <label>Last Time: </label><span>0</span>
                 <div class="progress">
                     <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
                     </div>
@@ -123,6 +123,7 @@
                 <svg id="visualisation" width="100%" height="500"></svg>
             </div>
             <div class="col-lg-12">
+                <h2>Statistics</h2>
                 <table class="table">
                     <tr>
                         <th>Time</th>
