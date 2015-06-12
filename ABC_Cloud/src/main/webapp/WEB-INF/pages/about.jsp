@@ -8,7 +8,7 @@
 <%@ include file="/WEB-INF/pages/includes_CSS.jsp" %>
 <html>
 <head>
-    <title>About licenta</title>
+    <title>Eficienta Energetica In Retelele De Centre De Date</title>
 </head>
 <body>
 
