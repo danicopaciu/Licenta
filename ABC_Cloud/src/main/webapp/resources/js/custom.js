@@ -216,19 +216,32 @@ function InitChart(data) {
         .interpolate("basis");
 
 
+    var colors = ["blue", "red", "cyan", "limegreen", "#8B4500"];
+
     dataGroup.forEach(function(d, i) {
 
         vis.append("text")
             .attr("x", (lSpace / 2) + i * lSpace)
-            .attr("y", HEIGHT)
+            .attr("y", HEIGHT-5)
             .style("fill", "black")
-            .text(d.key);
+            .text(d.key)
+            .attr("class", d.key);
+
+//        var legend_elem_color = "hsl(" + Math.random() * 360 + ",100%,50%)"
+        var legend_elem_color = colors[i];
+        var legend_elem_width = $("." + d.key).width();
+
+        vis.append("line")
+            .attr("x1", (lSpace / 2) + i * lSpace + legend_elem_width + 10)
+            .attr("y1", HEIGHT - 10)
+            .attr("x2", (lSpace / 2) + i * lSpace + legend_elem_width + 45)
+            .attr("y2", HEIGHT - 10)
+            .style("stroke", legend_elem_color)
+            .attr("stroke-width", 5);
 
         vis.append('svg:path')
             .attr('d', lineGen(d.values))
-            .attr('stroke', function(d, j) {
-                return "hsl(" + Math.random() * 360 + ",100%,50%)";
-            })
+            .attr('stroke',legend_elem_color)
             .attr('stroke-width', 2)
             .attr('fill', 'none');
     });
