@@ -1,5 +1,6 @@
 package com.springapp.mvc.model.cloud;
 
+import com.springapp.mvc.controller.CloudController;
 import com.springapp.mvc.model.abc.FoodSource;
 import com.springapp.mvc.model.abc.Nectar;
 import org.cloudbus.cloudsim.Datacenter;
@@ -168,10 +169,40 @@ public class CloudStatistics {
             Map<Datacenter, List<Double>> values = entry.getValue();
             List<Double> valueList = values.get(dc);
             if (valueList != null) {
-                double greenEnergy = valueList.get(GreenDataCenter.GREEN_ENERGY);
-                dataCenterResult.add(getMapResult(key, greenEnergy, "GreenEnergy"));
                 double serverEnergy = valueList.get(GreenDataCenter.SERVERS_ENERGY);
-                dataCenterResult.add(getMapResult(key, serverEnergy, "ServerEnergy"));
+                String name = null;
+                if (CloudController.SIMULATION_TYPE == CloudController.CONSUMED_ENERGY_VARIATION_SIMULATION) {
+                    double greenEnergy = valueList.get(GreenDataCenter.GREEN_ENERGY);
+                    dataCenterResult.add(getMapResult(key, greenEnergy, "GreenEnergy"));
+                    name = "Server Energy";
+                } else if (CloudController.SIMULATION_TYPE == CloudController.HEAT_VARIATION_SIMULATION) {
+                    name = "Server Energy - heat";
+                }
+                dataCenterResult.add(getMapResult(key, serverEnergy, name));
+            }
+        }
+        return dataCenterResult;
+    }
+
+    public List<Map<String, Object>> getResultForEnergyCost(Datacenter dc) {
+        List<Map<String, Object>> dataCenterResult = new ArrayList<Map<String, Object>>();
+        for (Map.Entry<Double, Map<Datacenter, List<Double>>> entry : results.entrySet()) {
+            double key = entry.getKey();
+            Map<Datacenter, List<Double>> values = entry.getValue();
+            List<Double> valueList = values.get(dc);
+            if (valueList != null) {
+                String name = null;
+                double greenEnergy = valueList.get(GreenDataCenter.VMS_IN);
+                if (CloudController.SIMULATION_TYPE == CloudController.ENERGY_LOW_COST_VARIATION_SIMULATION) {
+                    name = "VMs in-low price";
+                } else if (CloudController.SIMULATION_TYPE == CloudController.ENERGY_HIGH_COST_VARIATION_SIMULATION) {
+                    name = "VMs in-high price";
+                } else if (CloudController.SIMULATION_TYPE == CloudController.LOW_LATENCY_VARIATION_SIMULATION) {
+                    name = "Low BW";
+                } else if (CloudController.SIMULATION_TYPE == CloudController.HIGH_LATENCY_VARIATION_SIMULATION) {
+                    name = "High BW";
+                }
+                dataCenterResult.add(getMapResult(key, greenEnergy, name));
             }
         }
         return dataCenterResult;
@@ -181,7 +212,7 @@ public class CloudStatistics {
         Map<String, Object> data = new LinkedHashMap<String, Object>();
         data.put("name", name);
         data.put("time", key);
-        data.put("energy", truncateTwoDecimals(value));
+        data.put("val", truncateTwoDecimals(value));
         return data;
     }
 
@@ -199,7 +230,8 @@ public class CloudStatistics {
             fileName = FILE_PATH + dateFormat.format(date) + FILE_EXTENSION;
             writer = new PrintWriter(fileName, ENCODING);
             String tableHeader = "Time," + "Green Energy," + "Brown Energy," + "Servers Energy,"
-                    + "Cooling," + "Heat," + "VmsIn," + "VmsOut," + "DCVms," + "totalCloudVms," + "migratedVms";
+                    + "Cooling," + "Heat," + "VmsIn," + "VmsOut," + "DCVms,"
+                    + "totalCloudVms," + "migratedVms";
             writer.println(tableHeader);
             for (Map.Entry<Double, Map<String, Double>> entry : mapResult.entrySet()) {
                 double time = entry.getKey();

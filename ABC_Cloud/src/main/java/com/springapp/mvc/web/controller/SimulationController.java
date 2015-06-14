@@ -25,20 +25,60 @@ public class SimulationController {
     public String startSimulation(@RequestParam("vmNumber") int vmNumber,
                                   @RequestParam("hostNumber") int hostNumber,
                                   @RequestParam("simulationPeriod") String simPeriod,
-                                  @RequestParam("simulationType") String simType,
+                                  @RequestParam("simulationType") int simType,
                                   Map<String, Object> map) {
 
         int hours = getHours(simPeriod);
         int period = getPeriod(hours);
         cloudController = new CloudController();
-        cloudController.start(vmNumber, hostNumber, period);
-        Map<Double, Map<String, Double>> simulationResult = cloudController.getOverallResults(0);
+//        startCloudSimulation(vmNumber, hostNumber, period, simType);
+//        cloudController.start(vmNumber, hostNumber, period);
         JsonParser parser = new JsonParserImpl();
-        List<Map<String, Object>> graphList = cloudController.getGraphResults(0);
+        List<Map<String, Object>> graphList = startCloudSimulation(vmNumber, hostNumber, period, simType);
         String json = parser.toJson(graphList);
+        Map<Double, Map<String, Double>> simulationResult = cloudController.getOverallResults(0);
         map.put("result", simulationResult);
         map.put("json_result", json);
         return "simulation";
+    }
+
+    private List<Map<String, Object>> startCloudSimulation(int vmNumber, int hostNumber, int period, int simType) {
+        List<Map<String, Object>> result1 = null;
+        List<Map<String, Object>> result2;
+        switch (simType) {
+            case 1:
+                CloudController.SIMULATION_TYPE = 1;
+                cloudController.start(vmNumber, hostNumber, period);
+                result1 = cloudController.getGraphResults(0);
+                break;
+            case 2:
+                CloudController.SIMULATION_TYPE = CloudController.CONSUMED_ENERGY_VARIATION_SIMULATION;
+                cloudController.start(vmNumber, hostNumber, period);
+                result1 = cloudController.getGraphResults(0);
+                CloudController.SIMULATION_TYPE = CloudController.HEAT_VARIATION_SIMULATION;
+                cloudController.start(vmNumber, hostNumber, period);
+                result2 = cloudController.getGraphResults(0);
+                result1.addAll(result2);
+                break;
+            case 3:
+                CloudController.SIMULATION_TYPE = CloudController.LOW_LATENCY_VARIATION_SIMULATION;
+                cloudController.start(vmNumber, hostNumber, period);
+                result1 = cloudController.getGraphResults(0);
+                CloudController.SIMULATION_TYPE = CloudController.HIGH_LATENCY_VARIATION_SIMULATION;
+                cloudController.start(vmNumber, hostNumber, period);
+                result2 = cloudController.getGraphResults(0);
+                result1.addAll(result2);
+                break;
+            case 4:
+                CloudController.SIMULATION_TYPE = CloudController.ENERGY_LOW_COST_VARIATION_SIMULATION;
+                cloudController.start(vmNumber, hostNumber, period);
+                result1 = cloudController.getGraphResults(0);
+                CloudController.SIMULATION_TYPE = CloudController.ENERGY_HIGH_COST_VARIATION_SIMULATION;
+                cloudController.start(vmNumber, hostNumber, period);
+                result2 = cloudController.getGraphResults(0);
+                result1.addAll(result2);
+        }
+        return result1;
     }
 
     private int getPeriod(int hours) {

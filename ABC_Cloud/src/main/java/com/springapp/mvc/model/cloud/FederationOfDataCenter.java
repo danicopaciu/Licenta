@@ -1,5 +1,6 @@
 package com.springapp.mvc.model.cloud;
 
+import com.springapp.mvc.controller.CloudController;
 import com.springapp.mvc.controller.Resources;
 import com.springapp.mvc.model.abc.ArtificialBeeColony;
 import com.springapp.mvc.model.abc.FoodSource;
@@ -221,9 +222,12 @@ public class FederationOfDataCenter extends SimEntity {
         List<GreenVm> migratingVms = new ArrayList<GreenVm>();
         int vmNr;
         Random rand = new Random();
-//        double totalEnergy =  greenDataCenter.getGreenEnergyQuantity() + greenDataCenter.getHeatGained();
-        double totalEnergy = greenDataCenter.getGreenEnergyQuantity();
-//        double totalEnergy =  2565000;
+        double totalEnergy;
+        if (CloudController.SIMULATION_TYPE == CloudController.HEAT_VARIATION_SIMULATION) {
+            totalEnergy = greenDataCenter.getGreenEnergyQuantity() + greenDataCenter.getHeatGained();
+        } else {
+            totalEnergy = greenDataCenter.getGreenEnergyQuantity();
+        }
         if (greenDataCenter.getTotalEnergy() <= totalEnergy) {
             for (Vm vm : greenVmList) {
                 GreenDataCenter dc = (GreenDataCenter) vm.getHost().getDatacenter();
@@ -379,7 +383,16 @@ public class FederationOfDataCenter extends SimEntity {
 
     public List<Map<String, Object>> getGraphResultsForDataCenter(int dataCenterId) {
         GreenDataCenter dataCenter = getGreenDataCenter(dataCenterId);
-        return cloudStatistics.getGraphResultsForDatacenter(dataCenter);
+        if (CloudController.SIMULATION_TYPE == CloudController.CONSUMED_ENERGY_VARIATION_SIMULATION ||
+                CloudController.SIMULATION_TYPE == CloudController.HEAT_VARIATION_SIMULATION) {
+            return cloudStatistics.getGraphResultsForDatacenter(dataCenter);
+        } else if (CloudController.SIMULATION_TYPE == CloudController.ENERGY_HIGH_COST_VARIATION_SIMULATION ||
+                CloudController.SIMULATION_TYPE == CloudController.ENERGY_LOW_COST_VARIATION_SIMULATION ||
+                CloudController.SIMULATION_TYPE == CloudController.LOW_LATENCY_VARIATION_SIMULATION ||
+                CloudController.SIMULATION_TYPE == CloudController.HIGH_LATENCY_VARIATION_SIMULATION) {
+            return cloudStatistics.getResultForEnergyCost(dataCenter);
+        }
+        return null;
     }
 
     public double getSimulationProgress() {

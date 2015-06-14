@@ -17,7 +17,7 @@ import java.util.*;
 public class ArtificialBeeColony {
 
     public static final int TRIALS_LIMIT = 50;
-    private final int FOOD_SOURCES_NUMBER = 20;
+    private final int FOOD_SOURCES_NUMBER;
     private final int DIMENSION;
     private final int ITERATION_LIMIT;
     private List<GreenDataCenter> dataCenterList;
@@ -32,8 +32,9 @@ public class ArtificialBeeColony {
         this.vmList = vmList;
         hostList = getHostList();
         DIMENSION = vmList.size();
+        FOOD_SOURCES_NUMBER = 20;
         if (vmList.size() > 0 && vmList.get(0).getHost().getDatacenter() != dataCenterList.get(0)) {
-            ITERATION_LIMIT = vmList.size() * 2;
+            ITERATION_LIMIT = vmList.size() * 3;
         } else {
             ITERATION_LIMIT = 0;
         }
@@ -78,15 +79,15 @@ public class ArtificialBeeColony {
         bestSolution = getBestSolution();
 //        System.out.println("Number of epochs: " + epoch);
         long finishTime = System.currentTimeMillis();
-        if ((finishTime - startTime) < 1000) {
-            try {
-                CloudSim.pauseSimulation();
-                Thread.sleep(1000);
-                CloudSim.resumeSimulation();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+//        if ((finishTime - startTime) < 1000) {
+//            try {
+//                CloudSim.pauseSimulation();
+//                Thread.sleep(1000);
+//                CloudSim.resumeSimulation();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
         return bestSolution;
     }
 

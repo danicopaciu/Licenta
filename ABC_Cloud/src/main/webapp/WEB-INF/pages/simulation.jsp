@@ -55,9 +55,10 @@
                 <div class="form-group">
                     <label for="simulationType">Simulation type</label>
                     <select class="form-control" id="simulationType" name="simulationType">
-                        <option value="Green Energy" selected="selected">Green Energy</option>
-                        <option value="Brown Energy">Brown Energy</option>
-                        <option value="Latency">Latency</option>
+                        <option value="1" selected="selected">Consumed Energy Variation</option>
+                        <option value="2">Heat Variation</option>
+                        <option value="3">Latency Variation</option>
+                        <option value="4">Energy Cost Variation</option>
                     </select>
                 </div>
                 <button id="startButton" formmethod="post" class="btn btn-lg btn-primary btn-block" type="submit">Start Simulation!</button>

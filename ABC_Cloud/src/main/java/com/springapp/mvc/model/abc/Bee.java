@@ -1,6 +1,11 @@
 package com.springapp.mvc.model.abc;
 
+import com.springapp.mvc.controller.CloudController;
 import com.springapp.mvc.controller.Resources;
+import com.springapp.mvc.model.abc.fitness.FitnessFactory;
+import com.springapp.mvc.model.abc.fitness.FitnessFunction;
+import com.springapp.mvc.model.abc.fitness.LatencyPenalty;
+import com.springapp.mvc.model.abc.fitness.Penalty;
 import com.springapp.mvc.model.cloud.GreenDataCenter;
 import com.springapp.mvc.model.cloud.GreenHost;
 import com.springapp.mvc.model.cloud.GreenVm;
@@ -88,7 +93,12 @@ public class Bee {
         int prevDcId = prevDc.getId() - 3;
         int neighbourDcId = neighborHost.getDatacenter().getId() - 3;
         double phi = determinePhi();
-        int newDcId = (int) (prevDcId + phi * (prevDcId - neighbourDcId));
+        int newDcId;
+        if (foodSource.getFitness() < 1) {
+            newDcId = (int) ((prevDcId + phi * (prevDcId - neighbourDcId)) / Resources.DATACENTER_NUMBER);
+        } else {
+            newDcId = (int) (prevDcId + phi * (prevDcId - neighbourDcId));
+        }
         if (newDcId < 0) {
             newDcId = 0;
         }
@@ -178,14 +188,22 @@ public class Bee {
         double heatFactor = 0;
         double heat = getGainedHeat(hostsEnergy);
         double cooling = getCoolingEnergy(hostsEnergy);
-        double penalty = computePenalty(dc);
+        Penalty p = new LatencyPenalty();
+        double penalty = p.getPenalty(foodSource, dc);
+        FitnessFunction fitnessFunction = FitnessFactory.getFitnessFunction(CloudController.SIMULATION_TYPE);
+        if (fitnessFunction != null) {
+            double newResult = fitnessFunction.computeFitness(greenEnergy, hostsEnergy, heat, cooling, penalty);
+            foodSource.setFitness(newResult);
+            foodSource.getPredictedEnergy().put(dc, hostsEnergy);
+        }
+
 
         double result = ((hostsEnergy + coolingFactor * cooling) /
                 (greenEnergy + heatFactor * heat)) - penalty;
 
 
 //        double result = (((hostsEnergy  + coolingFactor * cooling) * Resources.ENERGY_PRICE) /
-//            (greenEnergy * Resources.ENERGY_PRICE + heatFactor * heat * Resources.HEAT_PRICE)) - penalty;
+//            (greenEnergy + heatFactor * heat * Resources.HEAT_PRICE)) - penalty;
 
 //        double result = (((hostsEnergy  + coolingFactor * cooling) * Resources.ENERGY_PRICE) /
 //                (2565000 + heatFactor * heat * Resources.HEAT_PRICE)) - penalty;
@@ -194,8 +212,6 @@ public class Bee {
 //                (greenEnergy + heatFactor * heat * Resources.HEAT_PRICE)) + penalty;
 
 
-        foodSource.setFitness(foodSource.getFitness() + result);
-        foodSource.getPredictedEnergy().put(dc, hostsEnergy);
         return foodSource.getFitness();
     }
 

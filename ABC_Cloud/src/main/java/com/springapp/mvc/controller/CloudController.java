@@ -22,7 +22,15 @@ import java.util.*;
 public class CloudController {
 
 
+    public static final int CONSUMED_ENERGY_VARIATION_SIMULATION = 1;
+    public static final int HEAT_VARIATION_SIMULATION = 2;
+    public static final int HIGH_LATENCY_VARIATION_SIMULATION = 3;
+    public static final int LOW_LATENCY_VARIATION_SIMULATION = 4;
+    public static final int ENERGY_HIGH_COST_VARIATION_SIMULATION = 5;
+    public static final int ENERGY_LOW_COST_VARIATION_SIMULATION = 6;
+    public static int SIMULATION_TYPE;
     private FederationOfDataCenter fed;
+
 
     private static void printCloudletList(List<Cloudlet> list) {
         int size = list.size();
@@ -120,7 +128,7 @@ public class CloudController {
         Map<String, List<Double>> windSpeedMap = new HashMap<String, List<Double>>();
         for (GreenDataCenter dc : fed.getDataCenterList()) {
             List<Double> windValues = new ArrayList<Double>();
-            String fileName = "wind_speed_DataCenter_0.txt";
+            String fileName = "/wind_speed_Datacenter_0.txt";
             InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader br = new BufferedReader(inputStreamReader);
