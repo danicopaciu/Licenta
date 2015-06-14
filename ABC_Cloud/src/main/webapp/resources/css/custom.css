@@ -14,6 +14,7 @@
 
 #form_container{
     padding-left: 0px;
+    padding-top: 30px;
 }
 
 #form_container button{
@@ -182,4 +183,31 @@ tr:nth-of-type(2n){
 
 .index_link h2{
     text-align: center;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+    font-size: 18px;
+}
+
+.about_img{
+    width: 100%;
+    border: 1px solid black;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.about_p{
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.about_caption{
+    text-align: center;
+    font-size: 18px;
+}
+
+.about_container{
+    padding-top: 80px;
+    text-align: justify;
+    font-size: 16px;
 }
