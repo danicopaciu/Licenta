@@ -174,9 +174,9 @@ public class CloudStatistics {
                 if (CloudController.SIMULATION_TYPE == CloudController.CONSUMED_ENERGY_VARIATION_SIMULATION) {
                     double greenEnergy = valueList.get(GreenDataCenter.GREEN_ENERGY);
                     dataCenterResult.add(getMapResult(key, greenEnergy, "GreenEnergy"));
-                    name = "Server Energy";
+                    name = "ServerEnergy";
                 } else if (CloudController.SIMULATION_TYPE == CloudController.HEAT_VARIATION_SIMULATION) {
-                    name = "Server Energy - heat";
+                    name = "ServerEnergy_heat";
                 }
                 dataCenterResult.add(getMapResult(key, serverEnergy, name));
             }
@@ -194,13 +194,13 @@ public class CloudStatistics {
                 String name = null;
                 double greenEnergy = valueList.get(GreenDataCenter.VMS_IN);
                 if (CloudController.SIMULATION_TYPE == CloudController.ENERGY_LOW_COST_VARIATION_SIMULATION) {
-                    name = "VMs in-low price";
+                    name = "VMs_in-low_price";
                 } else if (CloudController.SIMULATION_TYPE == CloudController.ENERGY_HIGH_COST_VARIATION_SIMULATION) {
-                    name = "VMs in-high price";
+                    name = "VMs_in-high_price";
                 } else if (CloudController.SIMULATION_TYPE == CloudController.LOW_LATENCY_VARIATION_SIMULATION) {
-                    name = "Low BW";
+                    name = "Low_BW";
                 } else if (CloudController.SIMULATION_TYPE == CloudController.HIGH_LATENCY_VARIATION_SIMULATION) {
-                    name = "High BW";
+                    name = "High_BW";
                 }
                 dataCenterResult.add(getMapResult(key, greenEnergy, name));
             }

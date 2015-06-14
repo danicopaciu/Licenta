@@ -37,11 +37,11 @@
             <form class="form-signin" action="startSimulation">
                 <div class="form-group">
                     <label for="vmNumber">VM Number</label>
-                    <input type="number" min='1' id="vmNumber" class="form-control" placeholder="VM Number" required name="vmNumber" value="80">
+                    <input type="number" min='1' id="vmNumber" class="form-control" placeholder="VM Number" required name="vmNumber" value="400">
                 </div>
                 <div class="form-group">
                     <label for="hostNumber">Host Number</label>
-                    <input type="number" min='1' id="hostNumber" class="form-control" placeholder="Host Number" required name="hostNumber" value="20">
+                    <input type="number" min='1' id="hostNumber" class="form-control" placeholder="Host Number" required name="hostNumber" value="100">
                 </div>
                 <div class="form-group">
                     <label for="simulationPeriod">Simulation period</label>
@@ -109,7 +109,7 @@
         </div>
         <c:if test="${!empty result}">
             <div class="grafic_container col-lg-12">
-                <h2>Graph Green Energy/Server Energy</h2>
+                <h2>Graphic</h2>
                 <svg id="visualisation" width="100%" height="500"></svg>
             </div>
             <div class="col-lg-12">

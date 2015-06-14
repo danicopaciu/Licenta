@@ -217,7 +217,7 @@ function InitChart(data) {
         .interpolate("basis");
 
 
-    var colors = ["blue", "red", "cyan", "limegreen", "#8B4500"];
+    var colors = ["blue", "red", "limegreen", "cyan", "#8B4500"];
 
     dataGroup.forEach(function(d, i) {
 
