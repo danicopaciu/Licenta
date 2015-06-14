@@ -10,11 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * Created by Daniel on 5/14/2015.
- * Simulation Controller class
- */
 @Controller
 @RequestMapping("/")
 public class SimulationController {
