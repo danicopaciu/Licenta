@@ -173,15 +173,16 @@ function InitChart(data) {
             bottom: 50,
             left: 75
         },
-        xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) {
+
+      xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function (d) {
             return d.time;
         }), d3.max(data, function(d) {
             return d.time;
         })]),
         yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function(d) {
-            return d.energy;
+          return d.val;
         }), d3.max(data, function(d) {
-            return d.energy;
+          return d.val;
         })]),
         xAxis = d3.svg.axis()
             .scale(xScale),
@@ -211,7 +212,7 @@ function InitChart(data) {
             return xScale(d.time);
         })
         .y(function(d) {
-            return yScale(d.energy);
+        return yScale(d.val);
         })
         .interpolate("basis");
 
