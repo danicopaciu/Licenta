@@ -81,9 +81,7 @@
                         </pattern>
                     </defs>
                 </svg>
-                    <%--<filter id = "i1" x = "0%" y = "0%" width = "100%" height = "100%">--%>
-                        <%--<feImage xlink:href = "server.png"/>--%>
-                    <%--</filter>--%>
+
                 <div class="vm_status">
                     <div class="vm_status_area">
                         <span class="glyphicon glyphicon-arrow-up " aria-hidden="true"></span>
@@ -97,6 +95,26 @@
                     <div class="vm_status_area vms_out">
                         <span class="">0</span>
                     </div>
+                </div>
+
+                <div class="wind_icon">
+                    <img src="/resources/wind_icon.png">
+                </div>
+
+                <div class="brown_icon brown_icon1">
+                    <img src="/resources/brown_icon.png">
+                </div>
+
+                <div class="brown_icon brown_icon2">
+                    <img src="/resources/brown_icon.png">
+                </div>
+
+                <div class="brown_icon brown_icon3">
+                    <img src="/resources/brown_icon.png">
+                </div>
+
+                <div class="brown_icon brown_icon4">
+                    <img src="/resources/brown_icon.png">
                 </div>
 
 

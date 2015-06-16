@@ -128,6 +128,43 @@ text.shadow {
     padding-right: 0px;
 }
 
+.wind_icon{
+    position: absolute;
+    left: 450px;
+    top: 160px;
+}
+
+.wind_icon img{
+    width: 60px;
+    height: 60px;
+}
+
+.brown_icon{
+    position: absolute;
+}
+
+.brown_icon img{
+    width: 85px;
+}
+
+.brown_icon1{
+    left: 110px;
+    top: 20px;
+}
+.brown_icon2{
+    left: 750px;
+    top: 20px;
+}
+.brown_icon3{
+    left: 750px;
+    top: 320px;
+}
+.brown_icon4{
+    left: 110px;
+    top: 320px;
+}
+
+
 .vm_status{
     width: 75px;
     height: 75px;

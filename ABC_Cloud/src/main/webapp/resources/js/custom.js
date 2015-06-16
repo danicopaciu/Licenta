@@ -24,34 +24,17 @@ var links = [
     {source: nodes[3], target: nodes[4]},
     {source: nodes[4], target: nodes[1]}]
 
-
-//vis.selectAll(".line")
-//    .data(links)
-//    .enter()
-//    .append("path")
-//    .attr("id", function(d) { return "line_"+d.source.id+d.target.id; })
-//    .attr("x1", function(d) { return d.source.x })
-//    .attr("y1", function(d) { return d.source.y })
-//    .attr("x2", function(d) { return d.target.x })
-//    .attr("y2", function(d) { return d.target.y })
-//    .style("stroke", "rgb(6,120,155)")
-//    .style("stroke-width", 4)
-
-
 var path = vis.selectAll("path")
     .data(links)
     .enter().append("svg:path")
     .attr("class", function(d) { return "link"})
     .attr("id",function(d,i) { return "linkid_" + i; })
-    //.attr("marker-end", function(d) { return "url(#" + d.source.x + ")"; });
 
 path.attr("d", function(d) {
     var dx = d.target.x - d.source.x,
         dy = d.target.y - d.source.y,
         dr = Math.sqrt(dx * dx + dy * dy);  //linknum is defined above
     return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-    //return "M" + 20 + "," + 20 + "A" + dr + "," + dr + " 0 0,1 " + ((d.source.x+ d.target.x)/2) + "," + ((d.source.y+ d.target.y)/2);
-    //return "M" + d.source.x + " " + d.source.y + "Q" + ((d.source.x+ d.target.x)/2 +40) + " " + ((d.source.y+ d.target.y)/2 +40)+ " "  + d.target.x + " " + d.target.y;
 });
 
 
@@ -63,10 +46,7 @@ vis.selectAll("circle.nodes")
     .attr("cy", function(d) { return d.y; })
     .attr("r", 75)
     .attr("id", function(d) { return "dc_"+d.id; })
-//    .attr("fill", "black")
     .attr("fill", "url(#image)")
-    //.style("stroke", "black")     // displays small black dot
-
 
 $( document ).ready(function() {
 
@@ -95,13 +75,6 @@ $( document ).ready(function() {
     $( "#startButton" ).click(function() {
         setTimeout(getTime, 5000);
     });
-
-    //================================= grafic start
-
-
-
-    //=================================grafic end
-
 
     $( "#dc_0" ).click(function() {
         $.ajax({
