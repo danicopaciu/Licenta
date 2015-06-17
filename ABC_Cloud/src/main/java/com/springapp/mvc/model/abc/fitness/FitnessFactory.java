@@ -1,8 +1,5 @@
 package com.springapp.mvc.model.abc.fitness;
 
-/**
- * Created by Daniel on 6/14/2015.
- */
 public class FitnessFactory {
 
     public static FitnessFunction getFitnessFunction(int simType) {

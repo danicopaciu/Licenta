@@ -9,14 +9,9 @@ import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerHost;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Daniel on 3/12/2015.
- * GreenDataCenter
- */
 public class GreenDataCenter extends PowerDatacenter {
 
     public static final int SUPPLIED_TEMPERATURE = 15; //degrees
@@ -44,7 +39,6 @@ public class GreenDataCenter extends PowerDatacenter {
     private double predictedEnergy;
     private double error;
 
-    private Map<Double, List<Double>> statistics;
 
     public GreenDataCenter(String name, DatacenterCharacteristics characteristics,
                            VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList,
@@ -61,7 +55,6 @@ public class GreenDataCenter extends PowerDatacenter {
         this.totalVms = 0;
         MAX_NUMBER_OF_VMS = maxNumberVms;
 
-        statistics = new HashMap<Double, List<Double>>();
     }
 
     public double getGreenEnergyQuantity() {
@@ -71,7 +64,6 @@ public class GreenDataCenter extends PowerDatacenter {
     public void setGreenEnergyQuantity(double greenEnergyQuantity) {
         this.greenEnergyQuantity = greenEnergyQuantity;
     }
-
 
 
     @Override
@@ -84,7 +76,6 @@ public class GreenDataCenter extends PowerDatacenter {
         double currentTime = CloudSim.clock();
 
         if (currentTime > 86400) {
-            System.out.println("Am terminat simularea");
             return;
         }
 
@@ -134,11 +125,6 @@ public class GreenDataCenter extends PowerDatacenter {
                 }
             }
 
-            // schedules an event to the next time
-//            if (minTime != Double.MAX_VALUE) {
-//                CloudSim.cancelAll(getId(), new PredicateType(CloudSimTags.VM_DATACENTER_EVENT));
-//                send(getId(), getSchedulingInterval(), CloudSimTags.VM_DATACENTER_EVENT);
-//            }
 
             CloudSim.cancelAll(getId(), new PredicateType(CloudSimTags.VM_DATACENTER_EVENT));
             send(getId(), getSchedulingInterval(), CloudSimTags.VM_DATACENTER_EVENT);
@@ -273,83 +259,12 @@ public class GreenDataCenter extends PowerDatacenter {
     }
 
 
-    public void putGreenEnergy(Double time, Double greenEnergy) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(GREEN_ENERGY, greenEnergy);
-        }
-    }
-
-    public void putBrownEnergy(Double time, Double brownEnergy) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(BROWN_ENERGY, brownEnergy);
-        }
-    }
-
-    public void putServerEnergy(Double time, Double serverEnergy) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(SERVERS_ENERGY, serverEnergy);
-        }
-    }
-
-    public void putCooling(Double time, Double cooling) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(COOLING, cooling);
-        }
-    }
-
-    public void putHeat(Double time, Double heat) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(HEAT, heat);
-        }
-    }
-
-    public void putTotalVms(Double time, Double totalVms) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(TOTAL_VMS, totalVms);
-        }
-    }
-
-    public void putVmsIn(Double time, Double vmsIn) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(VMS_IN, vmsIn);
-        }
-    }
-
-    public void putVmsOut(Double time, Double vmsOut) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(VMS_OUT, vmsOut);
-        }
-    }
-
-    public void putTotalEnergy(Double time, Double totalEnergy) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(DATACENTER_ENERGY, totalEnergy);
-        }
-    }
-
     public int getTotalVms() {
         return totalVms;
     }
 
     public void setTotalVms(int totalVms) {
         this.totalVms = totalVms;
-    }
-
-    public Map<Double, List<Double>> getStatistics() {
-        return statistics;
-    }
-
-    public void setStatistics(Map<Double, List<Double>> statistics) {
-        this.statistics = statistics;
     }
 
     protected void processVmCreate(SimEvent ev, boolean ack) {
@@ -444,11 +359,4 @@ public class GreenDataCenter extends PowerDatacenter {
         this.error = error;
     }
 
-    public void putOverAllVms(Double time, double overAllVMs) {
-        if (statistics.containsKey(time)) {
-            List<Double> dataList = statistics.get(time);
-            dataList.add(OVERALL_VMS, overAllVMs);
-        }
-
-    }
 }

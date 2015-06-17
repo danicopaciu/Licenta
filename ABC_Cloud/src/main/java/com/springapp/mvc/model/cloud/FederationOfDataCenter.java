@@ -5,7 +5,6 @@ import com.springapp.mvc.controller.Resources;
 import com.springapp.mvc.model.abc.ArtificialBeeColony;
 import com.springapp.mvc.model.abc.FoodSource;
 import com.springapp.mvc.model.abc.Nectar;
-import com.springapp.mvc.model.statistics.Statistics;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
@@ -14,19 +13,12 @@ import org.cloudbus.cloudsim.core.SimEvent;
 
 import java.util.*;
 
-/**
- * Created by Daniel on 3/12/2015.
- * FederationOfDataCenter class implements the cloud infrastructure
- */
 public class FederationOfDataCenter extends SimEntity {
 
     public static final int PERIODIC_EVENT = 67567;
     public static final int DC_NUMBER = 67568;
     public static final int POWER_DATACENTER = 67569;
     public static final int DELAY = 300;
-//    public static final int TIME_STOP = 86100;
-//    public static final int TIME_STOP = 45900;
-//    public static final int TIME_STOP = 12000;
     private static final int V_IN = 3; //starting speed of energy production m/s
     private static final int V_OUT = 25; // finishing speed of energy production m/s
     private static final int PR = 225000; //windmill power w
@@ -36,9 +28,9 @@ public class FederationOfDataCenter extends SimEntity {
     private Map<Integer, Map<String, Double>> migrationResults;
     private CloudStatistics cloudStatistics;
 
-    private List<GreenDataCenter> dataCenterList;
-    private List<GreenHost> hostList;
-    private List<GreenVm> vmList;
+    private List<Datacenter> dataCenterList;
+    private List<Host> hostList;
+    private List<Vm> vmList;
     private List<Cloudlet> cloudletList;
     private Map<String, List<Double>> windSpeedMap;
     private DatacenterBroker broker;
@@ -97,7 +89,6 @@ public class FederationOfDataCenter extends SimEntity {
         if (clock <= simulationPeriod + dataCenterAllocationDelay) {
             computeGreenPower(clock);
             if (clock >= 600 + dataCenterAllocationDelay) {
-                initStatistics(clock);
                 sendNow(getId(), PERIODIC_EVENT, new Object());
             } else {
                 send(getId(), DELAY, POWER_DATACENTER, new Object());
@@ -111,14 +102,13 @@ public class FederationOfDataCenter extends SimEntity {
         boolean generatePeriodicEvent = true; //true if new internal events have to be generated
         if (clock >= simulationPeriod + dataCenterAllocationDelay) {
             generatePeriodicEvent = false;
-            Statistics.printResults(dataCenterList);
         }
         if (generatePeriodicEvent) send(getId(), DELAY, POWER_DATACENTER, new Object());
     }
 
     public double computeDataCenterAllocationDelay() {
         double counter = 0;
-        for (GreenDataCenter dc : getDataCenterList()) {
+        for (Datacenter dc : getDataCenterList()) {
             if (!dc.getVmList().isEmpty()) {
                 counter++;
             }
@@ -129,31 +119,18 @@ public class FederationOfDataCenter extends SimEntity {
 
     public void computeGreenPower(double clock) {
         double energy;
-        for (GreenDataCenter dc : dataCenterList) {
+        for (Datacenter dc : dataCenterList) {
             List<Double> windSpeedList = windSpeedMap.get(dc.getName());
             double windSpeed = windSpeedList.get((int) (clock - dataCenterAllocationDelay) / 300);
             energy = getWindEnergy(windSpeed);
-
-
-            if (dc.getName().equals("DataCenter_0")) {
-                dc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy + 0.1);
-            }else{
-                dc.setGreenEnergyQuantity(0.1);
+            if (dc instanceof GreenDataCenter) {
+                GreenDataCenter greenDc = (GreenDataCenter) dc;
+                if (dc.getName().equals("DataCenter_0")) {
+                    greenDc.setGreenEnergyQuantity(Resources.SCHEDULING_INTERVAL * energy + 0.1);
+                } else {
+                    greenDc.setGreenEnergyQuantity(0.1);
+                }
             }
-        }
-    }
-
-    private void initStatistics(Double currentTime) {
-        for (GreenDataCenter dc : dataCenterList) {
-            List<Double> values = new ArrayList<Double>(Collections.nCopies(9, 0.0));
-            dc.getStatistics().put(currentTime, values);
-            dc.setBrownEnergyQuantity(0);
-            dc.setPower(0);
-            dc.setCoolingEnergy(0);
-            dc.setHeatGained(0);
-            dc.setTotalEnergy(0);
-            dc.setMigratingInVms(0);
-            dc.setMigratingOutVms(0);
         }
     }
 
@@ -172,54 +149,27 @@ public class FederationOfDataCenter extends SimEntity {
     private void runMigrationAlgorithm() {
 
         List<Vm> greenVmList = getGreenVmList();
-        Set<GreenVm> migratingSet = getMigrationVms(greenVmList);
-        List<GreenVm> migratingList = new ArrayList<GreenVm>();
+        Set<Vm> migratingSet = getMigrationVms(greenVmList);
+        List<Vm> migratingList = new ArrayList<Vm>();
         if (migratingSet.size() != 0) {
             migratingList.addAll(migratingSet);
         }
-        List<GreenDataCenter> DCList = getDataCenterList();
-        ArtificialBeeColony abc = new ArtificialBeeColony(DCList, migratingList);
+        ArtificialBeeColony abc = new ArtificialBeeColony(this, migratingList);
         FoodSource result = null;
         System.out.println(CloudSim.clock());
-        if (!migratingList.isEmpty()){
+        if (!migratingList.isEmpty()) {
             result = abc.runAlgorithm();
             scheduleMigrations(result);
-            //Statistics.analizeSolution(dataCenterList, result);
         }
-//        else{
-//            Statistics.analizeSolutionIfEmpty(dataCenterList);
-//        }
         cloudStatistics.setMigratedVms(migratingList.size());
         cloudStatistics.addSolutionResult(CloudSim.clock(), dataCenterList, result);
-        //createSolutionMap();
 
     }
 
-    private void createSolutionMap() {
+    private Set<Vm> getMigrationVms(List<Vm> greenVmList) {
 
-        for (GreenDataCenter dc :dataCenterList){
-
-            List<Double> stat = dc.getStatistics().get(CloudSim.clock());
-
-            Map<String, Double> data = new HashMap<String, Double>();
-            data.put("greenEnergy", stat.get(0));
-            data.put("serverEnergy", stat.get(2));
-            data.put("dcVms", stat.get(8));
-            data.put("overallVms", stat.get(9));
-            data.put("VmsIn", stat.get(6));
-            data.put("VmsOut", stat.get(7));
-            data.put("clock",CloudSim.clock() );
-
-
-            migrationResults.put(dc.getId()-3, data);
-        }
-
-    }
-
-    private Set<GreenVm> getMigrationVms(List<Vm> greenVmList) {
-
-        GreenDataCenter greenDataCenter = dataCenterList.get(0);
-        List<GreenVm> migratingVms = new ArrayList<GreenVm>();
+        GreenDataCenter greenDataCenter = (GreenDataCenter) dataCenterList.get(0);
+        List<Vm> migratingVms = new ArrayList<Vm>();
         int vmNr;
         Random rand = new Random();
         double totalEnergy;
@@ -232,16 +182,12 @@ public class FederationOfDataCenter extends SimEntity {
             for (Vm vm : greenVmList) {
                 GreenDataCenter dc = (GreenDataCenter) vm.getHost().getDatacenter();
                 if (dc.getGreenEnergyQuantity() < 0.5) {
-                    migratingVms.add((GreenVm) vm);
+                    migratingVms.add(vm);
                 }
             }
-//            int low = (int) (migratingVms.size() * 0.25);
-//            int high = (int) (migratingVms.size() * 0.5);
-//            vmNr = rand.nextInt(high - low) + low;
-
             double energyRatio = (greenDataCenter.getTotalEnergy()) / totalEnergy;
             double dc1_vm_nr = greenVmList.size() - migratingVms.size();
-            double ratio_diff =  (1 - energyRatio);
+            double ratio_diff = (1 - energyRatio);
             vmNr = (int) (ratio_diff * dc1_vm_nr / energyRatio);
 
         } else {
@@ -252,13 +198,13 @@ public class FederationOfDataCenter extends SimEntity {
             vmNr = (int) ((1 - energyRatio) * migratingVms.size());
         }
 
-        if (vmNr <=0){
-            vmNr=1;
+        if (vmNr <= 0) {
+            vmNr = 1;
         }
 
-        Set<GreenVm> migratingSet = new HashSet<GreenVm>();
+        Set<Vm> migratingSet = new HashSet<Vm>();
 
-        if (vmNr > migratingVms.size()){
+        if (vmNr > migratingVms.size()) {
             migratingSet.addAll(migratingVms);
 
             return migratingSet;
@@ -266,7 +212,7 @@ public class FederationOfDataCenter extends SimEntity {
 
         while (migratingSet.size() < vmNr) {
             int index = rand.nextInt(migratingVms.size());
-            GreenVm vm = migratingVms.get(index);
+            GreenVm vm = (GreenVm) migratingVms.get(index);
             Host host = vm.getHost();
             if (host != null) {
                 migratingSet.add(vm);
@@ -278,7 +224,7 @@ public class FederationOfDataCenter extends SimEntity {
 
     private List<Vm> getGreenVmList() {
         List<Vm> greenVmList = new ArrayList<Vm>();
-        for (GreenDataCenter dc : dataCenterList) {
+        for (Datacenter dc : dataCenterList) {
             List<GreenHost> greenHosts = dc.getHostList();
             for (GreenHost h : greenHosts) {
                 greenVmList.addAll(h.getVmList());
@@ -308,27 +254,27 @@ public class FederationOfDataCenter extends SimEntity {
         this.broker = broker;
     }
 
-    public List<GreenDataCenter> getDataCenterList() {
+    public List<Datacenter> getDataCenterList() {
         return dataCenterList;
     }
 
-    public void setDataCenterList(List<GreenDataCenter> dataCenterList) {
+    public void setDataCenterList(List<Datacenter> dataCenterList) {
         this.dataCenterList = dataCenterList;
     }
 
-    public List<GreenHost> getHostList() {
+    public List<Host> getHostList() {
         return hostList;
     }
 
-    public void setHostList(List<GreenHost> hostList) {
+    public void setHostList(List<Host> hostList) {
         this.hostList = hostList;
     }
 
-    public List<GreenVm> getVmList() {
+    public List<Vm> getVmList() {
         return vmList;
     }
 
-    public void setVmList(List<GreenVm> vmList) {
+    public void setVmList(List<Vm> vmList) {
         this.vmList = vmList;
     }
 
@@ -401,5 +347,9 @@ public class FederationOfDataCenter extends SimEntity {
             progress = 100;
         }
         return progress;
+    }
+
+    public GreenDataCenter getGreenDatacenter() {
+        return (GreenDataCenter) dataCenterList.get(0);
     }
 }

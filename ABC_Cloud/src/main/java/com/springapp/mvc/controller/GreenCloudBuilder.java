@@ -21,20 +21,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Bogdan
- * Date: 15/03/15
- * Time: 17:30
- * To change this template use File | Settings | File Templates.
- */
 public class GreenCloudBuilder extends CloudBuilder {
 
     public static final String PLANETLAB_20110303 = "planetlab/20110303";
 
     public GreenCloudBuilder(int vmNumber, int hostNumber) {
         this.vmNumber = vmNumber;
-        this.hostNumer = hostNumber;
+        this.hostNumber = hostNumber;
     }
 
     @Override
@@ -43,15 +36,14 @@ public class GreenCloudBuilder extends CloudBuilder {
         return federationOfDataCenters;
     }
 
-    public List<GreenDataCenter> createDataCenter() {
+    public List<Datacenter> createDataCenter() {
 
+        dataCenterList = new ArrayList<Datacenter>();
+        for (int id = 0; id < Resources.DATACENTER_NUMBER; id++) {
 
-        dataCenterList = new ArrayList<GreenDataCenter>();
-        for(int id = 0; id < Resources.DATACENTER_NUMBER; id++) {
-
-            List<GreenHost> thisHostList = new ArrayList<GreenHost>();
-            int index = id * hostNumer;
-            for (int i = index; i < index + hostNumer; i++) {
+            List<Host> thisHostList = new ArrayList<Host>();
+            int index = id * hostNumber;
+            for (int i = index; i < index + hostNumber; i++) {
                 thisHostList.add(hostList.get(i));
             }
 
@@ -73,7 +65,7 @@ public class GreenCloudBuilder extends CloudBuilder {
     }
 
     private GreenDataCenter getGreenDataCenter(int id,
-                                               List<GreenHost> thisHostList, String arch, String os,
+                                               List<Host> thisHostList, String arch, String os,
                                                String vmm, double timeZone, double cost, double costPerMem,
                                                double costPerStorage, double costPerBw,
                                                LinkedList<Storage> storageList) {
@@ -103,7 +95,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         return broker;
     }
 
-    public List<GreenVm> createVMs() {
+    public List<Vm> createVMs() {
 
         int vmType = getVmType();
 
@@ -116,7 +108,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         int priority = 1;
         double scheduleInterval = 300;
 
-        vmList = new ArrayList<GreenVm>();
+        vmList = new ArrayList<Vm>();
         for (int i = 0; i < vmNumber; i++) {
             GreenVm vm = new GreenVm(i, broker.getId(), mips, pesNumber, ram, bw, size, priority,
                     vmm, new CloudletSchedulerDynamicWorkload(mips, pesNumber), scheduleInterval);
@@ -132,9 +124,9 @@ public class GreenCloudBuilder extends CloudBuilder {
     }
 
     @Override
-    public List<GreenHost> createHosts() {
-        hostList = new ArrayList<GreenHost>();
-        for (int i = 0; i < Resources.DATACENTER_NUMBER * hostNumer; i++) {
+    public List<Host> createHosts() {
+        hostList = new ArrayList<Host>();
+        for (int i = 0; i < Resources.DATACENTER_NUMBER * hostNumber; i++) {
             int hostType = i % Constants.HOST_TYPES;
             List<Pe> peList = getPes(hostType);
             GreenHost host = getHost(i, hostType, peList);
@@ -145,13 +137,13 @@ public class GreenCloudBuilder extends CloudBuilder {
 
     private GreenHost getHost(int i, int hostType, List<Pe> peList) {
         return new GreenHost(
-                        i,
-                        new RamProvisionerSimple(Constants.HOST_RAM[hostType]),
+                i,
+                new RamProvisionerSimple(Constants.HOST_RAM[hostType]),
                 new BwProvisionerSimple(Constants.HOST_BW[0]),
-                        Constants.HOST_STORAGE,
-                        peList,
-                        new VmSchedulerTimeSharedOverSubscription(peList),
-                        Constants.HOST_POWER[hostType]);
+                Constants.HOST_STORAGE,
+                peList,
+                new VmSchedulerTimeSharedOverSubscription(peList),
+                Constants.HOST_POWER[hostType]);
     }
 
     private List<Pe> getPes(int hostType) {
@@ -179,7 +171,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         long fileSize = 300;
         long outputSize = 300;
         UtilizationModel utilizationModel = new UtilizationModelStochastic();
-        if(files!= null) {
+        if (files != null) {
             for (int i = 0; i < vmNumber; i++) {
                 Cloudlet cloudlet = null;
                 try {
@@ -202,7 +194,7 @@ public class GreenCloudBuilder extends CloudBuilder {
         }
     }
 
-    public DatacenterBroker bindCloudletsToVM(){
+    public DatacenterBroker bindCloudletsToVM() {
         int size = cloudletList.size();
 
         for (int i = 0; i < size; i++) {
@@ -247,7 +239,7 @@ public class GreenCloudBuilder extends CloudBuilder {
 
 
         String relPath = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-        File targetDir = new File(relPath+"../../target");
+        File targetDir = new File(relPath + "../../target");
 
 
 //        String str = System.getProperty("user.dir");

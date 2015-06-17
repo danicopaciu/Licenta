@@ -7,9 +7,7 @@ import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyAbstract;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Daniel on 3/31/2015.
- */
+
 public class MultipleDataCenterPowerVmAllocationPolicy extends PowerVmAllocationPolicyAbstract {
 
     /**

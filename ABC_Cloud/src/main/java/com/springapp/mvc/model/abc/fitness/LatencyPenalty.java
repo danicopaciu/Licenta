@@ -8,9 +8,6 @@ import org.cloudbus.cloudsim.Vm;
 
 import java.util.List;
 
-/**
- * Created by Daniel on 6/14/2015.
- */
 public class LatencyPenalty implements Penalty {
 
     @Override

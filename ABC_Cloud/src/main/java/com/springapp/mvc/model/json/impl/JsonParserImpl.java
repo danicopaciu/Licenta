@@ -6,9 +6,6 @@ import com.google.gson.JsonObject;
 import com.springapp.mvc.model.json.JsonParser;
 
 
-/**
- * Created by Daniel on 12/13/2014.
- */
 public class JsonParserImpl implements JsonParser {
 
     private Gson gson;

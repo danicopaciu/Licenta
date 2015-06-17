@@ -5,30 +5,17 @@ import com.springapp.mvc.model.cloud.GreenVm;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 
-/**
- * Created by Daniel on 3/14/2015.
- */
 public class Nectar {
 
     private Host host;
 
     private Vm vm;
 
-    private double latency;
-
     public Nectar(Host host, Vm vm) {
         this.host = host;
         this.vm = vm;
-        this.latency = 0;
     }
 
-    public double getLatency() {
-        return latency;
-    }
-
-    public void setLatency(double latency) {
-        this.latency = latency;
-    }
 
     public Host getHost() {
         return host;

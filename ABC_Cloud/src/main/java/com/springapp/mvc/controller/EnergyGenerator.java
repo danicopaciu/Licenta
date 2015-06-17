@@ -9,9 +9,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Daniel on 3/27/2015.
- */
 public class EnergyGenerator {
 
     public static void main(String[] args) {

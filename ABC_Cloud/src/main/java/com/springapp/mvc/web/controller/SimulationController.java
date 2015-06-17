@@ -31,8 +31,6 @@ public class SimulationController {
         int hours = getHours(simPeriod);
         int period = getPeriod(hours);
         cloudController = new CloudController();
-//        startCloudSimulation(vmNumber, hostNumber, period, simType);
-//        cloudController.start(vmNumber, hostNumber, period);
         JsonParser parser = new JsonParserImpl();
         List<Map<String, Object>> graphList = startCloudSimulation(vmNumber, hostNumber, period, simType);
         String json = parser.toJson(graphList);

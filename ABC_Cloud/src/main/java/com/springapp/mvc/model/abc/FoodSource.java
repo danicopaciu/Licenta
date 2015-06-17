@@ -6,10 +6,6 @@ import org.cloudbus.cloudsim.Vm;
 
 import java.util.*;
 
-/**
- * Created by Daniel on 3/14/2015.
- * FoodSource
- */
 public class FoodSource implements Comparable<FoodSource> {
 
     private List<Nectar> nectarList;
@@ -29,10 +25,6 @@ public class FoodSource implements Comparable<FoodSource> {
     private Map<Host, List<Vm>> migrationOutVms;
 
     private Map<GreenDataCenter, Double> predictedEnergy;
-
-    private double energyDc1;
-    private double energyDc2;
-
 
     private Bee employedBee;
 
@@ -61,10 +53,6 @@ public class FoodSource implements Comparable<FoodSource> {
 
     public void setEmployedBee(Bee employedBee) {
         this.employedBee = employedBee;
-    }
-
-    public Bee getOnlookerBee() {
-        return onlookerBee;
     }
 
     public void setOnlookerBee(Bee onlookerBee) {
@@ -105,10 +93,6 @@ public class FoodSource implements Comparable<FoodSource> {
 
     public int getConflictsNumber() {
         return conflictsNumber;
-    }
-
-    public void setConflictsNumber(int conflictsNumber) {
-        this.conflictsNumber = conflictsNumber;
     }
 
     public double getFitnessFactor() {
@@ -188,22 +172,6 @@ public class FoodSource implements Comparable<FoodSource> {
 
     public void setMigrationMap(Map<Host, List<Vm>> migrationMap) {
         this.migrationMap = migrationMap;
-    }
-
-    public double getEnergyDc1() {
-        return energyDc1;
-    }
-
-    public void setEnergyDc1(double energyDc1) {
-        this.energyDc1 = energyDc1;
-    }
-
-    public double getEnergyDc2() {
-        return energyDc2;
-    }
-
-    public void setEnergyDc2(double energyDc2) {
-        this.energyDc2 = energyDc2;
     }
 
     public void addMigrationOutVm(Host host, Vm vm) {

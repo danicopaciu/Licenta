@@ -33,24 +33,25 @@ public class CloudStatistics {
         this.results = new TreeMap<Double, Map<Datacenter, List<Double>>>();
     }
 
-    public void addSolutionResult(Double time, List<GreenDataCenter> datacenters, FoodSource solution) {
+    public void addSolutionResult(Double time, List<Datacenter> datacenters, FoodSource solution) {
         Map<Datacenter, List<Double>> stepResults = new HashMap<Datacenter, List<Double>>();
 
         Map<Datacenter, int[]> result = analyzeSolution(solution, datacenters);
         totalCloudVms = 0;
-        for (GreenDataCenter dc : datacenters) {
+        for (Datacenter dc : datacenters) {
+            GreenDataCenter greenDc = (GreenDataCenter) dc;
             int[] vms = result.get(dc);
             totalCloudVms += getOverallVms(dc);
             addPartialResult(stepResults, dc, GreenDataCenter.VMS_IN, vms[0]);
             addPartialResult(stepResults, dc, GreenDataCenter.VMS_OUT, vms[1]);
-            int totalVms = dc.getTotalVms() - vms[1] + vms[0];
-            dc.setTotalVms(totalVms);
-            addPartialResult(stepResults, dc, GreenDataCenter.TOTAL_VMS, dc.getTotalVms());
-            addPartialResult(stepResults, dc, GreenDataCenter.GREEN_ENERGY, dc.getGreenEnergyQuantity());
-            addPartialResult(stepResults, dc, GreenDataCenter.BROWN_ENERGY, dc.getBrownEnergyQuantity());
-            addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, dc.getPower());
-            addPartialResult(stepResults, dc, GreenDataCenter.HEAT, dc.getHeatGained());
-            addPartialResult(stepResults, dc, GreenDataCenter.COOLING, dc.getCoolingEnergy());
+            int totalVms = greenDc.getTotalVms() - vms[1] + vms[0];
+            greenDc.setTotalVms(totalVms);
+            addPartialResult(stepResults, dc, GreenDataCenter.TOTAL_VMS, greenDc.getTotalVms());
+            addPartialResult(stepResults, dc, GreenDataCenter.GREEN_ENERGY, greenDc.getGreenEnergyQuantity());
+            addPartialResult(stepResults, dc, GreenDataCenter.BROWN_ENERGY, greenDc.getBrownEnergyQuantity());
+            addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, greenDc.getPower());
+            addPartialResult(stepResults, dc, GreenDataCenter.HEAT, greenDc.getHeatGained());
+            addPartialResult(stepResults, dc, GreenDataCenter.COOLING, greenDc.getCoolingEnergy());
         }
         List<Double> dc0List = stepResults.get(datacenters.get(0));
         dc0List.add(8, (double) totalCloudVms);
@@ -58,9 +59,9 @@ public class CloudStatistics {
         results.put(time, stepResults);
     }
 
-    private Map<Datacenter, int[]> analyzeSolution(FoodSource solution, List<GreenDataCenter> datacenters) {
+    private Map<Datacenter, int[]> analyzeSolution(FoodSource solution, List<Datacenter> datacenters) {
         Map<Datacenter, int[]> result = new HashMap<Datacenter, int[]>();
-        for (GreenDataCenter dc : datacenters) {
+        for (Datacenter dc : datacenters) {
             int[] vms = new int[2];
             vms[0] = vms[1] = 0;
             result.put(dc, vms);

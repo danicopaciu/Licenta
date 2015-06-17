@@ -2,9 +2,6 @@ package com.springapp.mvc.model.abc.fitness;
 
 import com.springapp.mvc.controller.CloudController;
 
-/**
- * Created by Daniel on 6/14/2015.
- */
 public class EnergyCostVariationFitnessFunction implements FitnessFunction {
 
     private static final int HEAT_FACTOR = 0;

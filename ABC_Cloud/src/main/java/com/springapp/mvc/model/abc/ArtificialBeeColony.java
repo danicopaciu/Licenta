@@ -1,39 +1,32 @@
 package com.springapp.mvc.model.abc;
 
-import com.springapp.mvc.model.cloud.GreenDataCenter;
-import com.springapp.mvc.model.cloud.GreenHost;
-import com.springapp.mvc.model.cloud.GreenVm;
-import org.cloudbus.cloudsim.Datacenter;
+import com.springapp.mvc.model.abc.initializer.RandomSolutionInitializer;
+import com.springapp.mvc.model.abc.initializer.SolutionInitializer;
+import com.springapp.mvc.model.cloud.FederationOfDataCenter;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
-import org.cloudbus.cloudsim.core.CloudSim;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
-/**
- * Created by Daniel on 3/14/2015.
- * Artificial Bee Colony class implements the algorithm
- */
 public class ArtificialBeeColony {
 
     public static final int TRIALS_LIMIT = 50;
     private final int FOOD_SOURCES_NUMBER;
     private final int DIMENSION;
     private final int ITERATION_LIMIT;
-    private List<GreenDataCenter> dataCenterList;
-    private List<GreenVm> vmList;
+    private List<Vm> vmList;
     private List<FoodSource> foodSourceList;
-    private List<GreenHost> hostList;
-    private FoodSource bestSolution;
+    private FederationOfDataCenter fed;
 
-
-    public ArtificialBeeColony(List<GreenDataCenter> dataCenterList, List<GreenVm> vmList) {
-        this.dataCenterList = dataCenterList;
+    public ArtificialBeeColony(FederationOfDataCenter fed, List<Vm> vmList) {
+        this.fed = fed;
         this.vmList = vmList;
-        hostList = getHostList();
         DIMENSION = vmList.size();
         FOOD_SOURCES_NUMBER = 20;
-        if (vmList.size() > 0 && vmList.get(0).getHost().getDatacenter() != dataCenterList.get(0)) {
+        if (vmList.size() > 0 && vmList.get(0).getHost().getDatacenter() != fed.getDataCenterList().get(0)) {
             ITERATION_LIMIT = vmList.size() * 3;
         } else {
             ITERATION_LIMIT = 0;
@@ -41,27 +34,20 @@ public class ArtificialBeeColony {
     }
 
     public FoodSource runAlgorithm() {
-        double clock = CloudSim.clock();
-        int epoch = 0;
         int counter = 0;
         double prevFitness = 0;
-//        System.out.println("Dimension: " + DIMENSION);
-        long startTime = System.currentTimeMillis();
-        initialize();
+        List<Host> hostList = fed.getHostList();
+        SolutionInitializer solutionInitializer = new RandomSolutionInitializer();
+        foodSourceList = solutionInitializer.getSolutions(vmList, hostList, FOOD_SOURCES_NUMBER);
         computeFitnessFunction();
-//        System.out.println(clock);
         double diff;
-
+        FoodSource bestSolution;
         do {
-//            System.out.println(epoch);
-//            System.out.println(clock + ": P: " + prevFitness);
             sendEmployedBees();
             applyFitness();
             computeProbability();
             sendOnlookerBees();
             bestSolution = getBestSolution();
-
-//            System.out.println(clock + ": A: " + bestSolution.getFitness());
             if (evaluateFitness(bestSolution.getFitness()) == evaluateFitness(prevFitness)) {
                 counter++;
             } else {
@@ -72,22 +58,10 @@ public class ArtificialBeeColony {
                 break;
             }
             sendScoutBees();
-            epoch++;
             diff = Math.abs(1 - bestSolution.getFitness());
         } while (diff >= 0.2);
 
         bestSolution = getBestSolution();
-//        System.out.println("Number of epochs: " + epoch);
-        long finishTime = System.currentTimeMillis();
-//        if ((finishTime - startTime) < 1000) {
-//            try {
-//                CloudSim.pauseSimulation();
-//                Thread.sleep(1000);
-//                CloudSim.resumeSimulation();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
         return bestSolution;
     }
 
@@ -108,53 +82,6 @@ public class ArtificialBeeColony {
         return maxFoodSource;
     }
 
-    /**
-     * initializes the random food sources
-     */
-    private void initialize() {
-        foodSourceList = new ArrayList<FoodSource>();
-        int index = 0;
-        Set<FoodSource> foodSourceSet = new HashSet<FoodSource>();
-        while (index < FOOD_SOURCES_NUMBER) {
-            FoodSource foodSource = getFoodSource();
-            foodSourceSet.add(foodSource);
-//            if (foodSource.getEmployedBee() == null) {
-//                System.out.println();
-//            }
-            index++;
-        }
-        if (foodSourceSet.size() != 0) {
-            foodSourceList.addAll(foodSourceSet);
-        }
-    }
-
-    private FoodSource getFoodSource() {
-        FoodSource foodSource = new FoodSource();
-        for (Vm vm : vmList) {
-            Host host = getRandomHost(vm, foodSource);
-            Nectar nectar = new Nectar(host, vm);
-            foodSource.addNectar(nectar);
-            Bee employedBee = new Bee(foodSource);
-            foodSource.setEmployedBee(employedBee);
-            foodSource.addMigrationOutVm(vm.getHost(), vm);
-        }
-        return foodSource;
-    }
-
-    private GreenHost getRandomHost(Vm vm, FoodSource foodSource) {
-        Random random = new Random();
-        GreenHost host;
-        List<Vm> assignedBeforeVms;
-        do {
-            int selectedHostIndex = random.nextInt(hostList.size());
-            host = hostList.get(selectedHostIndex);
-            assignedBeforeVms = foodSource.getVmListForHost(host);
-        } while (!host.isMigrationPossible(vm, assignedBeforeVms) ||
-                host.getDatacenter() == vm.getHost().getDatacenter());
-
-        return host;
-    }
-
     private void sendEmployedBees() {
         int index = 0;
         for (FoodSource fs : foodSourceList) {
@@ -167,7 +94,7 @@ public class ArtificialBeeColony {
 
             Bee currentBee = fs.getEmployedBee();
             FoodSource neighbourFoodSource = foodSourceList.get(neighbourBeeIndex);
-            currentBee.searchInNeighborhood(neighbourFoodSource, DIMENSION, dataCenterList);
+            currentBee.searchInNeighborhood(neighbourFoodSource, DIMENSION, fed);
             index++;
         }
     }
@@ -176,7 +103,7 @@ public class ArtificialBeeColony {
         for (FoodSource fs : foodSourceList) {
             Bee bee = fs.getEmployedBee();
             try {
-                bee.applyFitnessFunction(dataCenterList);
+                bee.applyFitnessFunction(fed.getGreenDatacenter());
             } catch (Exception e) {
                 System.out.println(bee);
                 e.printStackTrace();
@@ -194,15 +121,12 @@ public class ArtificialBeeColony {
             FoodSource currentFoodSource = foodSourceList.get(i);
             double currentProbability = currentFoodSource.getProbability();
             if (randomDouble < currentProbability) {
-//                for (int j = 0; j < 0.2 * DIMENSION; j++) {
-//
-//                }
                 int neighbourBeeIndex =
                         getRandomNeighbourIndex(FOOD_SOURCES_NUMBER - 1, i);
                 Bee onlookerBee = new Bee(currentFoodSource);
                 currentFoodSource.setOnlookerBee(onlookerBee);
                 FoodSource neighbourFoodSource = foodSourceList.get(neighbourBeeIndex);
-                onlookerBee.searchInNeighborhood(neighbourFoodSource, DIMENSION, dataCenterList);
+                onlookerBee.searchInNeighborhood(neighbourFoodSource, DIMENSION, fed);
                 index++;
             }
             i++;
@@ -218,32 +142,19 @@ public class ArtificialBeeColony {
                 if (foodSource.getProbability() > 0.9) {
                     foodSource.setTrialsNumber(0);
                 } else {
-                    FoodSource newFoodSource = getFoodSource();
+                    RandomSolutionInitializer solutionInitializer = new RandomSolutionInitializer();
+                    FoodSource newFoodSource = solutionInitializer.getFoodSource(vmList, fed.getHostList());
                     foodSource.setNectarList(newFoodSource.getNectarList());
                     foodSource.setMigrationMap(newFoodSource.getMigrationMap());
                     Bee bee = foodSource.getEmployedBee();
-                    bee.applyFitnessFunction(dataCenterList);
+                    bee.applyFitnessFunction(fed.getGreenDatacenter());
                 }
             }
         }
     }
 
     private int getRandomNeighbourIndex(int low, int high) {
-//        return (int) Math.round((high - low) * new Random().nextDouble() + low);
         return new Random().nextInt(FOOD_SOURCES_NUMBER);
-    }
-
-    private List<GreenHost> getHostList() {
-        List<GreenHost> hostList = new ArrayList<GreenHost>();
-        for (Datacenter d : dataCenterList) {
-            List<Host> auxHostList = d.getHostList();
-            for (Host h : auxHostList) {
-                if (h instanceof GreenHost) {
-                    hostList.add((GreenHost) h);
-                }
-            }
-        }
-        return hostList;
     }
 
     private void computeProbability() {

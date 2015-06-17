@@ -11,10 +11,6 @@ import org.cloudbus.cloudsim.provisioners.RamProvisioner;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Daniel on 3/12/2015.
- * GreenHost class implements a host green power aware
- */
 public class GreenHost extends PowerHostUtilizationHistory {
 
 
@@ -25,10 +21,6 @@ public class GreenHost extends PowerHostUtilizationHistory {
                      long storage, List<? extends Pe> peList, VmScheduler vmScheduler, PowerModel powerModel) {
         super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler, powerModel);
         energyHistory = new ArrayList<Double>();
-    }
-
-    public double[] getGreenUtilizationHistory() {
-        return getUtilizationHistory();
     }
 
     public synchronized void addEnergyHistory(Double d) {

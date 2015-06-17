@@ -6,10 +6,6 @@ import org.cloudbus.cloudsim.power.PowerVm;
 
 import java.util.List;
 
-/**
- * Created by Daniel on 3/12/2015.
- * Green Vm
- */
 public class GreenVm extends PowerVm {
 
     public GreenVm(int id, int userId, double mips, int pesNumber, int ram, long bw,
