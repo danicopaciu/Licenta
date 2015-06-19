@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Eficienta Energetica In Retelele De Centre De Date</title>
+    <title>Energy efficiency in data centers</title>
 
 </head>
 <body>
@@ -17,6 +17,7 @@
             <div class="container">
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
+                        <li><a hraf="#">Energy efficiency in data centers</a></li>
                         <li class="active"><c:url value="/" var="home"/><a href="${home}">Home</a></li>
                         <li><c:url value="/simulation" var="simulation"/><a href="${simulation}">Simulation</a></li>
                         <li><c:url value="/about" var="about"/><a href="${about}">About</a></li>
