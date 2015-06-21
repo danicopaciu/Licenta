@@ -144,6 +144,8 @@
                         <th>VMs Migrated In</th>
                         <th>VMs Migrated Out</th>
                         <th>Total VMs in Data Center</th>
+                        <th>Total Cloud VMs</th>
+                        <th>Migrated VMs</th>
                     </tr>
                     <c:forEach var="timeList" items="${result}">
                         <tr>
