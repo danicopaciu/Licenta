@@ -73,7 +73,7 @@ $( document ).ready(function() {
             .render();
 
     $( "#startButton" ).click(function() {
-        setTimeout(getTime, 4000);
+        setTimeout(getTime, 3000);
     });
 
     $( "#dc_0" ).click(function() {

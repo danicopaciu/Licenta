@@ -136,11 +136,11 @@
                 <table class="table">
                     <tr>
                         <th>Time</th>
-                        <th>Green Energy</th>
-                        <th>Brown Energy</th>
-                        <th>Energy consumed by servers</th>
-                        <th>Energy consumed by CRAC</th>
-                        <th>Heat Gained</th>
+                        <th>Green Energy (W*s)</th>
+                        <th>Brown Energy (W*s)</th>
+                        <th>Energy consumed by servers (W*s)</th>
+                        <th>Energy consumed by CRAC (W*s)</th>
+                        <th>Heat Gained (BTU)</th>
                         <th>VMs Migrated In</th>
                         <th>VMs Migrated Out</th>
                         <th>Total VMs in Data Center</th>
