@@ -71,6 +71,15 @@ public class GreenHost extends PowerHostUtilizationHistory {
         return 0;
     }
 
+    public double getLastEnergy() {
+        if (energyHistory != null) {
+            if (!energyHistory.isEmpty()) {
+                return energyHistory.get(energyHistory.size() - 1);
+            }
+        }
+        return 0;
+    }
+
 
     public boolean isMigrationPossible(Vm vm, List<Vm> migratingInVms) {
         if (migratingInVms == null || migratingInVms.isEmpty()) {

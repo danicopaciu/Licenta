@@ -8,6 +8,7 @@ import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -49,7 +50,16 @@ public class CloudStatistics {
             addPartialResult(stepResults, dc, GreenDataCenter.TOTAL_VMS, greenDc.getTotalVms());
             addPartialResult(stepResults, dc, GreenDataCenter.GREEN_ENERGY, greenDc.getGreenEnergyQuantity());
             addPartialResult(stepResults, dc, GreenDataCenter.BROWN_ENERGY, greenDc.getBrownEnergyQuantity());
-            addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, greenDc.getPower());
+
+            Double serverEnergy;
+            if (solution == null || solution.getPredictedEnergy().get(greenDc) == null){
+                serverEnergy = greenDc.getPower();
+            }else{
+                serverEnergy = solution.getPredictedEnergy().get(greenDc);
+            }
+
+//            addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, greenDc.getPower());
+            addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, serverEnergy);
             addPartialResult(stepResults, dc, GreenDataCenter.HEAT, greenDc.getHeatGained());
             addPartialResult(stepResults, dc, GreenDataCenter.COOLING, greenDc.getCoolingEnergy());
         }
@@ -218,8 +228,7 @@ public class CloudStatistics {
     }
 
     private double truncateTwoDecimals(double number) {
-        DecimalFormat df = new DecimalFormat("#.##");
-        return Double.valueOf(df.format(number));
+        return (double) Math.round(number * 100) / 100;
     }
 
     public void writeFile(Map<Double, Map<String, Double>> mapResult) {
@@ -253,8 +262,7 @@ public class CloudStatistics {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-        }
-        if (writer != null) {
+        } finally {
             writer.close();
         }
     }

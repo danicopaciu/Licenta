@@ -20,7 +20,9 @@ public class GreenVm extends PowerVm {
             return 0;
         }
         double hostUtilisedMips = host.getUtilisedMips();
-        double hostEnergyMean = host.getMeanPower();
+//        double hostEnergyMean = host.getMeanPower();
+        double hostEnergyMean = host.getLastEnergy();
+
         if (hostUtilisedMips != 0) {
             return hostEnergyMean * getUtilizationMean() / hostUtilisedMips;
         }
