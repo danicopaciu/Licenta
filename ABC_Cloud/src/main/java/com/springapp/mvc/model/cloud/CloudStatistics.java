@@ -51,6 +51,7 @@ public class CloudStatistics {
             addPartialResult(stepResults, dc, GreenDataCenter.GREEN_ENERGY, greenDc.getGreenEnergyQuantity());
             addPartialResult(stepResults, dc, GreenDataCenter.BROWN_ENERGY, greenDc.getBrownEnergyQuantity());
 
+            //TODO new features
             Double serverEnergy;
             if (solution == null || solution.getPredictedEnergy().get(greenDc) == null){
                 serverEnergy = greenDc.getPower();
@@ -58,8 +59,8 @@ public class CloudStatistics {
                 serverEnergy = solution.getPredictedEnergy().get(greenDc);
             }
 
-//            addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, greenDc.getPower());
             addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, serverEnergy);
+//            addPartialResult(stepResults, dc, GreenDataCenter.SERVERS_ENERGY, greenDc.getPower());
             addPartialResult(stepResults, dc, GreenDataCenter.HEAT, greenDc.getHeatGained());
             addPartialResult(stepResults, dc, GreenDataCenter.COOLING, greenDc.getCoolingEnergy());
         }

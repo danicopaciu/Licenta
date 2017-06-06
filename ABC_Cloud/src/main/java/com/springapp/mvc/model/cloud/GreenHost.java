@@ -1,5 +1,6 @@
 package com.springapp.mvc.model.cloud;
 
+import com.springapp.mvc.model.prediction.EnergyConsumptionRegression;
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmScheduler;
@@ -78,6 +79,10 @@ public class GreenHost extends PowerHostUtilizationHistory {
             }
         }
         return 0;
+    }
+
+    public double getPredictedEnergy(){
+        return EnergyConsumptionRegression.getPredictedEnergy(energyHistory);
     }
 
 
